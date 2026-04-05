@@ -37,6 +37,24 @@ const protectedRoutes: RouteRecordRaw[] = [
         meta: { title: '审批中心' }
       },
       {
+        path: 'approval/detail/:id',
+        name: 'ApprovalDetail',
+        component: () => import('@/views/approval/Detail.vue'),
+        meta: { title: '审批详情' }
+      },
+      {
+        path: 'approval/form',
+        name: 'ApprovalForm',
+        component: () => import('@/views/approval/Form.vue'),
+        meta: { title: '新建审批' }
+      },
+      {
+        path: 'approval/form/:id',
+        name: 'ApprovalFormEdit',
+        component: () => import('@/views/approval/Form.vue'),
+        meta: { title: '编辑审批' }
+      },
+      {
         path: 'reimburse',
         name: 'Reimburse',
         component: () => import('@/views/reimburse/List.vue'),
