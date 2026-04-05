@@ -1,7 +1,7 @@
 # LRuoYi-OA 需求规格说明书
 
 > 项目名称：LRuoYi-OA（基于RuoYi的智能化OA系统）
-> 文档版本：V1.2（新增企业内部聊天功能）
+> 文档版本：V1.3（新增AI大模型分功能配置）
 > 编制日期：2026-04-05
 > 编制人：A1
 > 状态：初稿待确认
@@ -229,16 +229,107 @@
 | 上下文记忆 | 记住当前会话 | 10轮上下文 |
 | 截图提问 | 上传截图提问 | 图片识别 |
 
-#### 2.4.2 AI模型配置
+#### 2.4.2 AI模型配置 ⭐增强
+
+提供统一的AI模型配置界面，支持多能力、多模型、按功能分配：
+
+**AI能力类型**：
+
+| 能力 | 说明 | 模型示例 |
+|------|------|----------|
+| 生文 (Text) | 文字生成/对话/总结 | GPT-4o, Claude-3.5, Kimi, 文心, 智谱 |
+| 生图 (Image) | 图片生成/编辑 | DALL-E 3, Midjourney, Stable Diffusion, 通义万相 |
+| 生视频 (Video) | 视频生成/剪辑 | Sora, Runway Gen-3, 智谱Video, PixVerse |
+| 语音 (Audio) | 语音合成/识别 | ElevenLabs, Azure TTS, 阿里语音 |
+
+**模型配置字段**：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| 模型名称 | 字符串 | 如"GPT-4o" |
+| 能力类型 | 枚举 | 生文/生图/生视频/语音 |
+| 供应商 | 枚举 | OpenAI/Claude/国产 |
+| API Endpoint | URL | 可选，自定义地址 |
+| API Key | 密码 | 加密存储 |
+| 模型参数 | JSON | temperature/max_tokens等 |
+| 费用配额 | 数字 | 月度限额 |
+| 状态 | 枚举 | 启用/禁用/额度不足 |
+
+#### 2.4.3 功能模块AI模型分配 ⭐新增
+
+按业务功能配置不同的AI模型，实现模型最优组合：
+
+**功能模型分配矩阵**：
+
+| 功能模块 | 生文模型 | 生图模型 | 生视频模型 | 语音模型 |
+|----------|----------|----------|------------|----------|
+| AI对话助手 | GPT-4o (默认) | - | - | - |
+| 智能报表 | GPT-4o | DALL-E 3 | - | - |
+| 期刊封面生成 | - | Midjourney | - | - |
+| 宣传视频生成 | GPT-4o | DALL-E 3 | Runway Gen-3 | - |
+| 合同智能审查 | Kimi (长文本) | - | - | - |
+| 会议纪要 | Kimi | - | - | 阿里语音 |
+| 客服机器人 | 智谱GLM | - | - | 阿里语音 |
+| OCR描述生成 | GPT-4o | - | - | - |
+
+**配置界面**：
 
 | 功能点 | 描述 | 验收标准 |
 |--------|------|----------|
-| 模型列表 | 查看可用模型 | 支持多模型 |
-| 新增模型 | 配置API信息 | Key/Endpoint/参数 |
-| 模型测试 | 测试连接可用性 | 返回测试结果 |
-| 设为默认 | 设置默认模型 | 主模型切换 |
-| 删除模型 | 移除模型配置 | 确认+软删除 |
-| 配额管理 | 设置Token限额 | 预警阈值 |
+| 模型分配 | 为功能指定AI模型 | 可按能力类型配置 |
+| 模型切换 | 快速切换模型 | 一键切换 |
+| 模型测试 | 各模型单独测试 | 返回测试结果 |
+| 费用统计 | 各模型使用量/费用 | 看板展示 |
+| 优先级 | 模型调用优先级 | 主备模型 |
+| 降级策略 | 模型不可用时降级 | 自动切换备选 |
+
+#### 2.4.4 AI模型调用接口 ⭐新增
+
+统一AI调用接口，支持多模型动态路由：
+
+```java
+// AI服务统一接口
+public interface AIService {
+    // 生文
+    String generateText(String prompt, String modelType);
+    // 生图
+    String generateImage(String prompt, String modelType);
+    // 生视频
+    String generateVideo(String prompt, String modelType);
+    // 语音合成
+    String synthesizeSpeech(String text, String modelType);
+}
+
+// 模型工厂
+public interface ModelFactory {
+    // 获取指定能力的模型
+    TextModel getTextModel(String modelKey);
+    ImageModel getImageModel(String modelKey);
+    VideoModel getVideoModel(String modelKey);
+    AudioModel getAudioModel(String modelKey);
+}
+
+// 路由策略
+public interface ModelRouter {
+    // 按功能路由到指定模型
+    String route(String function, String capability);
+    // 故障转移
+    String failover(String function, String capability);
+}
+```
+
+**AI模型配置API**：
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| /api/ai/models | GET | 获取模型列表 |
+| /api/ai/models | POST | 添加模型配置 |
+| /api/ai/models/{id} | PUT | 更新模型配置 |
+| /api/ai/models/{id} | DELETE | 删除模型配置 |
+| /api/ai/models/test | POST | 测试模型连接 |
+| /api/ai/assignments | GET | 获取功能模型分配 |
+| /api/ai/assignments | PUT | 更新功能模型分配 |
+| /api/ai/usage | GET | 获取使用量统计 |
 
 ---
 
@@ -521,7 +612,9 @@
 | Expense | 报销 | id, user_id, amount, invoice_ids, trip_ids, status |
 | Approval | 审批记录 | id, expense_id, approver_id, status, comment |
 | Report | 报表 | id, name, type, content, status, publish_date |
-| AIModel | AI模型 | id, name, provider, endpoint, api_key |
+| AIModel | AI模型 | id, name, capability, provider, endpoint, api_key, config_json, status, quota |
+| AIModelAssignment | 模型分配 | id, function_module, capability, model_id, priority, failover_model_id |
+| AIUsageStat | AI使用统计 | id, model_id, user_id, usage_count, token_count, cost, stat_date |
 | FlowTemplate | 流程模板 | id, name, n8n_workflow_id, category |
 | EmailConfig | 邮箱配置 | id, type, server, port, account, encrypted_key |
 | TripPlatform | 打车平台 | id, name, api_config, status |
@@ -543,6 +636,9 @@
 | MessageType | 文字, 图片, 语音, 截图, 文档, 引用 |
 | ConversationType | 单聊, 工作群, 部门群, 项目群 |
 | MessageStatus | 发送中, 已发送, 已读, 撤回 |
+| AICapability | 生文, 生图, 生视频, 语音 |
+| AIProvider | OpenAI, Anthropic, Google, 百度, 阿里, 智谱, 月之暗面 |
+| AIFunctionModule | AI对话, 智能报表, 期刊生成, 视频生成, 合同审查, 会议纪要, 客服机器人 |
 
 ---
 
@@ -605,6 +701,6 @@
 
 ---
 
-*文档版本：V1.2*
-*更新内容：新增2.1.3企业邮箱集成、2.2.2打车行程单对接、2.6增强功能模块、2.7企业内部聊天模块*
+*文档版本：V1.3*
+*更新内容：新增2.4.3功能模块AI模型分配、2.4.4 AI模型调用接口、模型按能力分类（生文/生图/生视频/语音）*
 *文档状态：待确认*
