@@ -90,12 +90,15 @@ AI-OA/
 | **移动端** | 鸿蒙APP (ArkTS) · iOS APP (Swift) · Android APP (Kotlin) |
 | **数据库** | MySQL 8.0 (主备库+读写分离) |
 | **缓存** | Redis Cluster ( Caffeine L1 + Redis L2 ) |
-| **消息队列** | Apache Kafka + RabbitMQ |
+| **消息队列** | RabbitMQ集群（统一队列，简单高效） |
 | **文件存储** | MinIO (S3兼容) |
 | **AI能力** | GPT-4o / Claude 3.5 / Kimi / DALL-E 3 / Sora |
 | **OCR** | PaddleOCR + 阿里云OCR |
 | **工作流** | n8n (可视化流程编辑) |
 | **部署** | Docker + Kubernetes + GitLab CI + ArgoCD |
+
+> 💡 **分支说明**：本分支（rabbitmq-only）主推RabbitMQ单队列方案，简洁高效。
+> 如需Kafka高吞吐场景，请切换至 main 分支。
 
 ---
 

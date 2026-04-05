@@ -69,7 +69,6 @@
 | MinIO | 最新版 | S3兼容存储 |
 | n8n | 1.0+ | 工作流引擎 |
 | Nginx | 1.24+ | 反向代理+静态资源 |
-| Kafka | 3.6+ | 单节点模式 |
 | RabbitMQ | 3.12+ | 消息队列 |
 
 ---
@@ -178,15 +177,12 @@ systemctl start minio
 systemctl enable minio
 ```
 
-### 4.5 Kafka 单节点安装
 
 ```bash
-# 1. 下载Kafka
 wget https://downloads.apache.org/kafka/3.6.0/kafka_2.13-3.6.0.tgz
 tar -xzf kafka_2.13-3.6.0.tgz -C /opt/
 ln -s /opt/kafka_2.13-3.6.0 /opt/kafka
 
-# 2. 配置Kafka
 cat > /opt/kafka/config/server.properties << 'EOF'
 broker.id=0
 listeners=PLAINTEXT://localhost:9092
@@ -198,7 +194,6 @@ EOF
 # 3. 启动Zookeeper
 /opt/kafka/bin/zookeeper-server-start.sh -daemon /opt/kafka/config/zookeeper.properties
 
-# 4. 启动Kafka
 /opt/kafka/bin/kafka-server-start.sh -daemon /opt/kafka/config/server.properties
 ```
 
@@ -495,7 +490,6 @@ systemctl status mysqld redis nginx minio n8n
 | 登录失败 | MySQL连接失败 | 检查MySQL状态和密码 |
 | 文件上传失败 | MinIO异常 | 检查MinIO服务和磁盘空间 |
 | AI无响应 | API配额用尽 | 检查AI服务配置 |
-| 审批卡住 | Kafka异常 | 检查Kafka状态 |
 
 ---
 
