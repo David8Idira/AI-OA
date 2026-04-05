@@ -70,9 +70,11 @@ AI-OA/
 │   ├── 8-移动端-iOS-APP.html      # iOS原生APP
 │   └── 9-移动端-Android-APP.html   # Android原生APP
 ├── deploy/                     # 部署配置
-│   ├── docker/                 # Docker Compose
-│   ├── k8s/                    # Kubernetes
-│   └── helm/                   # Helm Charts
+│   ├── docker/                 # Docker Compose (容器化快速部署)
+│   ├── k8s/                    # Kubernetes (K8s生产部署)
+│   ├── helm/                   # Helm Charts (K8s包管理)
+│   ├── standalone/             # 单体部署 (中小企业，低并发)
+│   └── microservice/            # 非容器化微服务 (传统微服务架构)
 └── docs/                       # 文档资源
     └── AI-OA-需求架构总览.xmind  # 思维导图
 ```
@@ -122,7 +124,7 @@ cd AI-OA
 
 ```bash
 # 需求规格说明书
-cat 需求设计/AI-OA_需求规格说明书_V1.6.md
+cat 需求设计/AI-OA_需求规格说明书_V1.7.md
 
 # 架构设计
 cat 需求设计/AI-OA_完整架构总览_V2.0.md
@@ -138,16 +140,46 @@ open docs/AI-OA-需求架构总览.xmind
 open ui-prototype/1-工作台.html
 ```
 
-### 4. 部署
+### 4. 部署方案选择
+
+AI-OA 提供4种部署方案，适应不同场景：
+
+| 部署方案 | 适用场景 | 并发用户 | 复杂度 |
+|----------|----------|----------|--------|
+| **单体部署** | 中小企业，低并发 | <100 | 简单 |
+| **非容器化微服务** | 中大型企业，高并发 | 100-500 | 中等 |
+| **Docker Compose** | 开发/测试环境 | <200 | 简单 |
+| **Kubernetes** | 大型企业，弹性伸缩 | 1000+ | 复杂 |
+
+#### 4.1 单体部署（推荐中小企业）
 
 ```bash
-# Docker部署
+cd deploy/standalone
+# 按 README.md 步骤执行
+```
+
+#### 4.2 非容器化微服务部署
+
+```bash
+cd deploy/microservice
+# 按 README.md 步骤执行
+```
+
+#### 4.3 Docker部署
+
+```bash
 cd deploy/docker
 docker-compose up -d
+```
 
-# Kubernetes部署
+#### 4.4 Kubernetes部署
+
+```bash
 cd deploy/k8s
 kubectl apply -f .
+# 或使用Helm
+cd deploy/helm
+helm install aioa .
 ```
 
 ---
