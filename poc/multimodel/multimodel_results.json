@@ -1,0 +1,533 @@
+{
+  "poc_name": "multimodel",
+  "timestamp": "2026-04-05T15:40:15.434779",
+  "results": [
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.46831340693618784,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.11379472080271609,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-gpt-4",
+      "from_model": "claude-3.5",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.3528152505890413,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-gpt-4",
+      "from_model": "claude-3.5",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.2871305114815236,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-claud",
+      "from_model": "kimi-pro",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.4404136959427568,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.17968579755556072,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-claud",
+      "from_model": "kimi-pro",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.19819417988794763,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.3480216898455518,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.11896685621214989,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.14231362900454442,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": false,
+      "switch_time": 2.4066571423675143,
+      "passed": false,
+      "score": 0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.4386745906186482,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.28579314925652466,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.4990598600899415,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.47652493876138724,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.14322944725210005,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-gpt-4",
+      "from_model": "claude-3.5",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.449356774326677,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.1674648949596306,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.19550831927950685,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.23459432080750342,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.4193100928159076,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.38687807028609,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.10923464217358721,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-gpt-4",
+      "from_model": "claude-3.5",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.26333536823010095,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.4626285942665114,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.32472973806697913,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.4550321429082763,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-claud",
+      "from_model": "kimi-pro",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.37476007980616355,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.24127513105713858,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.1055687726331247,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-claud",
+      "from_model": "kimi-pro",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.22101697948923557,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.37354927493946166,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.47258718654566234,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.19407425646656493,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.4410555456672468,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.4806546010908137,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.4556104826261339,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.14571954654511796,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-claud",
+      "from_model": "kimi-pro",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.36865017379165277,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.38928634760552916,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-gpt-4",
+      "from_model": "claude-3.5",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.17495002809163912,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-gpt-4",
+      "from_model": "claude-3.5",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.16167778096296478,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-claud",
+      "from_model": "gpt-4o",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.2935880662062441,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-claud",
+      "from_model": "kimi-pro",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.3035899652061631,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.4154419022482514,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-claud",
+      "from_model": "kimi-pro",
+      "to_model": "claude-3.5",
+      "success": true,
+      "switch_time": 0.38179318152780384,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-gpt-4-to-kimi-",
+      "from_model": "gpt-4o",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.3730431163347997,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-kimi-",
+      "from_model": "claude-3.5",
+      "to_model": "kimi-pro",
+      "success": true,
+      "switch_time": 0.12392832719671457,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-kimi--to-gpt-4",
+      "from_model": "kimi-pro",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.13913115255054964,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "模型切换-claud-to-gpt-4",
+      "from_model": "claude-3.5",
+      "to_model": "gpt-4o",
+      "success": true,
+      "switch_time": 0.2798027645631448,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "负载均衡有效性测试",
+      "total_requests": 1000,
+      "distribution": {
+        "gpt-4o": 341,
+        "claude-3.5": 343,
+        "kimi-pro": 316
+      },
+      "ideal_distribution": 333.3333333333333,
+      "balance_score": 0.9631489484546234,
+      "threshold": 0.85,
+      "passed": true,
+      "score": 0.9631489484546234
+    },
+    {
+      "name": "熔断测试-API超时",
+      "scenario": "API超时",
+      "should_break": true,
+      "actually_broke": true,
+      "accurate": true,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "熔断测试-连续失败5次",
+      "scenario": "连续失败5次",
+      "should_break": true,
+      "actually_broke": true,
+      "accurate": true,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "熔断测试-错误率>50%",
+      "scenario": "错误率>50%",
+      "should_break": true,
+      "actually_broke": true,
+      "accurate": true,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "熔断测试-响应时间>10s",
+      "scenario": "响应时间>10s",
+      "should_break": true,
+      "actually_broke": true,
+      "accurate": true,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "熔断测试-正常请求",
+      "scenario": "正常请求",
+      "should_break": false,
+      "actually_broke": false,
+      "accurate": true,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "熔断测试-偶发单次失败",
+      "scenario": "偶发单次失败",
+      "should_break": false,
+      "actually_broke": false,
+      "accurate": true,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "Fallback降级测试",
+      "total_tests": 100,
+      "success_tests": 98,
+      "success_rate": 0.98,
+      "threshold": 0.99,
+      "passed": false,
+      "score": 0.98
+    }
+  ]
+}
