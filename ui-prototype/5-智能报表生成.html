@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-OA - 智能报表</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #333; }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 20px; font-weight: 600; }
+.content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+.page-title { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
+.card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 24px; }
+.card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.report-type { border: 2px solid #f0f0f0; border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.3s; text-align: center; }
+.report-type:hover { border-color: #667eea; background: #f8f9ff; transform: translateY(-4px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15); }
+.report-type .icon { font-size: 48px; margin-bottom: 16px; }
+.report-type .name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.report-type .desc { font-size: 13px; color: #666; line-height: 1.5; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.form-group { margin-bottom: 16px; }
+.form-group.full { grid-column: span 2; }
+.form-label { display: block; font-size: 14px; color: #666; margin-bottom: 8px; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+.form-textarea { min-height: 100px; resize: vertical; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #667eea; }
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 16px; }
+.checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.checkbox-item input { width: 18px; height: 18px; cursor: pointer; }
+.btn { padding: 12px 28px; border-radius: 8px; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+.btn-primary { background: #667eea; color: white; }
+.btn-primary:hover { background: #5a71d6; }
+.btn-secondary { background: #f5f5f5; color: #666; }
+.actions { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+.progress-panel { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 24px; }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.progress-header h3 { font-size: 16px; font-weight: 600; }
+.progress-bar { width: 100%; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.5s ease; }
+.progress-steps { display: flex; justify-content: space-between; }
+.progress-step { text-align: center; flex: 1; position: relative; }
+.progress-step::before { content: ''; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; border-radius: 50%; background: #ddd; }
+.progress-step.done::before { background: #52c41a; }
+.progress-step.active::before { background: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2); }
+.progress-step .label { font-size: 13px; color: #666; margin-top: 8px; }
+.progress-step.done .label { color: #52c41a; }
+.progress-step.active .label { color: #667eea; font-weight: 500; }
+.generated-reports { margin-top: 30px; }
+.report-list { display: flex; flex-direction: column; gap: 12px; }
+.report-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: #f9f9f9; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.report-item:hover { background: #f0f2ff; }
+.report-item .icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.report-item .icon.weekly { background: #e8edff; }
+.report-item .icon.monthly { background: #fff7e6; }
+.report-item .icon.yearly { background: #e6f7e6; }
+.report-item .info { flex: 1; }
+.report-item .name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.report-item .meta { font-size: 12px; color: #999; }
+.report-item .actions { display: flex; gap: 8px; margin: 0; }
+.report-item .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 4px; }
+.report-item .btn-sm.view { background: #667eea; color: white; border: none; cursor: pointer; }
+.report-item .btn-sm.download { background: white; color: #667eea; border: 1px solid #667eea; cursor: pointer; }
+.preview-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.preview-content { background: white; border-radius: 12px; width: 900px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+.preview-header { padding: 16px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.preview-header h3 { font-size: 16px; font-weight: 600; }
+.preview-header .close { cursor: pointer; font-size: 20px; color: #999; }
+.preview-body { flex: 1; overflow-y: auto; padding: 24px; }
+.preview-placeholder { height: 400px; background: #f9f9f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999; }
+.ai-generated-tag { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 AI-OA / 智能报表</h1>
+  <div style="font-size: 14px;">毛瑞竹 ▼</div>
+</div>
+
+<div class="content">
+  <div class="page-title">📊 智能报表生成</div>
+  
+  <div class="card">
+    <div class="card-title">选择报表类型</div>
+    <div class="grid-3">
+      <div class="report-type" onclick="selectReport('weekly')">
+        <div class="icon">📅</div>
+        <div class="name">周报 <span class="ai-generated-tag">🤖 AI生成</span></div>
+        <div class="desc">自动汇总本周工作进展、问题与计划，支持多维度对比分析</div>
+      </div>
+      <div class="report-type" onclick="selectReport('monthly')">
+        <div class="icon">📆</div>
+        <div class="name">月报 <span class="ai-generated-tag">🤖 AI生成</span></div>
+        <div class="desc">月度工作总结与下月规划，自动关联项目数据和 KPI 完成情况</div>
+      </div>
+      <div class="report-type" onclick="selectReport('yearly')">
+        <div class="icon">📈</div>
+        <div class="name">年报 <span class="ai-generated-tag">🤖 AI生成</span></div>
+        <div class="desc">年度经营分析报告，自动生成数据图表和趋势分析</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-title">📝 报表配置</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">报表标题</label>
+        <input type="text" class="form-input" value="2026年4月第1周工作周报" placeholder="请输入报表标题">
+      </div>
+      <div class="form-group">
+        <label class="form-label">报表类型</label>
+        <select class="form-select">
+          <option selected>周报</option>
+          <option>月报</option>
+          <option>年报</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">时间范围</label>
+        <input type="text" class="form-input" value="2026-04-01 ~ 2026-04-05">
+      </div>
+      <div class="form-group">
+        <label class="form-label">生成AI模型</label>
+        <select class="form-select">
+          <option selected>GPT-4o</option>
+          <option>Claude 3.5</option>
+          <option>Kimi Pro</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">报表内容要求</label>
+        <textarea class="form-textarea">请生成本周工作周报，包含：
+1. 本周完成工作总结（关联项目管理系统的任务数据）
+2. 财务支出分析（关联报销系统的支出数据）
+3. 下周工作计划与待协调事项
+4. 如有异常或风险请特别标注</textarea>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">附加内容（可选）</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" checked> 包含数据图表
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" checked> 包含附件链接
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox"> AI生成配图
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" checked> 同步到知识库
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox"> 自动发送邮件
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary">保存模板</button>
+      <button class="btn btn-primary" onclick="generateReport()">🤖 立即生成</button>
+    </div>
+  </div>
+  
+  <div class="progress-panel" id="progress-panel" style="display: none;">
+    <div class="progress-header">
+      <h3>📊 报表生成中...</h3>
+      <span style="color: #667eea; font-size: 14px;">预计 2-3 分钟</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 65%;" id="progress-fill"></div>
+    </div>
+    <div class="progress-steps">
+      <div class="progress-step done">
+        <div class="label">数据采集</div>
+      </div>
+      <div class="progress-step active">
+        <div class="label">AI分析</div>
+      </div>
+      <div class="progress-step">
+        <div class="label">内容生成</div>
+      </div>
+      <div class="progress-step">
+        <div class="label">图表生成</div>
+      </div>
+      <div class="progress-step">
+        <div class="label">完成</div>
+      </div>
+    </div>
+    <div style="margin-top: 16px; font-size: 13px; color: #666;">
+      <p>⏳ 正在分析4月份第一周的工作数据...</p>
+      <p style="margin-top: 4px; color: #999;">• 已采集审批数据 28 条</p>
+      <p style="margin-top: 4px; color: #999;">• 已采集报销数据 12 条</p>
+      <p style="margin-top: 4px; color: #999;">• 已采集项目任务数据 45 条</p>
+    </div>
+  </div>
+  
+  <div class="generated-reports">
+    <div class="card-title">📁 最近生成的报表</div>
+    <div class="report-list">
+      <div class="report-item">
+        <div class="icon weekly">📅</div>
+        <div class="info">
+          <div class="name">2026年3月第4周工作周报 <span class="ai-generated-tag">🤖 AI</span></div>
+          <div class="meta">生成于 2026-03-31 09:15 · 包含5个附件</div>
+        </div>
+        <div class="actions">
+          <button class="btn-sm view">查看</button>
+          <button class="btn-sm download">下载</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="icon monthly">📆</div>
+        <div class="info">
+          <div class="name">2026年3月月度工作报告 <span class="ai-generated-tag">🤖 AI</span></div>
+          <div class="meta">生成于 2026-03-28 14:30 · 包含12个附件 · 已同步知识库</div>
+        </div>
+        <div class="actions">
+          <button class="btn-sm view">查看</button>
+          <button class="btn-sm download">下载</button>
+        </div>
+      </div>
+      <div class="report-item">
+        <div class="icon yearly">📈</div>
+        <div class="info">
+          <div class="name">2026年Q1季度经营分析报告 <span class="ai-generated-tag">🤖 AI</span></div>
+          <div class="meta">生成于 2026-03-25 10:00 · 包含25个图表 · 已发送邮件</div>
+        </div>
+        <div class="actions">
+          <button class="btn-sm view">查看</button>
+          <button class="btn-sm download">下载</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="preview-modal" id="preview-modal" style="display: none;">
+  <div class="preview-content">
+    <div class="preview-header">
+      <h3>📊 报表预览</h3>
+      <span class="close" onclick="closePreview()">×</span>
+    </div>
+    <div class="preview-body">
+      <div class="preview-placeholder">
+        [ 报表内容预览区域 - 实际为PDF/HTML格式 ]
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectReport(type) {
+  document.querySelectorAll('.report-type').forEach(el => {
+    el.style.borderColor = '#f0f0f0';
+    el.style.background = 'white';
+  });
+  event.currentTarget.style.borderColor = '#667eea';
+  event.currentTarget.style.background = '#f8f9ff';
+}
+
+function generateReport() {
+  const panel = document.getElementById('progress-panel');
+  panel.style.display = 'block';
+  
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 5;
+    if (progress > 100) {
+      clearInterval(interval);
+      panel.innerHTML = '<div style="text-align:center;padding:20px;"><p style="font-size:16px;color:#52c41a;margin-bottom:12px;">✅ 报表生成完成！</p><button class="btn btn-primary" onclick="closePreview()">查看报表</button></div>';
+    } else {
+      document.getElementById('progress-fill').style.width = progress + '%';
+    }
+  }, 500);
+}
+
+function closePreview() {
+  document.getElementById('preview-modal').style.display = 'none';
+}
+</script>
+</body>
+</html>
