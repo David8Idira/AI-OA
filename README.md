@@ -63,6 +63,9 @@ LRuoYi-OA/
 ├── 业务分析/           # 业务分析报告
 ├── 需求设计/           # 需求规格说明书
 ├── 项目管理/           # 项目管理计划
+├── deploy/            # 部署配置 ⭐新增
+│   ├── docker/        # Docker配置 + docker-compose
+│   └── k8s/          # Kubernetes YAML配置
 └── docs/              # 其他文档
 ```
 
@@ -102,6 +105,47 @@ LRuoYi-OA/
 | 服务集群 | K8s + 多实例弹性伸缩 |
 | 异步处理 | RocketMQ 消息队列 |
 | 限流熔断 | Sentinel 限流+降级 |
+
+## 容器化微服务架构 ⭐新增
+
+| 特性 | 说明 |
+|------|------|
+| **容器化** | 100% Docker化，多阶段构建优化 |
+| **微服务** | 15+独立服务，独立部署扩缩容 |
+| **横向扩展** | HPA自动扩缩，60s内响应 |
+| **多环境** | dev/test/staging/prod一键部署 |
+| **CI/CD** | GitLab CI + ArgoCD GitOps |
+| **Helm** | 一键部署，values.yaml配置 |
+
+### 部署方式
+
+```bash
+# Docker Compose 本地开发
+docker-compose -f deploy/docker/docker-compose.yml up -d
+
+# Kubernetes 生产部署
+kubectl apply -f deploy/k8s/
+
+# Helm 一键部署
+helm install lruoyi-oa ./deploy/helm -n oa-system -f values-prod.yaml
+```
+
+### 核心配置
+
+- **HPA**: 2-20副本，CPU>70%触发扩容
+- **健康检查**: liveness/readiness/startupProbe
+- **反亲和**: Pod分散到不同节点
+- **资源限制**: requests/limits分离
+
+### 部署配置
+
+| 服务类型 | 最小副本 | 最大副本 | 扩容阈值 |
+|----------|----------|----------|----------|
+| API Gateway | 3 | 20 | CPU 70% |
+| 系统服务 | 3 | 15 | CPU 70%, Memory 80% |
+| AI 服务 | 2 | 10 | CPU 70% |
+| OCR 服务 | 2 | 10 | Queue > 10 |
+| 前端 | 3 | 10 | CPU 70% |
 
 ## 开发计划
 

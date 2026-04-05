@@ -1,0 +1,259 @@
+version: '3.8'
+
+services:
+  # ========== 前端 ==========
+  oa-web:
+    build:
+      context: ../oa-frontend
+      dockerfile: ../deploy/docker/Dockerfile.web
+    container_name: oa-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - oa-api
+    networks:
+      - oa-network
+
+  # ========== 后端 API ==========
+  oa-api:
+    build:
+      context: ../oa-backend
+      dockerfile: ../deploy/docker/Dockerfile.api
+    container_name: oa-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NACOS_SERVER_ADDR=nacos
+      - NACOS_SERVER_PORT=8848
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - oa-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========== AI 服务 ==========
+  oa-ai:
+    build:
+      context: ../oa-services/ai-service
+      dockerfile: ../deploy/docker/Dockerfile.ai
+    container_name: oa-ai
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - oa-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========== OCR 服务 ==========
+  oa-ocr:
+    build:
+      context: ../oa-services/ocr-service
+      dockerfile: ../deploy/docker/Dockerfile.ocr
+    container_name: oa-ocr
+    ports:
+      - "8001:8001"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - oa-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========== n8n 工作流 ==========
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: oa-n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PROTOCOL=http
+      - N8N_PORT=5678
+      - N8N_HOST=localhost
+      - EXECUTIONS_MODE=regular
+      - WEBHOOK_URL=http://n8n:5678/
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - oa-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========== MySQL ==========
+  mysql:
+    image: mysql:8.0
+    container_name: oa-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root123}
+      - MYSQL_DATABASE=oa_system
+      - MYSQL_USER=oa_user
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-oa123456}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    networks:
+      - oa-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========== Redis ==========
+  redis:
+    image: redis:7-alpine
+    container_name: oa-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - oa-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========== MinIO 文件存储 ==========
+  minio:
+    image: minio/minio:latest
+    container_name: oa-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin123}
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - oa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # ========== Nacos 配置中心 ==========
+  nacos:
+    image: nacos/nacos-server:v2.2.3
+    container_name: oa-nacos
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_USER=oa_user
+      - MYSQL_SERVICE_PASSWORD=${MYSQL_PASSWORD:-oa123456}
+    volumes:
+      - nacos-data:/home/nacos/data
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - oa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========== RocketMQ ==========
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.1.0
+    container_name: oa-rocketmq-namesrv
+    ports:
+      - "9876:9876"
+    environment:
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m
+    volumes:
+      - rocketmq-namesrv-data:/home/rocketmq/namesrv
+    command: sh mqnamesrv
+    networks:
+      - oa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9876"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  rocketmq-broker:
+    image: apache/rocketmq:5.1.0
+    container_name: oa-rocketmq-broker
+    ports:
+      - "10911:10911"
+    environment:
+      - JAVA_OPT_EXT=-Xms512m -Xmx512m
+      - NAMESRV_ADDR=rocketmq-namesrv:9876
+    volumes:
+      - rocketmq-broker-data:/home/rocketmq/broker
+    depends_on:
+      - rocketmq-namesrv
+    command: sh mqbroker -n rocketmq-namesrv:9876
+    networks:
+      - oa-network
+
+networks:
+  oa-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
+  n8n-data:
+  minio-data:
+  nacos-data:
+  rocketmq-namesrv-data:
+  rocketmq-broker-data:

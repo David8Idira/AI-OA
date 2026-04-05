@@ -1,0 +1,79 @@
+# deployment-api.yaml - API 微服务
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oa-api-system
+  namespace: oa-system
+  labels:
+    app: oa-api
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: oa-api
+  template:
+    metadata:
+      labels:
+        app: oa-api
+        tier: backend
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - oa-api
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: oa-api
+        image: harbor.example.com/oa/oa-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: MYSQL_HOST
+          value: "mysql-master.oa-system.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: REDIS_HOST
+          value: "redis.oa-system.svc.cluster.local"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: NACOS_SERVER_ADDR
+          value: "nacos.oa-system.svc.cluster.local"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 10
