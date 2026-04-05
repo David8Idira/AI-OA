@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI-OA 鸿蒙APP</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'HarmonyOS Sans SC', sans-serif; background: #f0f2f5; color: #333; max-width: 430px; margin: 0 auto; }
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+.header h1 { font-size: 18px; font-weight: 600; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.status-bar { background: #1a1a2e; color: white; padding: 6px 20px; font-size: 12px; display: flex; justify-content: space-between; }
+.status-left { font-weight: 500; }
+.status-right { display: flex; gap: 4px; align-items: center; }
+.tab-bar { background: white; display: flex; padding: 8px 0; border-top: 1px solid #eee; position: fixed; bottom: 0; width: 100%; max-width: 430px; }
+.tab-item { flex: 1; text-align: center; padding: 8px 0; font-size: 11px; color: #999; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.tab-item.active { color: #667eea; }
+.tab-item .icon { font-size: 22px; }
+.tab-item.active .icon { transform: scale(1.1); }
+.page { padding: 16px; padding-bottom: 80px; }
+.page-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; color: #1a1a1a; }
+.card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.card-title { font-size: 15px; font-weight: 600; }
+.card-more { font-size: 12px; color: #667eea; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center; }
+.stat-item { padding: 12px 0; }
+.stat-value { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+.stat-value.orange { color: #fa8c16; }
+.stat-value.blue { color: #667eea; }
+.stat-value.green { color: #52c41a; }
+.stat-label { font-size: 11px; color: #999; margin-top: 4px; }
+.approval-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+.approval-item:last-child { border-bottom: none; }
+.approval-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.approval-icon.travel { background: #e8edff; }
+.approval-icon.purchase { background: #fff7e6; }
+.approval-icon.invoice { background: #e6f7e6; }
+.approval-info { flex: 1; }
+.approval-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.approval-meta { font-size: 12px; color: #999; }
+.approval-amount { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.approval-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; margin-left: 8px; }
+.approval-status.pending { background: #fff7e6; color: #fa8c16; }
+.approval-status.done { background: #e6f7e6; color: #52c41a; }
+.quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.quick-action { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0; }
+.quick-action .icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.quick-action .icon.blue { background: #e8edff; }
+.quick-action .icon.green { background: #e6f7e6; }
+.quick-action .icon.orange { background: #fff7e6; }
+.quick-action .icon.purple { background: #f3e8ff; }
+.quick-action .label { font-size: 12px; color: #333; }
+.ai-chat-panel { background: white; border-radius: 16px; padding: 16px; margin-top: 16px; }
+.ai-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.ai-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+.ai-info { flex: 1; }
+.ai-name { font-size: 14px; font-weight: 600; }
+.ai-status { font-size: 11px; color: #52c41a; }
+.ai-input-wrapper { display: flex; gap: 8px; }
+.ai-input { flex: 1; padding: 12px 16px; border: 1px solid #eee; border-radius: 24px; font-size: 14px; }
+.ai-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.msg-list { max-height: 200px; overflow-y: auto; }
+.msg-item { margin-bottom: 12px; }
+.msg-bubble { padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+.msg-item.user { text-align: right; }
+.msg-item.user .msg-bubble { background: #667eea; color: white; border-bottom-right-radius: 4px; }
+.msg-item.ai .msg-bubble { background: #f5f5f5; border-bottom-left-radius: 4px; }
+.notif-badge { position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px; background: #ff4d4f; color: white; border-radius: 8px; font-size: 10px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.tab-item { position: relative; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+  <div class="status-left">9:41</div>
+  <div class="status-right">
+    <span>📶</span>
+    <span>🔋</span>
+  </div>
+</div>
+
+<div class="header">
+  <h1>🤖 AI-OA</h1>
+  <div class="header-right">
+    <span>🔔</span>
+    <span>👤</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-title">工作台</div>
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📊 今日概览</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-value orange">12</div>
+        <div class="stat-label">待审批</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value blue">28</div>
+        <div class="stat-label">待处理</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">¥4.5万</div>
+        <div class="stat-label">本月支出</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value green">98%</div>
+        <div class="stat-label">预算剩余</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">⚡ 快捷操作</div>
+    </div>
+    <div class="quick-actions">
+      <div class="quick-action">
+        <div class="icon blue">📤</div>
+        <div class="label">提交报销</div>
+      </div>
+      <div class="quick-action">
+        <div class="icon green">📷</div>
+        <div class="label">拍照识别</div>
+      </div>
+      <div class="quick-action">
+        <div class="icon orange">🤖</div>
+        <div class="label">AI助手</div>
+      </div>
+      <div class="quick-action">
+        <div class="icon purple">📊</div>
+        <div class="label">生成报表</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 待审批</div>
+      <div class="card-more">查看全部 →</div>
+    </div>
+    <div class="approval-item">
+      <div class="approval-icon travel">🚕</div>
+      <div class="approval-info">
+        <div class="approval-title">北京出差报销</div>
+        <div class="approval-meta">张伟 · 提交于 10:30</div>
+      </div>
+      <div>
+        <div class="approval-amount">¥3,580</div>
+        <div class="approval-status pending">待审批</div>
+      </div>
+    </div>
+    <div class="approval-item">
+      <div class="approval-icon purchase">🖥️</div>
+      <div class="approval-info">
+        <div class="approval-title">办公设备采购</div>
+        <div class="approval-meta">李娜 · 提交于 09:45</div>
+      </div>
+      <div>
+        <div class="approval-amount">¥12,500</div>
+        <div class="approval-status pending">待审批</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="ai-chat-panel">
+    <div class="ai-header">
+      <div class="ai-avatar">🤖</div>
+      <div class="ai-info">
+        <div class="ai-name">AI助手</div>
+        <div class="ai-status">● 在线</div>
+      </div>
+    </div>
+    <div class="msg-list">
+      <div class="msg-item user">
+        <div class="msg-bubble">帮我查一下北京华科科技有限公司的合同</div>
+      </div>
+      <div class="msg-item ai">
+        <div class="msg-bubble">已找到该供应商合同：有效期至2027年2月，当前合同有效。👈 <a href="#" style="color:#667eea">查看详情</a></div>
+      </div>
+    </div>
+    <div class="ai-input-wrapper">
+      <input type="text" class="ai-input" placeholder="输入问题...">
+      <button class="ai-btn">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab-item active">
+    <span class="icon">🏠</span>
+    工作台
+  </div>
+  <div class="tab-item">
+    <span class="icon">📋</span>
+    审批
+    <span class="notif-badge">3</span>
+  </div>
+  <div class="tab-item">
+    <span class="icon">💬</span>
+    消息
+  </div>
+  <div class="tab-item">
+    <span class="icon">👤</span>
+    我的
+  </div>
+</div>
+</body>
+</html>

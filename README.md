@@ -65,7 +65,10 @@ AI-OA/
 │   ├── 3-AI助手-知识库问答.html
 │   ├── 4-企业聊天.html
 │   ├── 5-智能报表生成.html
-│   └── 6-系统配置-AI模型.html
+│   ├── 6-系统配置-AI模型.html
+│   ├── 7-移动端-鸿蒙APP.html       # 鸿蒙原生APP
+│   ├── 8-移动端-iOS-APP.html      # iOS原生APP
+│   └── 9-移动端-Android-APP.html   # Android原生APP
 ├── deploy/                     # 部署配置
 │   ├── docker/                 # Docker Compose
 │   ├── k8s/                    # Kubernetes
@@ -82,6 +85,7 @@ AI-OA/
 |------|----------|
 | **后端** | Java 17+ / Spring Boot 3.x / Spring Cloud |
 | **前端** | Vue 3 + Element UI |
+| **移动端** | 鸿蒙APP (ArkTS) · iOS APP (Swift) · Android APP (Kotlin) |
 | **数据库** | MySQL 8.0 (主备库+读写分离) |
 | **缓存** | Redis Cluster ( Caffeine L1 + Redis L2 ) |
 | **消息队列** | Apache Kafka + RabbitMQ |
@@ -159,6 +163,7 @@ kubectl apply -f .
 | F5 | 流程管理中心（n8n可视化编辑） | ✅ 完成 |
 | F6 | 增强功能（低代码/移动端/考勤/合同） | ✅ 完成 |
 | F7 | 企业内部聊天（即时消息） | ✅ 完成 |
+| **移动端** | **鸿蒙APP + iOS APP + Android APP** | ✅ 完成 |
 
 ---
 
