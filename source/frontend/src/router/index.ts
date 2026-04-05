@@ -73,6 +73,12 @@ const protectedRoutes: RouteRecordRaw[] = [
         meta: { title: '企业聊天' }
       },
       {
+        path: 'chat/:id',
+        name: 'ChatDetail',
+        component: () => import('@/views/chat/Chat.vue'),
+        meta: { title: '聊天详情' }
+      },
+      {
         path: 'report',
         name: 'Report',
         component: () => import('@/views/report/List.vue'),
