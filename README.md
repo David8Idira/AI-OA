@@ -212,6 +212,14 @@ cd k8s
 | F7 | 企业内部聊天（即时消息） | ✅ 完成 |
 | **移动端** | **鸿蒙APP + iOS APP + Android APP** | ✅ 完成 |
 
+### 移动端部署包
+
+| 平台 | 包文件 | 大小 | 说明 |
+|------|--------|------|------|
+| 鸿蒙 | `AI-OA-harmonyos-v1.0.tar.gz` | ~2KB | ArkTS + ArkUI |
+| iOS | `AI-OA-ios-v1.0.tar.gz` | ~2KB | Swift + SwiftUI |
+| Android | `AI-OA-android-v1.0.tar.gz` | ~2KB | Kotlin + Jetpack |
+
 ---
 
 ## 👥 团队

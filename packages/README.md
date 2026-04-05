@@ -2,12 +2,22 @@
 
 ## 部署包列表
 
+### 服务器端部署包
+
 | 部署包 | 文件名 | 适用场景 | 服务器数量 |
 |--------|--------|----------|------------|
 | 单体部署 | AI-OA-standalone-v1.0.tar.gz | 中小企业 | 1-2台 |
 | 微服务部署 | AI-OA-microservice-v1.0.tar.gz | 中大型企业 | 8-12台 |
 | Docker部署 | AI-OA-docker-v1.0.tar.gz | 开发/测试 | 2-4台 |
 | Kubernetes部署 | AI-OA-k8s-v1.0.tar.gz | 大型企业 | 15-20+台 |
+
+### 移动端部署包
+
+| 平台 | 文件名 | 技术栈 | 应用市场 |
+|------|--------|--------|----------|
+| 鸿蒙APP | AI-OA-harmonyos-v1.0.tar.gz | ArkTS + ArkUI | 华为应用市场 |
+| iOS APP | AI-OA-ios-v1.0.tar.gz | Swift + SwiftUI | App Store |
+| Android APP | AI-OA-android-v1.0.tar.gz | Kotlin + Jetpack | 应用宝/华为/小米/OPPO/vivo |
 
 ## 选择指南
 
