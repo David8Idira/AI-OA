@@ -1,6 +1,6 @@
-# LRuoYi-OA 项目管理计划
+# AI-OA 项目管理计划
 
-> 项目名称：LRuoYi-OA（基于RuoYi的智能化OA系统）
+> 项目名称：AI-OA（基于RuoYi的智能化OA系统）
 > 文档版本：V1.0
 > 编制日期：2026-04-05
 > 编制人：A1
@@ -89,7 +89,7 @@
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│                          LRuoYi-OA 项目时间线                        │
+│                          AI-OA 项目时间线                        │
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  Week 1-2        Week 3-4        Week 5-14        Week 15-16  Week17 │
@@ -432,11 +432,11 @@
 ### 10.1 仓库结构
 
 ```
-LRuoYi-OA/
-├── LRuoYi-OA-backend/      # 后端服务 (Spring Boot)
-├── LRuoYi-OA-frontend/     # 前端 (Vue3)
-├── LRuoYi-OA-n8n/         # n8n自定义节点/模板
-├── LRuoYi-OA-docs/        # 项目文档
+AI-OA/
+├── AI-OA-backend/      # 后端服务 (Spring Boot)
+├── AI-OA-frontend/     # 前端 (Vue3)
+├── AI-OA-n8n/         # n8n自定义节点/模板
+├── AI-OA-docs/        # 项目文档
 ├── docker/                # Docker配置
 └── README.md              # 项目说明
 ```
@@ -449,7 +449,7 @@ LRuoYi-OA/
 
 | 项目 | 配置 |
 |------|------|
-| 仓库名 | David8Idira/LRuoYi-OA |
+| 仓库名 | David8Idira/AI-OA |
 | License | MIT |
 | README | 中英双语 |
 | Topics | java, vue3, oa, n8n, workflow, ai, ocr |

@@ -1,4 +1,4 @@
-# LRuoYi-OA Kubernetes 部署配置
+# AI-OA Kubernetes 部署配置
 
 ## 目录结构
 

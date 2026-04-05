@@ -1,4 +1,4 @@
-# LRuoYi-OA Docker 配置文件
+# AI-OA Docker 配置文件
 
 ## 目录结构
 

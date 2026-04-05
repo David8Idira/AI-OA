@@ -1,4 +1,4 @@
-# LRuoYi-OA 系统架构图 (Mermaid)
+# AI-OA 系统架构图 (Mermaid)
 
 > 可在 GitHub / Typora / VSCode 等支持 Mermaid 的编辑器中渲染
 

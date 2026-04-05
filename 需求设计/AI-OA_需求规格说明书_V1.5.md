@@ -1,6 +1,6 @@
-# LRuoYi-OA 需求规格说明书
+# AI-OA 需求规格说明书
 
-> 项目名称：LRuoYi-OA（基于RuoYi的智能化OA系统）
+> 项目名称：AI-OA（基于RuoYi的智能化OA系统）
 > 文档版本：V1.5（新增知识库自主学习 + 前端Element UI）
 > 编制日期：2026-04-05
 > 编制人：A1

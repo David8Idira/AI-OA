@@ -1,6 +1,6 @@
-# LRuoYi-OA 容器化微服务架构设计文档
+# AI-OA 容器化微服务架构设计文档
 
-> 项目名称：LRuoYi-OA
+> 项目名称：AI-OA
 > 文档版本：V1.2（消息队列Kafka/RabbitMQ + MinIO文档管理）
 > 编制日期：2026-04-05
 > 状态：生产级架构
@@ -23,7 +23,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                           LRuoYi-OA 容器化微服务架构                                │
+│                           AI-OA 容器化微服务架构                                │
 ├─────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                     │
 │  ┌─────────────────────────────────────────────────────────────────────────────┐   │
@@ -609,7 +609,7 @@ n8n:
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
-# 安装 LRuoYi-OA
+# 安装 AI-OA
 helm install lruoyi-oa ./charts/lruoyi-oa \
   -n oa-system \
   --create-namespace \
@@ -728,7 +728,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/David8Idira/LRuoYi-OA.git
+    repoURL: https://github.com/David8Idira/AI-OA.git
     targetRevision: HEAD
     path: deploy/helm/lruoyi-oa
     helm:
@@ -1007,7 +1007,7 @@ affinity:
 | **集群部署** | Zookeeper/KRaft | 镜像队列 | Kafka更成熟 |
 | **运维复杂度** | 高 | 中 | RabbitMQ更简单 |
 
-### 12.2 LRuoYi-OA 消息队列选型
+### 12.2 AI-OA 消息队列选型
 
 **推荐方案：Kafka + RabbitMQ 双队列架构**
 
