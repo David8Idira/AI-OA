@@ -54,4 +54,8 @@ kubectl apply -f ../k8s/
 | n8n | 5678 | 工作流引擎 |
 | mysql | 3306 | 数据库 |
 | redis | 6379 | 缓存 |
+| kafka | 9092 | Kafka 消息队列 |
+| rabbitmq | 5672/15672 | RabbitMQ 消息队列 |
+| minio | 9000/9001 | 对象存储 |
+| nacos | 8848 | 配置中心 |
 | nginx | 443 | 反向代理 |

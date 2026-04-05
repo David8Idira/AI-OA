@@ -1,7 +1,7 @@
 # LRuoYi-OA 容器化微服务架构设计文档
 
 > 项目名称：LRuoYi-OA
-> 文档版本：V1.1（容器化 + 微服务 + 横向扩展）
+> 文档版本：V1.2（消息队列Kafka/RabbitMQ + MinIO文档管理）
 > 编制日期：2026-04-05
 > 状态：生产级架构
 
@@ -434,16 +434,20 @@ spec:
 │                                   │                                                │
 │                           ┌───────▼───────┐                                        │
 │                           │     MQ        │                                        │
-│                           │ (RocketMQ)    │                                        │
+│                           │ (Kafka/RabbitMQ) │                                    │
 │                           └───────────────┘                                        │
 │                                                                                     │
 │  ┌─────────────────────────────────────────────────────────────────────────────┐   │
 │  │                           服务间通信方式                                     │   │
 │  │                                                                              │   │
 │  │  同步通信: HTTP/REST (Spring Cloud OpenFeign)                               │   │
-│  │  异步通信: RocketMQ (事务消息 / 可靠消息)                                    │   │
+│  │  异步消息: Kafka/RabbitMQ (高并发/可靠消息)                                  │   │
 │  │  服务发现: Nacos (注册中心 + 配置中心)                                       │   │
 │  │  负载均衡: Spring Cloud LoadBalancer (轮询/权重/最小连接)                     │   │
+│  └─────────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                     │
+│  ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│  │                           文件存储: MinIO (分布式对象存储)                     │   │
 │  └─────────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────┘
@@ -963,7 +967,7 @@ affinity:
 | 基础设施 | Prometheus Node Exporter | CPU/内存/磁盘/网络 |
 | 应用 | Prometheus Java Client | JVM/GC/线程池 |
 | K8s | kube-state-metrics | Pod/Deployment/Service |
-| 中间件 | Prometheus Exporters | MySQL/Redis/RocketMQ |
+| 中间件 | Prometheus Exporters | MySQL/Redis/Kafka/RabbitMQ |
 | 日志 | Loki + Promtail | 应用日志聚合 |
 | 链路 | Jaeger | 分布式追踪 |
 | 告警 | AlertManager | 钉钉/企微/邮件 |
@@ -981,5 +985,290 @@ affinity:
 
 ---
 
-*文档版本：V1.1*
-*更新内容：容器化部署 + 微服务架构 + 横向扩展策略*
+*文档版本：V1.2*
+*更新内容：容器化部署 + 微服务架构 + 横向扩展策略 + 消息队列Kafka/RabbitMQ + MinIO文档管理*
+
+---
+
+## 十二、消息队列架构（Kafka/RabbitMQ）
+
+### 12.1 技术选型对比
+
+| 特性 | Apache Kafka | RabbitMQ | 推荐场景 |
+|------|--------------|----------|----------|
+| **吞吐量** | 百万级/秒 | 万级/秒 | 高并发选Kafka |
+| **延迟** | 毫秒级 | 毫秒级 | 相当 |
+| **消息持久化** | 支持 | 支持 | 相当 |
+| **消息回溯** | 支持（按offset） | 不支持 | 日志分析选Kafka |
+| **死信队列** | 支持 | 支持 | 相当 |
+| **延迟消息** | 支持（需插件） | 原生支持 | 定时任务选RabbitMQ |
+| **事务消息** | 支持 | 支持 | 相当 |
+| **优先级队列** | 不支持 | 支持 | 优先级选RabbitMQ |
+| **集群部署** | Zookeeper/KRaft | 镜像队列 | Kafka更成熟 |
+| **运维复杂度** | 高 | 中 | RabbitMQ更简单 |
+
+### 12.2 LRuoYi-OA 消息队列选型
+
+**推荐方案：Kafka + RabbitMQ 双队列架构**
+
+| 场景 | 队列 | 原因 |
+|------|------|------|
+| **高并发消息** | Kafka | 审批事件、聊天消息、报表生成 |
+| **可靠消息** | RabbitMQ | 邮件发送、支付回调、系统通知 |
+| **延迟任务** | RabbitMQ | 定时提醒、过期处理 |
+
+### 12.3 Kafka 配置
+
+```yaml
+# Kafka Producer 配置
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      acks: all
+      retries: 3
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+
+# Kafka Consumer 配置
+    consumer:
+      group-id: lruoyi-oa
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      max-poll-records: 500
+```
+
+### 12.4 RabbitMQ 配置
+
+```yaml
+# RabbitMQ 配置
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: 10
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+```
+
+### 12.5 Topic/Queue 设计
+
+**Kafka Topics**：
+
+| Topic | 分区数 | 用途 | 消费者 |
+|-------|--------|------|--------|
+| workflow-events | 12 | 审批流程事件 | 审批服务、通知服务 |
+| chat-messages | 24 | 聊天消息 | 消息服务、推送服务 |
+| report-tasks | 6 | 报表生成任务 | 报表服务 |
+| ocr-tasks | 8 | OCR识别任务 | OCR服务 |
+
+**RabbitMQ Queues**：
+
+| Queue | 用途 | TTL |
+|-------|------|-----|
+| mail-queue | 邮件发送 | - |
+| notification-queue | 系统通知 | - |
+| delay-reminder-queue | 延迟提醒 | 5min-24h |
+| dead-letter-queue | 死信队列 | 7天 |
+
+### 12.6 消息流程图
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              消息队列架构                                          │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                     │
+│   ┌─────────────┐                                                                  │
+│   │  业务服务   │                                                                  │
+│   └──────┬──────┘                                                                  │
+│          │ Producer                                                                  │
+│          ▼                                                                          │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                        Kafka (高吞吐量)                                     │  │
+│   │   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                 │  │
+│   │   │workflow  │  │  chat    │  │  report  │  │   ocr    │                 │  │
+│   │   │-events   │  │ -messages │  │  -tasks  │  │  -tasks  │                 │  │
+│   │   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘                 │  │
+│   │        │              │              │              │                        │  │
+│   │        ▼              ▼              ▼              ▼                        │  │
+│   │   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                 │  │
+│   │   │消费者组A  │  │消费者组B  │  │消费者组C  │  │消费者组D  │                 │  │
+│   │   └──────────┘  └──────────┘  └──────────┘  └──────────┘                 │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐  │
+│   │                       RabbitMQ (可靠消息)                                    │  │
+│   │   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                 │  │
+│   │   │  mail    │  │   notif  │  │  delay   │  │   DLX    │                 │  │
+│   │   │ -queue   │  │  -queue  │  │  -queue  │  │  (死信)  │                 │  │
+│   │   └────┬─────┘  └────┬─────┘  └────┬─────┘  └──────────┘                 │  │
+│   │        │              │              │                                       │  │
+│   │        ▼              ▼              ▼                                       │  │
+│   │   ┌──────────┐  ┌──────────┐  ┌──────────┐                                │  │
+│   │   │ 邮件服务  │  │ 通知服务  │  │ 延迟队列  │                                │  │
+│   │   └──────────┘  └──────────┘  └──────────┘                                │  │
+│   └─────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 十三、MinIO 文档管理架构
+
+### 13.1 MinIO 选型理由
+
+| 特性 | MinIO | 阿里云OSS | 腾讯COS |
+|------|-------|-----------|---------|
+| **部署方式** | 私有部署 | 云服务 | 云服务 |
+| **S3兼容** | 原生支持 | 支持 | 支持 |
+| **性能** | 高性能 | 高性能 | 高性能 |
+| **运维** | 需自行维护 | 托管 | 托管 |
+| **成本** | 服务器成本 | 按量付费 | 按量付费 |
+| **数据控制** | 完全自有 | 在云厂商 | 在云厂商 |
+| **适用场景** | 私有化部署 | SaaS云服务 | SaaS云服务 |
+
+### 13.2 Bucket 设计
+
+| Bucket | 用途 | 存储类型 | 生命周期 |
+|--------|------|----------|----------|
+| `oa-invoice` | 发票扫描件 | 标准存储 | 永久 |
+| `oa-document` | 合同文档 | 标准存储 | 永久 |
+| `oa-chat` | 聊天文件 | 标准存储 | 30天后删除 |
+| `oa-report` | 报表生成 | 低频存储 | 1年后归档 |
+| `oa-attachment` | 审批附件 | 标准存储 | 永久 |
+| `oa-avatar` | 用户头像 | 标准存储 | 永久 |
+
+### 13.3 文件组织结构
+
+```
+oa-system/
+├── invoice/
+│   ├── {year}/
+│   │   ├── {month}/
+│   │   │   ├── {invoice_id}.pdf
+│   │   │   └── {invoice_id}_thumb.jpg
+├── document/
+│   ├── contract/
+│   │   ├── {contract_id}/
+│   │   │   ├── draft.pdf
+│   │   │   └── final.pdf
+│   └── template/
+│       ├── report_weekly.xlsx
+│       └── report_monthly.xlsx
+├── chat/
+│   ├── {user_id}/
+│   │   ├── image/
+│   │   ├── voice/
+│   │   └── file/
+├── report/
+│   ├── {year}/
+│   │   ├── weekly/
+│   │   ├── monthly/
+│   │   └── annual/
+└── avatar/
+    └── {user_id}.jpg
+```
+
+### 13.4 MinIO 配置
+
+```yaml
+# MinIO Client (mc) 配置
+mc alias set myminio http://minio:9000 minioadmin minioadmin123
+
+# 创建 Bucket
+mc mb myminio/oa-invoice
+mc mb myminio/oa-document
+mc mb myminio/oa-chat
+mc mb myminio/oa-report
+
+# 设置 Bucket Policy (公开只读)
+mc anonymous set download myminio/oa-invoice
+mc anonymous set download myminio/oa-avatar
+
+# 设置 Lifecycle (自动删除/归档)
+mc ilm add --days 30 --delete myminio/oa-chat
+mc ilm add --days 365 --transition-to "cold-storage" myminio/oa-report
+```
+
+### 13.5 Spring Boot MinIO 集成
+
+```java
+// application.yml
+spring:
+  minio:
+    endpoint: http://minio:9000
+    access-key: minioadmin
+    secret-key: minioadmin123
+    bucket:
+      invoice: oa-invoice
+      document: oa-document
+      chat: oa-chat
+      report: oa-report
+      avatar: oa-avatar
+```
+
+### 13.6 文件访问策略
+
+```java
+// Presigned URL (带签名临时访问)
+@GetMapping("/download/{bucket}/{objectName}")
+public String getPresignedUrl(@PathVariable String bucket, @PathVariable String objectName) {
+    return minioClient.getPresignedObjectUrl(
+        GetPresignedObjectUrlArgs.builder()
+            .bucket(bucket)
+            .object(objectName)
+            .expiry(3600) // 1小时
+            .build()
+    );
+}
+
+// 文件上传
+@PostMapping("/upload/{bucket}")
+public String upload(@PathVariable String bucket, @RequestParam("file") MultipartFile file) {
+    String objectName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+    minioClient.putObject(
+        PutObjectArgs.builder()
+            .bucket(bucket)
+            .object(objectName)
+            .stream(file.getInputStream(), file.getSize(), -1)
+            .contentType(file.getContentType())
+            .build()
+    );
+    return objectName;
+}
+```
+
+### 13.7 文档管理功能
+
+| 功能 | 说明 | 实现 |
+|------|------|------|
+| 上传下载 | 文件上传下载 | Presigned URL |
+| 预览 | Office/PDF在线预览 | WOPI协议 |
+| 分享 | 生成分享链接 | Presigned URL + 过期时间 |
+| 版本控制 | 文件版本管理 | MinIO Versioning |
+| 增量备份 | 增量同步到OSS | mc mirror |
+| 权限控制 | Bucket/Object策略 | IAM Policy |
+
+---
+
+*文档版本：V1.2*
+*更新内容：消息队列Kafka/RabbitMQ选型 + MinIO文档管理架构*
+
