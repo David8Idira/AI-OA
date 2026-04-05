@@ -151,35 +151,50 @@ AI-OA 提供4种部署方案，适应不同场景：
 | **Docker Compose** | 开发/测试环境 | <200 | 简单 |
 | **Kubernetes** | 大型企业，弹性伸缩 | 1000+ | 复杂 |
 
+#### 4.0 下载部署包
+
+可直接下载预打包的部署包：
+
+| 部署包 | 文件 | 大小 |
+|--------|------|------|
+| 单体部署 | `AI-OA-standalone-v1.0.tar.gz` | ~7KB |
+| 微服务部署 | `AI-OA-microservice-v1.0.tar.gz` | ~8KB |
+| Docker部署 | `AI-OA-docker-v1.0.tar.gz` | ~7KB |
+| Kubernetes部署 | `AI-OA-k8s-v1.0.tar.gz` | ~7KB |
+
 #### 4.1 单体部署（推荐中小企业）
 
 ```bash
-cd deploy/standalone
-# 按 README.md 步骤执行
+# 解压部署包
+tar -xzvf AI-OA-standalone-v1.0.tar.gz
+cd standalone
+
+# 一键部署
+./scripts/deploy.sh --env prod
 ```
 
 #### 4.2 非容器化微服务部署
 
 ```bash
-cd deploy/microservice
-# 按 README.md 步骤执行
+tar -xzvf AI-OA-microservice-v1.0.tar.gz
+cd microservice
+./scripts/deploy.sh --env prod
 ```
 
 #### 4.3 Docker部署
 
 ```bash
-cd deploy/docker
-docker-compose up -d
+tar -xzvf AI-OA-docker-v1.0.tar.gz
+cd docker
+./scripts/deploy.sh --env prod
 ```
 
 #### 4.4 Kubernetes部署
 
 ```bash
-cd deploy/k8s
-kubectl apply -f .
-# 或使用Helm
-cd deploy/helm
-helm install aioa .
+tar -xzvf AI-OA-k8s-v1.0.tar.gz
+cd k8s
+./scripts/deploy.sh --env prod
 ```
 
 ---
