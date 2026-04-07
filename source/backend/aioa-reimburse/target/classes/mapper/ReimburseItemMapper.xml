@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aioa.reimburse.mapper.ReimburseItemMapper">
+
+    <resultMap id="BaseResultMap" type="com.aioa.reimburse.entity.ReimburseItem">
+        <id column="id" property="id"/>
+        <result column="reimburse_id" property="reimburseId"/>
+        <result column="item_no" property="itemNo"/>
+        <result column="expense_type" property="expenseType"/>
+        <result column="expense_type_name" property="expenseTypeName"/>
+        <result column="description" property="description"/>
+        <result column="expense_date" property="expenseDate"/>
+        <result column="quantity" property="quantity"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="currency" property="currency"/>
+        <result column="tax_included" property="taxIncluded"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="tax_amount" property="taxAmount"/>
+        <result column="invoice_id" property="invoiceId"/>
+        <result column="invoice_no" property="invoiceNo"/>
+        <result column="origin_place" property="originPlace"/>
+        <result column="destination" property="destination"/>
+        <result column="receipt_attached" property="receiptAttached"/>
+        <result column="attachments" property="attachments"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <select id="selectByReimburseId" resultMap="BaseResultMap">
+        SELECT * FROM reimburse_item
+        WHERE deleted = 0 AND reimburse_id = #{reimburseId}
+        ORDER BY item_no ASC
+    </select>
+
+    <select id="selectByInvoiceId" resultMap="BaseResultMap">
+        SELECT * FROM reimburse_item
+        WHERE deleted = 0 AND invoice_id = #{invoiceId}
+        LIMIT 1
+    </select>
+
+    <delete id="deleteByReimburseId">
+        DELETE FROM reimburse_item WHERE reimburse_id = #{reimburseId}
+    </delete>
+
+    <select id="countByReimburseId" resultType="long">
+        SELECT COUNT(*) FROM reimburse_item WHERE deleted = 0 AND reimburse_id = #{reimburseId}
+    </select>
+
+</mapper>

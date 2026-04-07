@@ -1,0 +1,13 @@
+com/aioa/system/dto/RegisterDTO.class
+com/aioa/system/dto/UpdatePasswordDTO.class
+com/aioa/system/entity/SysDepartment.class
+com/aioa/system/dto/LoginDTO.class
+com/aioa/system/mapper/SysUserMapper.class
+com/aioa/system/entity/SysUser.class
+com/aioa/system/controller/SysUserController.class
+com/aioa/system/entity/SysMenu.class
+com/aioa/system/service/impl/SysUserServiceImpl.class
+com/aioa/system/entity/SysRole.class
+com/aioa/system/vo/UserVO.class
+com/aioa/system/service/SysUserService.class
+com/aioa/system/entity/SysUserRole.class

@@ -14,10 +14,12 @@
     <modules>
         <module>aioa-common</module>
         <module>aioa-system</module>
-        <module>aioa-workflow</module>
         <module>aioa-ai</module>
-        <module>aioa-im</module>
         <module>aioa-gateway</module>
+        <module>aioa-workflow</module>
+        <module>aioa-ocr</module>
+        <module>aioa-im</module>
+        <module>aioa-reimburse</module>
     </modules>
 
     <!-- Spring Boot 3.x -->
@@ -91,6 +93,22 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.30</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

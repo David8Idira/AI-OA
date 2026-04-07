@@ -1,0 +1,5 @@
+com/aioa/ocr/client/AliyunOcrClientTest.class
+com/aioa/ocr/enums/InvoiceTypeTest.class
+com/aioa/ocr/controller/OcrControllerTest.class
+com/aioa/ocr/OcrApplicationTestConfig.class
+com/aioa/ocr/OcrApplicationTests.class

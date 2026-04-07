@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aioa.workflow.mapper.ApprovalRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.aioa.workflow.entity.ApprovalRecord">
+        <id column="id" property="id"/>
+        <result column="approval_id" property="approvalId"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="operator_name" property="operatorName"/>
+        <result column="action_type" property="actionType"/>
+        <result column="action_desc" property="actionDesc"/>
+        <result column="comment" property="comment"/>
+        <result column="status_after" property="statusAfter"/>
+        <result column="step" property="step"/>
+        <result column="transfer_to_id" property="transferToId"/>
+        <result column="transfer_to_name" property="transferToName"/>
+        <result column="previous_approver_id" property="previousApproverId"/>
+        <result column="next_approver_id" property="nextApproverId"/>
+        <result column="operator_ip" property="operatorIp"/>
+        <result column="user_agent" property="userAgent"/>
+        <result column="create_time" property="createTime"/>
+        <result column="attachments" property="attachments"/>
+    </resultMap>
+
+    <select id="selectByApprovalIdOrderByCreateTimeAsc" resultMap="BaseResultMap">
+        SELECT * FROM approval_record
+        WHERE approval_id = #{approvalId}
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectByApprovalIdOrderByCreateTimeDesc" resultMap="BaseResultMap">
+        SELECT * FROM approval_record
+        WHERE approval_id = #{approvalId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectLatestByApprovalId" resultMap="BaseResultMap">
+        SELECT * FROM approval_record
+        WHERE approval_id = #{approvalId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectByOperatorId" resultMap="BaseResultMap">
+        SELECT * FROM approval_record
+        WHERE operator_id = #{operatorId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByApprovalIdAndActionType" resultMap="BaseResultMap">
+        SELECT * FROM approval_record
+        WHERE approval_id = #{approvalId} AND action_type = #{actionType}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="countByApprovalId" resultType="long">
+        SELECT COUNT(*) FROM approval_record WHERE approval_id = #{approvalId}
+    </select>
+
+</mapper>

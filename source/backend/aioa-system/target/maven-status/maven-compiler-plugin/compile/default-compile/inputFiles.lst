@@ -1,0 +1,13 @@
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/vo/UserVO.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/entity/SysUser.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/service/SysUserService.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/dto/UpdatePasswordDTO.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/mapper/SysUserMapper.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/dto/RegisterDTO.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/entity/SysDepartment.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/dto/LoginDTO.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/service/impl/SysUserServiceImpl.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/entity/SysMenu.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/entity/SysRole.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/entity/SysUserRole.java
+/root/workspace/AI-OA/source/backend/aioa-system/src/main/java/com/aioa/system/controller/SysUserController.java

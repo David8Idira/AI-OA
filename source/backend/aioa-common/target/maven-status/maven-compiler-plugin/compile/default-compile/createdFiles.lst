@@ -1,0 +1,6 @@
+com/aioa/common/entity/BaseEntity.class
+com/aioa/common/annotation/Login.class
+com/aioa/common/result/ResultCode.class
+com/aioa/common/exception/GlobalExceptionHandler.class
+com/aioa/common/result/Result.class
+com/aioa/common/exception/BusinessException.class
