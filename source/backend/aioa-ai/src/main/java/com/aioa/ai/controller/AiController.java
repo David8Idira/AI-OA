@@ -44,4 +44,12 @@ public class AiController {
     public Result<?> health() {
         return Result.success("AI服务正常");
     }
+    
+    /**
+     * 获取用户配额
+     */
+    @GetMapping("/quota")
+    public Result<?> getQuota(@RequestParam(defaultValue = "default") String userId) {
+        return Result.success(aiChatService.getUserQuota(userId));
+    }
 }

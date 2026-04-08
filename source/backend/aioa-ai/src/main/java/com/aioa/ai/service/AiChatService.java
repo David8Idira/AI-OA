@@ -26,4 +26,9 @@ public interface AiChatService {
             Map.of("code", "claude-3.5", "name", "Claude 3.5", "provider", "Anthropic")
         );
     }
+    
+    /**
+     * 获取用户配额信息
+     */
+    Map<String, Object> getUserQuota(String userId);
 }

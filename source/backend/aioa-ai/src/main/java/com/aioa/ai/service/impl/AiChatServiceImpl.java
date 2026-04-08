@@ -3,9 +3,11 @@ package com.aioa.ai.service.impl;
 import com.aioa.ai.dto.ChatRequestDTO;
 import com.aioa.ai.dto.ChatResponseDTO;
 import com.aioa.ai.service.AiChatService;
+import com.aioa.ai.service.AiQuotaService;
 import com.aioa.common.exception.BusinessException;
 import com.aioa.common.result.ResultCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,6 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Service
 public class AiChatServiceImpl implements AiChatService {
+    
+    @Autowired
+    private AiQuotaService aiQuotaService;
     
     // 模拟的对话历史存储
     private final ConcurrentHashMap<String, List<String>> conversationHistory = new ConcurrentHashMap<>();
@@ -40,6 +45,12 @@ public class AiChatServiceImpl implements AiChatService {
             // 1. 参数校验
             validateRequest(request);
             
+            // 1.5 检查配额
+            String userId = request.getUserId() != null ? request.getUserId() : "default";
+            if (!aiQuotaService.checkQuota(userId, request.getModelCode())) {
+                throw new BusinessException(ResultCode.AI_QUOTA_EXCEEDED, "AI配额已用尽，请明天再试");
+            }
+            
             // 2. 获取模型配置
             String modelCode = request.getModelCode();
             ModelConfig config = MODEL_CONFIGS.get(modelCode);
@@ -58,12 +69,16 @@ public class AiChatServiceImpl implements AiChatService {
             // 5. 保存对话历史
             saveConversation(request.getConversationId(), request.getMessage(), reply);
             
-            // 6. 构建响应
+            // 6. 使用配额
+            int tokens = estimateTokens(reply);
+            aiQuotaService.useQuota(userId, modelCode, tokens);
+            
+            // 7. 构建响应
             ChatResponseDTO response = new ChatResponseDTO();
             response.setConversationId(request.getConversationId());
             response.setReply(reply);
             response.setModelCode(modelCode);
-            response.setTokens(estimateTokens(reply));
+            response.setTokens(tokens);
             response.setTimeUsed(System.currentTimeMillis() - startTime);
             
             return response;
@@ -188,5 +203,10 @@ public class AiChatServiceImpl implements AiChatService {
             this.endpoint = endpoint;
             this.model = model;
         }
+    }
+    
+    @Override
+    public Map<String, Object> getUserQuota(String userId) {
+        return aiQuotaService.getUserQuota(userId);
     }
 }
