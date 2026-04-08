@@ -87,8 +87,8 @@ public class OcrServiceImpl extends ServiceImpl<OcrServiceImpl.InvoiceRecordMapp
             log.info("OCR recognition completed successfully, record ID: {}, confidence: {}",
                     record.getId(), response.getConfidence());
 
-            // 低置信度邮件通知 (置信度<85%)
-            if (response.getConfidence() != null && response.getConfidence() < 0.85) {
+            // 低置信度邮件通知 (置信度<100%)
+            if (response.getConfidence() != null && response.getConfidence() < 1.0) {
                 try {
                     mailService.sendOcrNotice(userId, request.getFileName(), 
                         response.getConfidence() * 100, true);

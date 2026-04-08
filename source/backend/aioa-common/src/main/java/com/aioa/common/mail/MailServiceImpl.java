@@ -115,7 +115,7 @@ public class MailServiceImpl implements MailService {
             "AI-OA系统",
             fileName,
             confidence,
-            confidence >= 85 ? "识别结果可信，可继续审批流程" : "置信度较低，需要人工确认",
+            confidence >= 100 ? "识别结果可信，可继续审批流程" : "置信度较低，需要人工确认",
             needManual ? "请登录系统进行人工确认" : "如有问题，请联系管理员"
         );
         
