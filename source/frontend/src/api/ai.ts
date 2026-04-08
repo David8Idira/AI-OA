@@ -36,3 +36,14 @@ export function health() {
     method: 'GET'
   })
 }
+
+/**
+ * 获取用户配额
+ */
+export function getQuota(userId = 'default') {
+  return request({
+    url: '/api/ai/quota',
+    method: 'GET',
+    params: { userId }
+  })
+}

@@ -87,7 +87,7 @@ const protectedRoutes: RouteRecordRaw[] = [
       {
         path: 'knowledge',
         name: 'Knowledge',
-        component: () => import('@/views/knowledge/List.vue'),
+        component: () => import('@/views/knowledge/Index.vue'),
         meta: { title: '知识库' }
       },
       {
