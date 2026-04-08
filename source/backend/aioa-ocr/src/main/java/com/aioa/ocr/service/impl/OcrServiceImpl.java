@@ -3,6 +3,7 @@ package com.aioa.ocr.service.impl;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.alibaba.fastjson2.JSON;
+import com.aioa.common.mail.MailService;
 import com.aioa.common.exception.BusinessException;
 import com.aioa.common.result.ResultCode;
 import com.aioa.ocr.client.AliyunOcrClient;
@@ -37,6 +38,7 @@ public class OcrServiceImpl extends ServiceImpl<OcrServiceImpl.InvoiceRecordMapp
     private final AliyunOcrClient aliyunOcrClient;
     private final AliyunOcrConfig aliyunOcrConfig;
     private final StringRedisTemplate redisTemplate;
+    private final MailService mailService;
 
     private static final String CACHE_PREFIX = "aioa:ocr:cache:";
     private static final String RECORD_STATUS_PENDING = "pending";
@@ -84,6 +86,17 @@ public class OcrServiceImpl extends ServiceImpl<OcrServiceImpl.InvoiceRecordMapp
 
             log.info("OCR recognition completed successfully, record ID: {}, confidence: {}",
                     record.getId(), response.getConfidence());
+
+            // 低置信度邮件通知 (置信度<85%)
+            if (response.getConfidence() != null && response.getConfidence() < 0.85) {
+                try {
+                    mailService.sendOcrNotice(userId, request.getFileName(), 
+                        response.getConfidence() * 100, true);
+                    log.info("Low confidence OCR notice sent to user: {}", userId);
+                } catch (Exception e) {
+                    log.error("Failed to send OCR notice email", e);
+                }
+            }
 
             return response;
 
