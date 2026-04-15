@@ -1,23 +1,20 @@
 package com.aioa.report.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.aioa.ai.client.MimoApiClient;
-import com.aioa.common.mail.MailService;
 import com.aioa.report.dto.GenerateReportDTO;
-import com.aioa.report.entity.Report;
-import com.aioa.report.enums.ReportStatusEnum;
 import com.aioa.report.enums.ReportTypeEnum;
 import com.aioa.report.service.AiReportGeneratorService;
-import com.aioa.report.service.ReportService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
- * AI报表生成服务实现
+ * AI Report Generator Service Implementation
+ * Uses MimoApiClient to call AI models for report content, chart data, and summary generation.
  */
 @Slf4j
 @Service
@@ -26,22 +23,20 @@ public class AiReportGeneratorServiceImpl implements AiReportGeneratorService {
     @Autowired
     private MimoApiClient mimoApiClient;
     
-    @Autowired
-    private MailService mailService;
-    
-    @Autowired
-    private ReportService reportService;
+    @Value("${aioa.report.ai-model:gpt-4o}")
+    private String defaultAiModel;
     
     @Override
-    public String generateContent(String reportType, Map<String, Object> data) {
+    public String generateReportContent(GenerateReportDTO dto, String templatePrompt, String userId) {
         try {
-            log.info("开始AI生成报表内容，类型: {}", reportType);
+            log.info("开始AI生成报表内容，用户: {}, 标题: {}, 类型: {}", userId, dto.getTitle(), dto.getType());
             
             // 构建Prompt
-            String prompt = buildPrompt(reportType, data);
+            String prompt = buildReportPrompt(dto, templatePrompt);
             
             // 调用AI生成内容
-            String content = mimoApiClient.chat(prompt);
+            String model = dto.getAiModel() != null ? dto.getAiModel() : defaultAiModel;
+            String content = mimoApiClient.chat(prompt, model);
             
             log.info("AI报表生成成功，长度: {}", content.length());
             return content;
@@ -53,17 +48,43 @@ public class AiReportGeneratorServiceImpl implements AiReportGeneratorService {
     }
     
     @Override
-    public String generateSummary(Map<String, Object> data) {
+    public String generateChartData(String chartType, String title, String xField, String yFields, String dataSource, String userId) {
         try {
-            // 构建数据摘要Prompt
-            StringBuilder sb = new StringBuilder();
-            sb.append("请帮我分析以下数据，并生成一份简洁的摘要：\n\n");
+            log.info("开始生成图表数据，类型: {}, 标题: {}", chartType, title);
             
-            data.forEach((key, value) -> {
-                sb.append(String.format("%s: %s\n", key, value));
-            });
+            String prompt = String.format(
+                "请生成一份%s类型的图表数据，标题为'%s'。\n" +
+                "X轴字段: %s\n" +
+                "Y轴字段: %s\n" +
+                "数据源: %s\n\n" +
+                "请以JSON格式返回，包含labels数组和datasets数组，datasets中包含label和data数组。",
+                chartType, title, xField, yFields, dataSource
+            );
             
-            return mimoApiClient.chat(sb.toString());
+            String result = mimoApiClient.chat(prompt, defaultAiModel);
+            log.info("图表数据生成成功");
+            return result;
+            
+        } catch (Exception e) {
+            log.error("图表数据生成失败", e);
+            // 返回默认图表数据
+            return generateDefaultChartData(chartType);
+        }
+    }
+    
+    @Override
+    public String generateSummary(String reportContent, String userId) {
+        try {
+            log.info("开始生成报表摘要");
+            
+            String prompt = String.format(
+                "请为以下报表内容生成一段简洁的摘要（200字以内）：\n\n%s",
+                reportContent.length() > 3000 ? reportContent.substring(0, 3000) + "..." : reportContent
+            );
+            
+            String summary = mimoApiClient.chat(prompt, defaultAiModel);
+            log.info("报表摘要生成成功，长度: {}", summary.length());
+            return summary;
             
         } catch (Exception e) {
             log.error("摘要生成失败", e);
@@ -72,51 +93,61 @@ public class AiReportGeneratorServiceImpl implements AiReportGeneratorService {
     }
     
     @Override
-    public Map<String, Object> generateChartData(String chartType, Map<String, Object> data) {
-        Map<String, Object> result = new HashMap<>();
-        
+    public String callAiModel(String prompt, String model, String userId) {
         try {
-            // 根据图表类型生成对应数据
-            switch (chartType) {
-                case "line":
-                    result.put("type", "line");
-                    result.put("data", generateLineChartData(data));
-                    break;
-                case "bar":
-                    result.put("type", "bar");
-                    result.put("data", generateBarChartData(data));
-                    break;
-                case "pie":
-                    result.put("type", "pie");
-                    result.put("data", generatePieChartData(data));
-                    break;
-                default:
-                    result.put("type", "unknown");
-            }
-            
-            result.put("success", true);
-            return result;
-            
+            log.info("调用AI模型: {}, 用户: {}", model, userId);
+            return mimoApiClient.chat(prompt, model);
         } catch (Exception e) {
-            log.error("图表数据生成失败", e);
-            result.put("success", false);
-            result.put("error", e.getMessage());
-            return result;
+            log.error("AI模型调用失败", e);
+            throw new RuntimeException("AI服务调用失败: " + e.getMessage());
         }
     }
     
     /**
      * 构建报表Prompt
      */
-    private String buildPrompt(String reportType, Map<String, Object> data) {
+    private String buildReportPrompt(GenerateReportDTO dto, String templatePrompt) {
         StringBuilder sb = new StringBuilder();
-        sb.append("请生成一份").append(getReportTypeName(reportType)).append("，包含以下数据：\n\n");
         
-        data.forEach((key, value) -> {
-            sb.append(String.format("- %s: %s\n", key, value));
-        });
+        String reportTypeName = getReportTypeName(dto.getType());
         
-        sb.append("\n请用专业的语言描述，确保数据准确、逻辑清晰。");
+        sb.append("请生成一份").append(reportTypeName);
+        if (dto.getTitle() != null) {
+            sb.append("，标题为'").append(dto.getTitle()).append("'");
+        }
+        sb.append("。\n\n");
+        
+        // 时间范围
+        if (dto.getPeriodStart() != null && dto.getPeriodEnd() != null) {
+            sb.append("时间范围: ").append(dto.getPeriodStart()).append(" 至 ").append(dto.getPeriodEnd()).append("\n");
+        }
+        
+        // 数据源
+        if (dto.getDataSource() != null) {
+            sb.append("数据源: ").append(dto.getDataSource()).append("\n");
+        }
+        
+        // 自定义提示词
+        if (dto.getRemark() != null) {
+            sb.append("补充要求: ").append(dto.getRemark()).append("\n");
+        }
+        
+        // 模板提示词
+        if (templatePrompt != null) {
+            sb.append("\n模板要求:\n").append(templatePrompt).append("\n");
+        }
+        
+        // 图表要求
+        if (dto.getCharts() != null && !dto.getCharts().isEmpty()) {
+            sb.append("\n需要包含以下图表:\n");
+            for (GenerateReportDTO.ChartConfigDTO chart : dto.getCharts()) {
+                sb.append("- ").append(chart.getTitle()).append(" (").append(chart.getChartType()).append(")\n");
+            }
+        }
+        
+        sb.append("\n请用专业的语言描述，确保数据准确、逻辑清晰、结构完整。");
+        sb.append("返回JSON格式，包含title、sections数组（每个section包含heading和content）、和summary字段。");
+        
         return sb.toString();
     }
     
@@ -124,7 +155,11 @@ public class AiReportGeneratorServiceImpl implements AiReportGeneratorService {
      * 获取报表类型名称
      */
     private String getReportTypeName(String type) {
-        return switch (type) {
+        ReportTypeEnum typeEnum = ReportTypeEnum.fromCode(type);
+        if (typeEnum != null) {
+            return typeEnum.getDescription();
+        }
+        return switch (type != null ? type.toLowerCase() : "") {
             case "weekly" -> "周报";
             case "monthly" -> "月报";
             case "quarterly" -> "季报";
@@ -134,79 +169,30 @@ public class AiReportGeneratorServiceImpl implements AiReportGeneratorService {
     }
     
     /**
-     * 生成折线图数据
+     * 生成默认图表数据（AI调用失败时的fallback）
      */
-    private Map<String, Object> generateLineChartData(Map<String, Object> data) {
-        Map<String, Object> chart = new HashMap<>();
-        List<String> labels = Arrays.asList("周一", "周二", "周三", "周四", "周五");
-        List<Integer> values = Arrays.asList(120, 135, 128, 142, 139);
+    private String generateDefaultChartData(String chartType) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("type", chartType);
         
-        chart.put("labels", labels);
-        chart.put("datasets", List.of(Map.of("label", "数据", "data", values)));
-        return chart;
-    }
-    
-    /**
-     * 生成柱状图数据
-     */
-    private Map<String, Object> generateBarChartData(Map<String, Object> data) {
-        Map<String, Object> chart = new HashMap<>();
-        List<String> labels = Arrays.asList("部门A", "部门B", "部门C", "部门D");
-        List<Integer> values = Arrays.asList(5000, 4200, 3800, 4500);
-        
-        chart.put("labels", labels);
-        chart.put("datasets", List.of(Map.of("label", "金额", "data", values)));
-        return chart;
-    }
-    
-    /**
-     * 生成饼图数据
-     */
-    private Map<String, Object> generatePieChartData(Map<String, Object> data) {
-        Map<String, Object> chart = new HashMap<>();
-        List<String> labels = Arrays.asList("已完成", "进行中", "待处理");
-        List<Integer> values = Arrays.asList(65, 25, 10);
-        
-        chart.put("labels", labels);
-        chart.put("datasets", List.of(Map.of("data", values)));
-        return chart;
-    }
-    
-    @Override
-    public void sendReportEmail(String reportId, String recipient) {
-        try {
-            Report report = reportService.getReportDetail(reportId, "system");
-            if (report == null) {
-                throw new RuntimeException("报表不存在");
-            }
-            
-            String subject = "【" + getReportTypeName(report.getType()) + "】" + report.getTitle();
-            String content = buildReportHtml(report);
-            
-            mailService.sendHtmlMail(recipient, subject, content);
-            log.info("报表邮件发送成功: {} -> {}", reportId, recipient);
-            
-        } catch (Exception e) {
-            log.error("报表邮件发送失败", e);
-            throw new RuntimeException("邮件发送失败: " + e.getMessage());
+        switch (chartType.toLowerCase()) {
+            case "line":
+                result.put("labels", Arrays.asList("一月", "二月", "三月", "四月", "五月"));
+                result.put("datasets", List.of(Map.of("label", "趋势", "data", Arrays.asList(120, 135, 128, 142, 139))));
+                break;
+            case "bar":
+                result.put("labels", Arrays.asList("部门A", "部门B", "部门C", "部门D"));
+                result.put("datasets", List.of(Map.of("label", "金额", "data", Arrays.asList(5000, 4200, 3800, 4500))));
+                break;
+            case "pie":
+                result.put("labels", Arrays.asList("已完成", "进行中", "待处理"));
+                result.put("datasets", List.of(Map.of("data", Arrays.asList(65, 25, 10))));
+                break;
+            default:
+                result.put("labels", Collections.emptyList());
+                result.put("datasets", Collections.emptyList());
         }
-    }
-    
-    /**
-     * 构建报表HTML
-     */
-    private String buildReportHtml(Report report) {
-        return String.format(
-            "<html><body>" +
-            "<h2>%s</h2>" +
-            "<p>类型：%s</p>" +
-            "<p>生成时间：%s</p>" +
-            "<div>%s</div>" +
-            "</body></html>",
-            report.getTitle(),
-            report.getType(),
-            report.getCreatedTime(),
-            report.getContent()
-        );
+        
+        return JSONUtil.toJsonStr(result);
     }
 }

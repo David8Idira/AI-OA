@@ -64,6 +64,13 @@ public class Result<T> implements Serializable {
         return result;
     }
 
+    /**
+     * Alias for error - represents a failed response
+     */
+    public static <T> Result<T> fail(String message) {
+        return error(message);
+    }
+
     public boolean isSuccess() {
         return code != null && code.equals(ResultCode.SUCCESS.getCode());
     }

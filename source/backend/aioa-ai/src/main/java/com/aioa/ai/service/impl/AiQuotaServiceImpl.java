@@ -20,7 +20,7 @@ public class AiQuotaServiceImpl implements AiQuotaService {
     
     // 默认配额配置
     private static final int DEFAULT_DAILY_TOKENS = 100000; // 每日10万Token
-    private static final int WARNING_THRESHOLD = 0.8; // 预警阈值80%
+    private static final double WARNING_THRESHOLD = 0.8; // 预警阈值80%
     
     public AiQuotaServiceImpl() {
         // 初始化默认用户配额

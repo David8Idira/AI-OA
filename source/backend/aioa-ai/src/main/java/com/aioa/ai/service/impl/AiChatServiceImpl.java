@@ -27,7 +27,7 @@ public class AiChatServiceImpl implements AiChatService {
     private AiQuotaService aiQuotaService;
     
     // 模拟的对话历史存储
-    private final ConcurrentHashMap<String, List<String>> conversationHistory = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, List<Map<String, String>>> conversationHistory = new ConcurrentHashMap<>();
     
     // 模型配置 - 生产环境应从数据库读取
     private static final Map<String, ModelConfig> MODEL_CONFIGS = new HashMap<>();
@@ -46,9 +46,9 @@ public class AiChatServiceImpl implements AiChatService {
             validateRequest(request);
             
             // 1.5 检查配额
-            String userId = request.getUserId() != null ? request.getUserId() : "default";
+            String userId = "default";
             if (!aiQuotaService.checkQuota(userId, request.getModelCode())) {
-                throw new BusinessException(ResultCode.AI_QUOTA_EXCEEDED, "AI配额已用尽，请明天再试");
+                throw new BusinessException(ResultCode.AI_MODEL_QUOTA_EXCEEDED, "AI配额已用尽，请明天再试");
             }
             
             // 2. 获取模型配置
@@ -164,7 +164,7 @@ public class AiChatServiceImpl implements AiChatService {
     private void saveConversation(String conversationId, String userMessage, String aiMessage) {
         if (conversationId == null) return;
         
-        List<String>> history = conversationHistory.computeIfAbsent(conversationId, k -> new java.util.ArrayList<>());
+        List<Map<String, String>> history = conversationHistory.computeIfAbsent(conversationId, k -> new java.util.ArrayList<>());
         
         Map<String, String> userMsg = new HashMap<>();
         userMsg.put("role", "user");

@@ -30,7 +30,7 @@ public interface KnowledgeService {
      * @param doc 文档
      * @return ID
      */
-    Long createDoc(KnowledgeDoc doc);
+    String createDoc(KnowledgeDoc doc);
     
     /**
      * 更新文档

@@ -87,12 +87,12 @@ public class ReimburseController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete reimbursement", description = "Delete a reimbursement (only draft or pending, only by applicant)")
     @Login
-    public Result<Void> deleteReimburse(
+    public Result<Boolean> deleteReimburse(
             @Parameter(description = "Reimbursement ID") @PathVariable("id") String reimburseId,
             @RequestAttribute("userId") String userId) {
         log.info("Delete reimburse: reimburseId={}, userId={}", reimburseId, userId);
         boolean success = reimburseService.deleteReimburse(reimburseId, userId);
-        return success ? Result.success("报销已删除") : Result.error();
+        return success ? Result.success("报销已删除", true) : Result.error("删除失败");
     }
 
     /**
@@ -208,14 +208,14 @@ public class ReimburseController {
     @PostMapping("/invoices/{invoiceId}/verify")
     @Operation(summary = "Verify invoice", description = "Mark an invoice as verified or rejected")
     @Login
-    public Result<Void> verifyInvoice(
+    public Result<Boolean> verifyInvoice(
             @Parameter(description = "Invoice ID") @PathVariable("invoiceId") String invoiceId,
             @RequestAttribute("userId") String userId,
             @Parameter(description = "Verified: 0-No, 1-Yes") @RequestParam("verified") Integer verified,
             @Parameter(description = "Verification remark") @RequestParam(value = "remark", required = false) String remark) {
         log.info("Verify invoice: invoiceId={}, userId={}, verified={}", invoiceId, userId, verified);
         boolean success = reimburseService.verifyInvoice(invoiceId, userId, verified, remark);
-        return success ? Result.success("发票核验成功") : Result.error();
+        return success ? Result.success("发票核验成功", true) : Result.error("发票核验失败");
     }
 
     /**

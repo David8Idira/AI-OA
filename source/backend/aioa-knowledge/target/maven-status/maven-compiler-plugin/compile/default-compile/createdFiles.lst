@@ -1,0 +1,7 @@
+com/aioa/knowledge/KnowledgeApplication.class
+com/aioa/knowledge/service/KnowledgeService.class
+com/aioa/knowledge/service/impl/KnowledgeServiceImpl.class
+com/aioa/knowledge/controller/KnowledgeController.class
+com/aioa/knowledge/entity/KnowledgeCategory.class
+com/aioa/knowledge/entity/KnowledgeDoc.class
+com/aioa/knowledge/mapper/KnowledgeMapper.class

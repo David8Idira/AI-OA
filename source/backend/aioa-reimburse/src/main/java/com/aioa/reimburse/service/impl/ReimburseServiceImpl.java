@@ -546,7 +546,7 @@ public class ReimburseServiceImpl extends ServiceImpl<ReimburseMapper, Reimburse
         item.setTaxIncluded(dto.getTaxIncluded() != null ? dto.getTaxIncluded() : 0);
         item.setTaxRate(dto.getTaxRate());
         item.setTaxAmount(dto.getTaxAmount());
-        item.setOcrRecordId(dto.getOcrRecordId());
+        // item.setOcrRecordId(dto.getOcrRecordId()); // TODO: Add ocrRecordId field to ReimburseItem entity
         item.setInvoiceNo(dto.getInvoiceNo());
         item.setOriginPlace(dto.getOriginPlace());
         item.setDestination(dto.getDestination());

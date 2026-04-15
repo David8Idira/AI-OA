@@ -20,6 +20,8 @@
         <module>aioa-ocr</module>
         <module>aioa-im</module>
         <module>aioa-reimburse</module>
+        <module>aioa-report</module>
+        <module>aioa-knowledge</module>
     </modules>
 
     <!-- Spring Boot 3.x -->

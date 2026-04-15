@@ -1,0 +1,3 @@
+com/aioa/gateway/GatewayApplication.class
+com/aioa/gateway/config/GatewayRouteConfig.class
+com/aioa/gateway/filter/AuthFilter.class

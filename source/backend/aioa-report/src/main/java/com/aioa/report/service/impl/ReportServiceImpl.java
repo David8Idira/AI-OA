@@ -77,7 +77,7 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         report.setCreatorId(userId);
         report.setCreatorName(user.getNickname() != null ? user.getNickname() : user.getUsername());
         report.setDeptId(user.getDeptId());
-        report.setDeptName(user.getDeptName());
+        report.setDeptName(null); // TODO: resolve dept name from sysUserMapper
         report.setPeriodStart(dto.getPeriodStart());
         report.setPeriodEnd(dto.getPeriodEnd());
         report.setDataSource(dto.getDataSource());

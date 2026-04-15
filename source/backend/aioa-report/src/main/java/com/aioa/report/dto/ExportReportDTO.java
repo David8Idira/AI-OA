@@ -11,6 +11,10 @@ import lombok.Data;
 @Schema(name = "ExportReportDTO", description = "Report export request")
 public class ExportReportDTO {
 
+    @Schema(description = "Report ID to export")
+    @NotBlank(message = "报表ID不能为空")
+    private String reportId;
+
     @Schema(description = "Export format: PDF, EXCEL, HTML")
     @NotBlank(message = "导出格式不能为空")
     private String format = "PDF";

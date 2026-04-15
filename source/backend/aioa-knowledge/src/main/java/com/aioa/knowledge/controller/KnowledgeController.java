@@ -45,8 +45,8 @@ public class KnowledgeController {
      * 创建文档
      */
     @PostMapping("/doc")
-    public Result<Long> createDoc(@RequestBody KnowledgeDoc doc) {
-        Long id = knowledgeService.createDoc(doc);
+    public Result<String> createDoc(@RequestBody KnowledgeDoc doc) {
+        String id = knowledgeService.createDoc(doc);
         return Result.success(id);
     }
     
