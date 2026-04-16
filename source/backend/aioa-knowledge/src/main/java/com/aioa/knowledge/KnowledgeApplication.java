@@ -1,18 +1,10 @@
 package com.aioa.knowledge;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
-/**
- * AI-OA Knowledge Module Application
- */
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.aioa.knowledge", "com.aioa.common"})
-@MapperScan(basePackages = {"com.aioa.knowledge.mapper"})
 public class KnowledgeApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(KnowledgeApplication.class, args);
     }
