@@ -86,6 +86,13 @@ spring:
           min-idle: 0
           max-wait: -1ms
 
+# JWT配置
+aioa:
+  jwt:
+    secret: ${JWT_SECRET:aioa-jwt-secret-key-for-signing-tokens-must-be-at-least-256-bits-long}
+    expiration: 86400000 # 24小时（毫秒）
+    issuer: aioa-system
+
 # 日志配置
 logging:
   level:

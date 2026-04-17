@@ -2,6 +2,7 @@ package com.aioa.ai.service;
 
 import com.aioa.ai.dto.ChatRequestDTO;
 import com.aioa.ai.dto.ChatResponseDTO;
+import com.aioa.ai.entity.AiModelConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -17,15 +18,9 @@ public interface AiChatService {
     ChatResponseDTO chat(ChatRequestDTO request);
     
     /**
-     * 获取可用模型列表
+     * 获取可用模型列表（从数据库配置获取）
      */
-    default List<Map<String, String>> getAvailableModels() {
-        return List.of(
-            Map.of("code", "gpt-4o", "name", "GPT-4o", "provider", "OpenAI"),
-            Map.of("code", "kimi-pro", "name", "Kimi Pro", "provider", "Moonshot"),
-            Map.of("code", "claude-3.5", "name", "Claude 3.5", "provider", "Anthropic")
-        );
-    }
+    List<Map<String, String>> getAvailableModels();
     
     /**
      * 获取用户配额信息

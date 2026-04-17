@@ -1,165 +1,204 @@
 package com.aioa.ai.service.impl;
 
+import com.aioa.ai.entity.AiUserQuota;
+import com.aioa.ai.mapper.AiUserQuotaMapper;
 import com.aioa.ai.service.AiQuotaService;
+import com.aioa.ai.util.QuotaCalculator;
+import com.aioa.common.exception.BusinessException;
+import com.aioa.common.result.ResultCode;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * AI配额服务实现
+ * AI配额服务实现 - Karpathy风格：简洁、清晰、专注业务逻辑
+ * 参考nanoGPT的设计：服务层只做业务协调，复杂计算交给工具类
+ * 目标：保持<200行代码
  */
 @Slf4j
 @Service
 public class AiQuotaServiceImpl implements AiQuotaService {
     
-    // 用户配额存储 (生产环境应存储到数据库)
-    private final ConcurrentHashMap<String, UserQuota> userQuotas = new ConcurrentHashMap<>();
-    
-    // 默认配额配置
-    private static final int DEFAULT_DAILY_TOKENS = 100000; // 每日10万Token
-    private static final double WARNING_THRESHOLD = 0.8; // 预警阈值80%
-    
-    public AiQuotaServiceImpl() {
-        // 初始化默认用户配额
-        initializeDefaultQuotas();
-    }
-    
-    private void initializeDefaultQuotas() {
-        // 添加默认用户admin
-        userQuotas.put("admin", new UserQuota("admin", DEFAULT_DAILY_TOKENS));
-        userQuotas.put("default", new UserQuota("default", DEFAULT_DAILY_TOKENS));
-    }
+    @Autowired
+    private AiUserQuotaMapper aiUserQuotaMapper;
     
     @Override
     public boolean checkQuota(String userId, String modelCode) {
-        UserQuota quota = userQuotas.get(userId);
-        if (quota == null) {
-            // 新用户使用默认配额
-            quota = new UserQuota(userId, DEFAULT_DAILY_TOKENS);
-            userQuotas.put(userId, quota);
+        log.debug("Checking quota for user: {}, model: {}", userId, modelCode);
+        
+        AiUserQuota quota = getOrCreateQuota(userId, modelCode);
+        boolean exceeded = QuotaCalculator.isQuotaExceeded(quota);
+        
+        if (exceeded) {
+            log.warn("Quota exceeded - user: {}, model: {}, daily: {}/{}, monthly: {}/{}",
+                userId, modelCode, quota.getTodayUsed(), quota.getDailyLimit(),
+                quota.getMonthlyUsed(), quota.getMonthlyLimit());
+        } else if (QuotaCalculator.needsWarning(quota)) {
+            log.info("Quota warning - user: {}, model: {}, daily: {}% used",
+                userId, modelCode, quota.getDailyUsagePercentage() != null ? 
+                String.format("%.1f", quota.getDailyUsagePercentage()) : "0.0");
         }
         
-        int remaining = quota.getRemainingTokens();
-        log.info("用户 {} 剩余配额: {}", userId, remaining);
-        
-        // 检查是否需要预警
-        if (remaining < DEFAULT_DAILY_TOKENS * WARNING_THRESHOLD) {
-            log.warn("用户 {} 配额低于预警阈值，当前: {}, 阈值: {}", 
-                userId, remaining, DEFAULT_DAILY_TOKENS * WARNING_THRESHOLD);
-        }
-        
-        return remaining > 0;
+        return !exceeded;
     }
     
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean useQuota(String userId, String modelCode, int tokens) {
-        UserQuota quota = userQuotas.get(userId);
-        if (quota == null) {
-            quota = new UserQuota(userId, DEFAULT_DAILY_TOKENS);
-            userQuotas.put(userId, quota);
+        log.debug("Using quota - user: {}, model: {}, tokens: {}", userId, modelCode, tokens);
+        
+        // 参数验证
+        if (tokens <= 0) {
+            throw new BusinessException(ResultCode.BAD_REQUEST, "Token count must be positive");
         }
         
-        boolean success = quota.useTokens(tokens);
-        if (success) {
-            log.info("用户 {} 使用 {} tokens，剩余: {}", userId, tokens, quota.getRemainingTokens());
-        } else {
-            log.warn("用户 {} 配额不足，使用失败", userId);
+        // 检查配额
+        if (!checkQuota(userId, modelCode)) {
+            log.error("Insufficient quota - user: {}, model: {}", userId, modelCode);
+            return false;
         }
-        return success;
+        
+        // 获取并更新配额
+        AiUserQuota quota = getOrCreateQuota(userId, modelCode);
+        QuotaCalculator.useQuotaTokens(quota, tokens);
+        quota.setUpdateTime(LocalDateTime.now());
+        
+        // 保存到数据库
+        aiUserQuotaMapper.updateById(quota);
+        log.debug("Quota updated - user: {}, model: {}, used: {}, remaining daily: {}",
+            userId, modelCode, tokens, quota.getRemainingDaily());
+        
+        return true;
     }
     
     @Override
     public Map<String, Object> getUserQuota(String userId) {
-        UserQuota quota = userQuotas.get(userId);
-        if (quota == null) {
-            quota = new UserQuota(userId, DEFAULT_DAILY_TOKENS);
-            userQuotas.put(userId, quota);
-        }
+        log.debug("Getting quota info for user: {}", userId);
+        
+        LambdaQueryWrapper<AiUserQuota> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AiUserQuota::getUserId, userId);
+        List<AiUserQuota> quotas = aiUserQuotaMapper.selectList(queryWrapper);
         
         Map<String, Object> result = new HashMap<>();
         result.put("userId", userId);
-        result.put("dailyLimit", quota.getDailyLimit());
-        result.put("used", quota.getUsedTokens());
-        result.put("remaining", quota.getRemainingTokens());
-        result.put("usagePercent", quota.getUsagePercent());
-        result.put("warning", quota.isWarning());
-        result.put("resetTime", quota.getResetTime());
+        result.put("totalModels", quotas.size());
         
+        // 计算总使用量
+        int totalDailyUsed = quotas.stream()
+            .mapToInt(quota -> quota.getTodayUsed() != null ? quota.getTodayUsed() : 0)
+            .sum();
+        int totalMonthlyUsed = quotas.stream()
+            .mapToInt(quota -> quota.getMonthlyUsed() != null ? quota.getMonthlyUsed() : 0)
+            .sum();
+        result.put("totalDailyUsed", totalDailyUsed);
+        result.put("totalMonthlyUsed", totalMonthlyUsed);
+        
+        // 模型详情
+        List<Map<String, Object>> modelDetails = quotas.stream()
+            .map(quota -> {
+                quota.calculateRemaining();
+                Map<String, Object> detail = new HashMap<>();
+                detail.put("modelCode", quota.getModelCode());
+                detail.put("dailyUsed", quota.getTodayUsed());
+                detail.put("dailyLimit", quota.getDailyLimit());
+                detail.put("dailyRemaining", quota.getRemainingDaily());
+                detail.put("dailyUsagePercentage", quota.getDailyUsagePercentage());
+                detail.put("monthlyUsed", quota.getMonthlyUsed());
+                detail.put("monthlyLimit", quota.getMonthlyLimit());
+                detail.put("monthlyRemaining", quota.getRemainingMonthly());
+                detail.put("monthlyUsagePercentage", quota.getMonthlyUsagePercentage());
+                detail.put("needsWarning", quota.isDailyWarning());
+                detail.put("isExceeded", quota.isDailyExceeded() || quota.isMonthlyExceeded());
+                return detail;
+            })
+            .toList();
+        
+        result.put("modelDetails", modelDetails);
         return result;
-    }
-    
-    @Override
-    public void resetDailyQuota() {
-        log.info("重置所有用户每日配额");
-        for (UserQuota quota : userQuotas.values()) {
-            quota.reset();
-        }
     }
     
     @Override
     public Map<String, Object> getDepartmentQuota(String deptId) {
-        // 简单实现：获取该部门所有用户的配额总和
+        log.debug("Getting department quota for: {}", deptId);
+        
+        // 简化实现：返回基本结构
         Map<String, Object> result = new HashMap<>();
-        result.put("departmentId", deptId);
-        result.put("totalLimit", DEFAULT_DAILY_TOKENS * 10); // 假设10人部门
-        result.put("note", "部门配额计算待完善");
+        result.put("deptId", deptId);
+        result.put("message", "Department quota functionality to be implemented");
+        result.put("timestamp", LocalDateTime.now());
+        
         return result;
     }
     
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional(rollbackFor = Exception.class)
+    public void resetDailyQuota() {
+        log.info("Resetting daily quota for all users");
+        
+        List<AiUserQuota> allQuotas = aiUserQuotaMapper.selectList(null);
+        int updated = 0;
+        
+        for (AiUserQuota quota : allQuotas) {
+            QuotaCalculator.resetDailyQuota(quota);
+            quota.setUpdateTime(LocalDateTime.now());
+            aiUserQuotaMapper.updateById(quota);
+            updated++;
+        }
+        
+        log.info("Daily quota reset completed, updated {} records", updated);
+    }
+    
+    @Scheduled(cron = "0 0 0 1 * ?")
+    @Transactional(rollbackFor = Exception.class)
+    public void resetMonthlyQuota() {
+        log.info("Resetting monthly quota for all users");
+        
+        List<AiUserQuota> allQuotas = aiUserQuotaMapper.selectList(null);
+        int updated = 0;
+        
+        for (AiUserQuota quota : allQuotas) {
+            QuotaCalculator.resetMonthlyQuota(quota);
+            quota.setUpdateTime(LocalDateTime.now());
+            aiUserQuotaMapper.updateById(quota);
+            updated++;
+        }
+        
+        log.info("Monthly quota reset completed, updated {} records", updated);
+    }
+    
     /**
-     * 用户配额内部类
+     * 获取或创建用户配额（私有方法）
      */
-    private static class UserQuota {
-        private final String userId;
-        private final int dailyLimit;
-        private int usedTokens;
-        private long lastResetTime;
+    private AiUserQuota getOrCreateQuota(String userId, String modelCode) {
+        LambdaQueryWrapper<AiUserQuota> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AiUserQuota::getUserId, userId)
+                   .eq(AiUserQuota::getModelCode, modelCode);
         
-        UserQuota(String userId, int dailyLimit) {
-            this.userId = userId;
-            this.dailyLimit = dailyLimit;
-            this.usedTokens = 0;
-            this.lastResetTime = System.currentTimeMillis();
+        AiUserQuota quota = aiUserQuotaMapper.selectOne(queryWrapper);
+        
+        if (quota == null) {
+            // 创建默认配额
+            quota = QuotaCalculator.createDefaultQuota(userId, modelCode);
+            quota.setCreateTime(LocalDateTime.now());
+            aiUserQuotaMapper.insert(quota);
+            log.debug("Created default quota for user: {}, model: {}", userId, modelCode);
         }
         
-        boolean useTokens(int tokens) {
-            if (usedTokens + tokens > dailyLimit) {
-                return false;
-            }
-            usedTokens += tokens;
-            return true;
+        // 检查是否需要重置（日期变化）
+        if (quota.getLastResetDate() == null || !quota.getLastResetDate().equals(LocalDate.now())) {
+            QuotaCalculator.resetDailyQuota(quota);
+            aiUserQuotaMapper.updateById(quota);
         }
         
-        void reset() {
-            usedTokens = 0;
-            lastResetTime = System.currentTimeMillis();
-        }
-        
-        int getRemainingTokens() {
-            return dailyLimit - usedTokens;
-        }
-        
-        int getUsedTokens() {
-            return usedTokens;
-        }
-        
-        int getDailyLimit() {
-            return dailyLimit;
-        }
-        
-        double getUsagePercent() {
-            return (double) usedTokens / dailyLimit * 100;
-        }
-        
-        boolean isWarning() {
-            return usedTokens >= dailyLimit * WARNING_THRESHOLD;
-        }
-        
-        long getResetTime() {
-            return lastResetTime;
-        }
+        return quota;
     }
 }

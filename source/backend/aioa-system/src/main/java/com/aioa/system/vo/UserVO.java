@@ -68,6 +68,11 @@ public class UserVO implements Serializable {
     private List<String> permissions;
 
     /**
+     * Menu tree (for frontend routing)
+     */
+    private List<Object> menus;
+
+    /**
      * Token (for login)
      */
     private String token;
