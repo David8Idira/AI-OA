@@ -1,8 +1,0 @@
-com/aioa/common/entity/BaseEntity.class
-com/aioa/common/exception/GlobalExceptionHandler.class
-com/aioa/common/exception/BusinessException.class
-com/aioa/common/mail/MailServiceImpl.class
-com/aioa/common/annotation/Login.class
-com/aioa/common/result/ResultCode.class
-com/aioa/common/mail/MailService.class
-com/aioa/common/result/Result.class
