@@ -1,4 +1,4 @@
-import request from './index'
+import request from '@/utils/request'
 
 /**
  * AI聊天接口

@@ -64,7 +64,7 @@
             <div class="conversation-header">
               <span class="conversation-name">{{ item.name }}</span>
               <span class="conversation-time">
-                {{ formatRelativeTime(item.lastMessageTime) }}
+                {{ getRelativeTime(item.lastMessageTime) }}
               </span>
             </div>
             <div class="conversation-footer">
@@ -130,7 +130,7 @@
             <div class="conversation-header">
               <span class="conversation-name">{{ item.name }}</span>
               <span class="conversation-time">
-                {{ formatRelativeTime(item.lastMessageTime) }}
+                {{ getRelativeTime(item.lastMessageTime) }}
               </span>
             </div>
             <div class="conversation-footer">
@@ -293,7 +293,6 @@ import {
   getConversationList,
   createConversation,
   generateMockConversations,
-  formatRelativeTime,
   getRelativeTime,
   truncateMessage,
   type ConversationVO,

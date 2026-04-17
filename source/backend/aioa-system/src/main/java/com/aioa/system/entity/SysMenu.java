@@ -1,9 +1,12 @@
 package com.aioa.system.entity;
 
 import com.aioa.common.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
  * Menu/Permission Entity
@@ -72,4 +75,10 @@ public class SysMenu extends BaseEntity {
      * Whether keep alive
      */
     private Integer keepAlive;
+    
+    /**
+     * Child menus (not persisted)
+     */
+    @TableField(exist = false)
+    private List<SysMenu> children;
 }

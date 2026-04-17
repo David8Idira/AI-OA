@@ -38,7 +38,7 @@
           <div class="sidebar-item-content">
             <div class="sidebar-item-header">
               <span class="name">{{ conv.name }}</span>
-              <span class="time">{{ formatRelativeTime(conv.lastMessageTime) }}</span>
+              <span class="time">{{ getRelativeTime(conv.lastMessageTime) }}</span>
             </div>
             <div class="sidebar-item-footer">
               <span class="last-msg">{{ conv.lastMessage }}</span>
@@ -175,7 +175,7 @@
           </el-tooltip>
           <el-tooltip content="表情">
             <el-button text @click="showEmojiPicker = !showEmojiPicker">
-              <el-icon><Smile /></el-icon>
+              <el-icon><ChatLineRound /></el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip content="聊天记录">
@@ -222,7 +222,7 @@
             :loading="sending"
             @click="handleSend"
           >
-            <el-icon v-if="!sending"><Promotion /></el-icon>
+            <el-icon v-if="!sending"><PromotionIcon /></el-icon>
             发送
           </el-button>
         </div>
@@ -344,9 +344,9 @@ import {
   MoreFilled,
   Picture,
   Document,
-  Smile,
+  ChatLineRound,
   InfoFilled,
-  Promotion,
+  Promotion as PromotionIcon,
   Star,
   DArrowLeft,
   DArrowRight,
@@ -361,7 +361,6 @@ import {
   generateMockConversations,
   generateMockMessages,
   formatMessageTime,
-  formatRelativeTime,
   getRelativeTime,
   type ConversationVO,
   type MessageVO

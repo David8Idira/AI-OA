@@ -1,7 +1,7 @@
 /**
  * 知识库API
  */
-import request from './index'
+import request from '@/utils/request'
 
 /**
  * 搜索知识库

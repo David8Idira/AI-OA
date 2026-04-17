@@ -1,9 +1,12 @@
 package com.aioa.system.entity;
 
 import com.aioa.common.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
  * Department Entity
@@ -57,4 +60,10 @@ public class SysDepartment extends BaseEntity {
      * Status: 0-disabled, 1-enabled
      */
     private Integer status;
+    
+    /**
+     * Child departments (not persisted)
+     */
+    @TableField(exist = false)
+    private List<SysDepartment> children;
 }

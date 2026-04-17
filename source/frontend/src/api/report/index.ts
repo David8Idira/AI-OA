@@ -1,7 +1,7 @@
 /**
  * 报表API
  */
-import request from './index'
+import request from '@/utils/request'
 
 /**
  * 获取报表列表
