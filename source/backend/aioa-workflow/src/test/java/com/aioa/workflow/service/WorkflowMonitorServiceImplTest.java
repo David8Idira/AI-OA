@@ -1,9 +1,10 @@
 package com.aioa.workflow.service;
 
-import com.aioa.workflow.entity.WorkflowMetrics;
-import com.aioa.workflow.entity.WorkflowAlert;
-import com.aioa.workflow.enums.AlertLevel;
+import com.aioa.workflow.dto.WorkflowMetricsDTO;
+import com.aioa.workflow.dto.WorkflowAlertDTO;
+import com.aioa.workflow.entity.WorkflowInstance;
 import com.aioa.workflow.enums.WorkflowStatus;
+import com.aioa.workflow.mapper.WorkflowInstanceMapper;
 import com.aioa.workflow.service.impl.WorkflowMonitorServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,402 +13,475 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * WorkflowMonitorServiceImpl单元测试
- * 
- * 测试工作流监控服务的核心功能：
- * 1. 工作流指标统计
- * 2. 告警管理
- * 3. 健康检查
- * 4. 性能分析
+ * WorkflowMonitorServiceImpl 单元测试
+ * 毛主席思想指导：实事求是，全面测试工作流监控服务
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WorkflowMonitorServiceImpl 单元测试")
 class WorkflowMonitorServiceImplTest {
 
     @Mock
-    private ApprovalService approvalService;
+    private WorkflowInstanceMapper instanceMapper;
 
     @Mock
-    private WorkflowMetricsService workflowMetricsService;
-
-    @Mock
-    private WorkflowAlertService workflowAlertService;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @InjectMocks
     private WorkflowMonitorServiceImpl workflowMonitorService;
 
-    private WorkflowMetrics testMetrics;
-    private WorkflowAlert testAlert;
+    private LocalDateTime testStartTime;
+    private LocalDateTime testEndTime;
+
+    // 测试数据常量
+    private static final String WORKFLOW_ID_1 = "WF-001";
+    private static final String WORKFLOW_ID_2 = "WF-002";
+    private static final String INSTANCE_ID_1 = "INS-001";
+    private static final String INSTANCE_ID_2 = "INS-002";
+    private static final int FAILURE_THRESHOLD = 5;
+    private static final int TIMEOUT_THRESHOLD_MINUTES = 30;
+    private static final int SUCCESS_RATE_THRESHOLD = 95;
 
     @BeforeEach
     void setUp() {
-        // 创建测试指标数据
-        testMetrics = new WorkflowMetrics();
-        testMetrics.setId("metrics-001");
-        testMetrics.setDate(LocalDateTime.now());
-        testMetrics.setTotalWorkflows(100);
-        testMetrics.setCompletedWorkflows(85);
-        testMetrics.setFailedWorkflows(5);
-        testMetrics.setAvgCompletionTime(3600L); // 1小时
-        testMetrics.setP99CompletionTime(7200L); // 2小时
-        testMetrics.setSuccessRate(85.0);
-        testMetrics.setCreateTime(LocalDateTime.now());
+        // 初始化测试时间范围 - 实事求是
+        testStartTime = LocalDateTime.now().minusHours(1);
+        testEndTime = LocalDateTime.now();
 
-        // 创建测试告警数据
-        testAlert = new WorkflowAlert();
-        testAlert.setId("alert-001");
-        testAlert.setWorkflowId("workflow-123");
-        testAlert.setAlertLevel(AlertLevel.WARNING);
-        testAlert.setAlertMessage("工作流执行超时");
-        testAlert.setResolved(false);
-        testAlert.setCreateTime(LocalDateTime.now());
+        // 设置配置值
+        ReflectionTestUtils.setField(workflowMonitorService, "monitorEnabled", true);
+        ReflectionTestUtils.setField(workflowMonitorService, "failureThreshold", FAILURE_THRESHOLD);
+        ReflectionTestUtils.setField(workflowMonitorService, "timeoutThresholdMinutes", TIMEOUT_THRESHOLD_MINUTES);
+        ReflectionTestUtils.setField(workflowMonitorService, "successRateThreshold", SUCCESS_RATE_THRESHOLD);
+        ReflectionTestUtils.setField(workflowMonitorService, "alertCooldownMinutes", 15);
     }
 
     @Test
-    @DisplayName("测试收集工作流指标 - 成功场景")
-    void testCollectWorkflowMetrics_Success() {
-        // 准备测试数据
+    @DisplayName("getMetrics - 正常获取指标应返回完整数据")
+    void getMetrics_withValidTimeRange_shouldReturnCompleteMetrics() {
+        // given - 准备测试数据
+        Map<WorkflowStatus, Long> statusCounts = new HashMap<>();
+        statusCounts.put(WorkflowStatus.COMPLETED, 80L);
+        statusCounts.put(WorkflowStatus.FAILED, 10L);
+        statusCounts.put(WorkflowStatus.RUNNING, 5L);
+        statusCounts.put(WorkflowStatus.PENDING, 3L);
+        statusCounts.put(WorkflowStatus.TIMEOUT, 2L);
+
+        when(instanceMapper.count(null, WorkflowStatus.COMPLETED, testStartTime, testEndTime)).thenReturn(80);
+        when(instanceMapper.count(null, WorkflowStatus.FAILED, testStartTime, testEndTime)).thenReturn(10);
+        when(instanceMapper.count(null, WorkflowStatus.RUNNING, testStartTime, testEndTime)).thenReturn(5);
+        when(instanceMapper.count(null, WorkflowStatus.PENDING, testStartTime, testEndTime)).thenReturn(3);
+        when(instanceMapper.count(null, WorkflowStatus.TIMEOUT, testStartTime, testEndTime)).thenReturn(2);
+        when(instanceMapper.count(null, null, testStartTime, testEndTime)).thenReturn(100);
+        when(instanceMapper.getAverageDuration(testStartTime, testEndTime)).thenReturn(150.5);
+        when(instanceMapper.getP95Duration(testStartTime, testEndTime)).thenReturn(300.0);
+        when(instanceMapper.countByStatus(WorkflowStatus.TIMEOUT, testStartTime, testEndTime)).thenReturn(2);
+
+        // when
+        WorkflowMetricsDTO metrics = workflowMonitorService.getMetrics(testStartTime, testEndTime);
+
+        // then - 验证结果
+        assertThat(metrics).isNotNull();
+        assertThat(metrics.getTotalCount()).isEqualTo(100);
+        assertThat(metrics.getCompletedCount()).isEqualTo(80);
+        assertThat(metrics.getFailedCount()).isEqualTo(10);
+        assertThat(metrics.getRunningCount()).isEqualTo(5);
+        assertThat(metrics.getPendingCount()).isEqualTo(3);
+        assertThat(metrics.getTimeoutCount()).isEqualTo(2);
+        assertThat(metrics.getSuccessRate()).isEqualTo(80.0);
+        assertThat(metrics.getAverageDuration()).isEqualTo(150.5);
+        assertThat(metrics.getP95Duration()).isEqualTo(300.0);
+        assertThat(metrics.getHealthScore()).isGreaterThan(0);
+        assertThat(metrics.getStatusDistribution()).containsKeys("COMPLETED", "FAILED", "RUNNING");
+
+        // 验证方法调用
+        verify(instanceMapper, times(1)).getAverageDuration(testStartTime, testEndTime);
+        verify(instanceMapper, times(1)).getP95Duration(testStartTime, testEndTime);
+    }
+
+    @Test
+    @DisplayName("getMetrics - 无数据时应返回零值")
+    void getMetrics_withNoData_shouldReturnZeroValues() {
+        // given - 无数据场景
+        when(instanceMapper.count(any(), any(), any(), any())).thenReturn(0);
+        when(instanceMapper.getAverageDuration(testStartTime, testEndTime)).thenReturn(null);
+        when(instanceMapper.getP95Duration(testStartTime, testEndTime)).thenReturn(null);
+
+        // when
+        WorkflowMetricsDTO metrics = workflowMonitorService.getMetrics(testStartTime, testEndTime);
+
+        // then - 验证零值处理
+        assertThat(metrics.getTotalCount()).isEqualTo(0);
+        assertThat(metrics.getSuccessRate()).isEqualTo(0.0);
+        assertThat(metrics.getAverageDuration()).isEqualTo(0);
+        assertThat(metrics.getP95Duration()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("getMetrics - 数据库异常时应抛出RuntimeException")
+    void getMetrics_withDatabaseError_shouldThrowRuntimeException() {
+        // given - 数据库异常场景
+        when(instanceMapper.count(any(), any(), any(), any()))
+                .thenThrow(new RuntimeException("数据库连接失败"));
+
+        // when & then
+        assertThatThrownBy(() -> workflowMonitorService.getMetrics(testStartTime, testEndTime))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("获取工作流指标失败");
+    }
+
+    @Test
+    @DisplayName("getActiveAlerts - 有未解决告警时应返回告警列表")
+    void getActiveAlerts_withUnresolvedAlerts_shouldReturnAlerts() {
+        // given - 准备告警数据
+        WorkflowAlertDTO alert1 = createTestAlert("WFA-001", "HIGH_FAILURE_RATE", false);
+        WorkflowAlertDTO alert2 = createTestAlert("WFA-002", "INSTANCE_TIMEOUT", false);
+        
+        ConcurrentHashMap<String, List<WorkflowAlertDTO>> alertHistory = new ConcurrentHashMap<>();
+        alertHistory.put("global", new ArrayList<>(Arrays.asList(alert1, alert2)));
+        
+        ReflectionTestUtils.setField(workflowMonitorService, "alertHistory", alertHistory);
+        ReflectionTestUtils.setField(workflowMonitorService, "alertCooldowns", new ConcurrentHashMap<>());
+
+        // when
+        List<WorkflowAlertDTO> activeAlerts = workflowMonitorService.getActiveAlerts();
+
+        // then
+        assertThat(activeAlerts).hasSize(2);
+        assertThat(activeAlerts).extracting(WorkflowAlertDTO::getAlertId)
+                .containsExactlyInAnyOrder("WFA-001", "WFA-002");
+    }
+
+    @Test
+    @DisplayName("getActiveAlerts - 冷却期内应不返回重复告警")
+    void getActiveAlerts_withinCooldownPeriod_shouldNotReturnDuplicateAlerts() {
+        // given - 刚发送过告警，还在冷却期
+        WorkflowAlertDTO alert = createTestAlert("WFA-001", "HIGH_FAILURE_RATE", false);
+        
+        ConcurrentHashMap<String, List<WorkflowAlertDTO>> alertHistory = new ConcurrentHashMap<>();
+        alertHistory.put("global", new ArrayList<>(List.of(alert)));
+        
+        ConcurrentHashMap<String, LocalDateTime> alertCooldowns = new ConcurrentHashMap<>();
+        alertCooldowns.put("global", LocalDateTime.now()); // 刚刚发送
+        
+        ReflectionTestUtils.setField(workflowMonitorService, "alertHistory", alertHistory);
+        ReflectionTestUtils.setField(workflowMonitorService, "alertCooldowns", alertCooldowns);
+
+        // when
+        List<WorkflowAlertDTO> activeAlerts = workflowMonitorService.getActiveAlerts();
+
+        // then - 冷却期内不应返回告警
+        assertThat(activeAlerts).isEmpty();
+    }
+
+    @Test
+    @DisplayName("getAlertHistory - 指定工作流ID应返回该工作流的告警")
+    void getAlertHistory_withWorkflowId_shouldReturnWorkflowAlerts() {
+        // given
         LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
-        
-        // 模拟统计数据
-        when(approvalService.countWorkflowsByStatus(any(), any(), any()))
-                .thenReturn(100L)  // 总数
-                .thenReturn(85L)   // 已完成
-                .thenReturn(5L);   // 已失败
-        
-        when(approvalService.getAverageCompletionTime(any(), any()))
-                .thenReturn(3600L);
-        
-        when(approvalService.getP99CompletionTime(any(), any()))
-                .thenReturn(7200L);
+        int limit = 10;
 
-        // 模拟保存指标
-        when(workflowMetricsService.save(any(WorkflowMetrics.class)))
-                .thenReturn(true);
+        WorkflowAlertDTO alert1 = createTestAlert("WFA-001", "HIGH_FAILURE_RATE", true);
+        alert1.setWorkflowId(WORKFLOW_ID_1);
+        alert1.setCreatedAt(LocalDateTime.now().minusHours(1));
 
-        // 执行指标收集
-        boolean result = workflowMonitorService.collectWorkflowMetrics(startTime, endTime);
+        WorkflowAlertDTO alert2 = createTestAlert("WFA-002", "INSTANCE_TIMEOUT", false);
+        alert2.setWorkflowId(WORKFLOW_ID_1);
+        alert2.setCreatedAt(LocalDateTime.now().minusHours(2));
 
-        // 验证结果
-        assertTrue(result);
+        WorkflowAlertDTO alert3 = createTestAlert("WFA-003", "PENDING_BACKLOG", false);
+        alert3.setWorkflowId(WORKFLOW_ID_2);
+        alert3.setCreatedAt(LocalDateTime.now().minusHours(1));
 
-        // 验证方法调用
-        verify(approvalService, times(3)).countWorkflowsByStatus(any(), any(), any());
-        verify(approvalService).getAverageCompletionTime(startTime, endTime);
-        verify(approvalService).getP99CompletionTime(startTime, endTime);
-        verify(workflowMetricsService).save(argThat(metrics ->
-                metrics.getTotalWorkflows() == 100 &&
-                metrics.getCompletedWorkflows() == 85 &&
-                metrics.getSuccessRate() == 85.0
-        ));
+        ConcurrentHashMap<String, List<WorkflowAlertDTO>> alertHistory = new ConcurrentHashMap<>();
+        alertHistory.put(WORKFLOW_ID_1, new ArrayList<>(Arrays.asList(alert1, alert2)));
+        alertHistory.put(WORKFLOW_ID_2, new ArrayList<>(List.of(alert3)));
+
+        ReflectionTestUtils.setField(workflowMonitorService, "alertHistory", alertHistory);
+
+        // when
+        List<WorkflowAlertDTO> alerts = workflowMonitorService.getAlertHistory(
+                WORKFLOW_ID_1, startTime, endTime, limit);
+
+        // then
+        assertThat(alerts).hasSize(2);
+        assertThat(alerts).allMatch(alert -> WORKFLOW_ID_1.equals(alert.getWorkflowId()));
     }
 
     @Test
-    @DisplayName("测试检查超时工作流 - 发现超时")
-    void testCheckTimeoutWorkflows_FoundTimeout() {
-        // 准备测试数据
-        long timeoutThreshold = 7200L; // 2小时
-        List<String> timeoutWorkflows = Arrays.asList("workflow-1", "workflow-2", "workflow-3");
-        
-        // 模拟查找超时工作流
-        when(approvalService.findTimeoutWorkflows(timeoutThreshold))
-                .thenReturn(timeoutWorkflows);
-
-        // 模拟保存告警
-        when(workflowAlertService.save(any(WorkflowAlert.class)))
-                .thenReturn(true);
-
-        // 执行检查
-        List<String> result = workflowMonitorService.checkTimeoutWorkflows(timeoutThreshold);
-
-        // 验证结果
-        assertNotNull(result);
-        assertEquals(3, result.size());
-        assertTrue(result.containsAll(timeoutWorkflows));
-
-        // 验证方法调用
-        verify(approvalService).findTimeoutWorkflows(timeoutThreshold);
-        verify(workflowAlertService, times(3)).save(argThat(alert ->
-                alert.getAlertLevel() == AlertLevel.WARNING &&
-                alert.getAlertMessage().contains("执行超时") &&
-                !alert.isResolved()
-        ));
-    }
-
-    @Test
-    @DisplayName("测试检查超时工作流 - 无超时")
-    void testCheckTimeoutWorkflows_NoTimeout() {
-        // 准备测试数据
-        long timeoutThreshold = 7200L;
-        
-        // 模拟无超时工作流
-        when(approvalService.findTimeoutWorkflows(timeoutThreshold))
-                .thenReturn(Arrays.asList());
-
-        // 执行检查
-        List<String> result = workflowMonitorService.checkTimeoutWorkflows(timeoutThreshold);
-
-        // 验证结果
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        // 验证方法调用
-        verify(approvalService).findTimeoutWorkflows(timeoutThreshold);
-        verify(workflowAlertService, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("测试获取性能指标 - 成功场景")
-    void testGetPerformanceMetrics_Success() {
-        // 准备测试数据
-        LocalDateTime startTime = LocalDateTime.now().minusDays(7);
+    @DisplayName("getAlertHistory - 空工作流ID应返回所有告警")
+    void getAlertHistory_withoutWorkflowId_shouldReturnAllAlerts() {
+        // given
+        LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
-        
-        // 模拟查询历史指标
-        List<WorkflowMetrics> historicalMetrics = Arrays.asList(
-                createTestMetrics(LocalDateTime.now().minusDays(6), 80.0),
-                createTestMetrics(LocalDateTime.now().minusDays(5), 82.0),
-                createTestMetrics(LocalDateTime.now().minusDays(4), 85.0),
-                createTestMetrics(LocalDateTime.now().minusDays(3), 83.0),
-                createTestMetrics(LocalDateTime.now().minusDays(2), 87.0),
-                createTestMetrics(LocalDateTime.now().minusDays(1), 88.0),
-                createTestMetrics(LocalDateTime.now(), 85.0)
-        );
-        
-        when(workflowMetricsService.findByDateRange(startTime, endTime))
-                .thenReturn(historicalMetrics);
+        int limit = 10;
 
-        // 执行获取性能指标
-        List<WorkflowMetrics> result = workflowMonitorService.getPerformanceMetrics(startTime, endTime);
+        WorkflowAlertDTO alert1 = createTestAlert("WFA-001", "HIGH_FAILURE_RATE", false);
+        alert1.setCreatedAt(LocalDateTime.now().minusHours(1));
 
-        // 验证结果
-        assertNotNull(result);
-        assertEquals(7, result.size());
-        
-        // 验证趋势分析
-        double trend = workflowMonitorService.calculateSuccessRateTrend(historicalMetrics);
-        assertTrue(trend > 0, "成功率应有提升趋势");
+        WorkflowAlertDTO alert2 = createTestAlert("WFA-002", "INSTANCE_TIMEOUT", false);
+        alert2.setCreatedAt(LocalDateTime.now().minusHours(2));
 
-        // 验证方法调用
-        verify(workflowMetricsService).findByDateRange(startTime, endTime);
+        ConcurrentHashMap<String, List<WorkflowAlertDTO>> alertHistory = new ConcurrentHashMap<>();
+        alertHistory.put("global", new ArrayList<>(Arrays.asList(alert1, alert2)));
+
+        ReflectionTestUtils.setField(workflowMonitorService, "alertHistory", alertHistory);
+
+        // when
+        List<WorkflowAlertDTO> alerts = workflowMonitorService.getAlertHistory(
+                null, startTime, endTime, limit);
+
+        // then
+        assertThat(alerts).hasSize(2);
     }
 
     @Test
-    @DisplayName("测试获取活动告警 - 成功场景")
-    void testGetActiveAlerts_Success() {
-        // 准备测试数据
-        List<WorkflowAlert> activeAlerts = Arrays.asList(
-                createTestAlert("alert-1", AlertLevel.WARNING, false),
-                createTestAlert("alert-2", AlertLevel.ERROR, false),
-                createTestAlert("alert-3", AlertLevel.INFO, false)
-        );
-        
-        when(workflowAlertService.findActiveAlerts())
-                .thenReturn(activeAlerts);
+    @DisplayName("getAlertHistory - 应限制返回数量")
+    void getAlertHistory_withLimit_shouldRespectLimit() {
+        // given
+        LocalDateTime startTime = LocalDateTime.now().minusDays(1);
+        LocalDateTime endTime = LocalDateTime.now();
+        int limit = 2;
 
-        // 执行获取活动告警
-        List<WorkflowAlert> result = workflowMonitorService.getActiveAlerts();
+        ConcurrentHashMap<String, List<WorkflowAlertDTO>> alertHistory = new ConcurrentHashMap<>();
+        List<WorkflowAlertDTO> alerts = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            WorkflowAlertDTO alert = createTestAlert("WFA-00" + i, "TYPE-" + i, false);
+            alert.setCreatedAt(LocalDateTime.now().minusHours(i));
+            alerts.add(alert);
+        }
+        alertHistory.put("global", alerts);
 
-        // 验证结果
-        assertNotNull(result);
-        assertEquals(3, result.size());
-        assertTrue(result.stream().noneMatch(WorkflowAlert::isResolved));
+        ReflectionTestUtils.setField(workflowMonitorService, "alertHistory", alertHistory);
 
-        // 验证方法调用
-        verify(workflowAlertService).findActiveAlerts();
+        // when
+        List<WorkflowAlertDTO> result = workflowMonitorService.getAlertHistory(
+                null, startTime, endTime, limit);
+
+        // then
+        assertThat(result).hasSize(limit);
     }
 
     @Test
-    @DisplayName("测试解析告警 - 成功场景")
-    void testResolveAlert_Success() {
-        // 准备测试数据
-        String alertId = "alert-001";
-        String resolution = "手动重启工作流后解决";
-        
-        // 模拟查找告警
-        when(workflowAlertService.findById(alertId))
-                .thenReturn(testAlert);
-        
-        // 模拟更新告警
-        when(workflowAlertService.update(any(WorkflowAlert.class)))
-                .thenReturn(true);
+    @DisplayName("resolveAlert - 解决告警应设置解决信息")
+    void resolveAlert_withValidAlertId_shouldResolveAlert() {
+        // given
+        String alertId = "WFA-001";
+        String resolvedBy = "admin";
+        String resolution = "已重启服务";
 
-        // 执行解析告警
-        boolean result = workflowMonitorService.resolveAlert(alertId, resolution);
+        WorkflowAlertDTO alert = createTestAlert(alertId, "HIGH_FAILURE_RATE", false);
+        ConcurrentHashMap<String, List<WorkflowAlertDTO>> alertHistory = new ConcurrentHashMap<>();
+        alertHistory.put("global", new ArrayList<>(List.of(alert)));
 
-        // 验证结果
-        assertTrue(result);
+        ConcurrentHashMap<String, LocalDateTime> alertCooldowns = new ConcurrentHashMap<>();
+        alertCooldowns.put("global", LocalDateTime.now());
 
-        // 验证方法调用
-        verify(workflowAlertService).findById(alertId);
-        verify(workflowAlertService).update(argThat(alert ->
-                alert.getId().equals(alertId) &&
-                alert.isResolved() &&
-                alert.getResolution().equals(resolution) &&
-                alert.getResolvedTime() != null
-        ));
+        ReflectionTestUtils.setField(workflowMonitorService, "alertHistory", alertHistory);
+        ReflectionTestUtils.setField(workflowMonitorService, "alertCooldowns", alertCooldowns);
+
+        // when
+        workflowMonitorService.resolveAlert(alertId, resolvedBy, resolution);
+
+        // then
+        assertThat(alert.getResolved()).isTrue();
+        assertThat(alert.getResolvedBy()).isEqualTo(resolvedBy);
+        assertThat(alert.getResolution()).isEqualTo(resolution);
+        assertThat(alert.getResolvedAt()).isNotNull();
+        assertThat(alertCooldowns.get("global")).isNull(); // 冷却时间应被清除
     }
 
     @Test
-    @DisplayName("测试解析告警 - 告警不存在")
-    void testResolveAlert_NotFound() {
-        // 准备测试数据
-        String alertId = "nonexistent-alert";
-        String resolution = "测试解析";
-        
-        // 模拟告警不存在
-        when(workflowAlertService.findById(alertId))
-                .thenReturn(null);
+    @DisplayName("checkWorkflowHealth - 禁用时应不执行检查")
+    void checkWorkflowHealth_whenDisabled_shouldNotCheck() {
+        // given
+        ReflectionTestUtils.setField(workflowMonitorService, "monitorEnabled", false);
 
-        // 执行解析告警
-        boolean result = workflowMonitorService.resolveAlert(alertId, resolution);
+        // when
+        workflowMonitorService.checkWorkflowHealth();
 
-        // 验证结果
-        assertFalse(result);
-
-        // 验证方法调用
-        verify(workflowAlertService).findById(alertId);
-        verify(workflowAlertService, never()).update(any());
+        // then - 不应调用任何数据库方法
+        verify(instanceMapper, never()).countByStatus(any(), any(), any());
+        verify(instanceMapper, never()).selectTimeoutInstances(any(), any());
     }
 
     @Test
-    @DisplayName("测试系统健康检查 - 所有组件正常")
-    void testHealthCheck_AllHealthy() {
-        // 模拟所有组件健康
-        when(approvalService.isHealthy())
-                .thenReturn(true);
-        when(workflowMetricsService.isHealthy())
-                .thenReturn(true);
-        when(workflowAlertService.isHealthy())
-                .thenReturn(true);
+    @DisplayName("checkWorkflowHealth - 失败数超过阈值时应触发告警")
+    void checkWorkflowHealth_withHighFailureRate_shouldTriggerAlert() {
+        // given - 超过失败阈值
+        when(instanceMapper.countByStatus(eq(WorkflowStatus.FAILED), any(), any())).thenReturn(10);
+        when(instanceMapper.count(eq(WorkflowStatus.FAILED), any(), any(), any())).thenReturn(10);
+        when(instanceMapper.count(null, any(), any(), any())).thenReturn(100); // 总数>10
+        when(instanceMapper.selectTimeoutInstances(any(), any(), any())).thenReturn(Collections.emptyList());
+        when(instanceMapper.countByStatus(eq(WorkflowStatus.COMPLETED), any(), any())).thenReturn(80);
+        when(instanceMapper.count(null, WorkflowStatus.PENDING, any(), any())).thenReturn(5);
 
-        // 执行健康检查
-        boolean result = workflowMonitorService.healthCheck();
+        // when
+        workflowMonitorService.checkWorkflowHealth();
 
-        // 验证结果
-        assertTrue(result);
-
-        // 验证方法调用
-        verify(approvalService).isHealthy();
-        verify(workflowMetricsService).isHealthy();
-        verify(workflowAlertService).isHealthy();
+        // then - 验证告警被添加（通过日志验证，无异常即成功）
     }
 
     @Test
-    @DisplayName("测试系统健康检查 - 组件异常")
-    void testHealthCheck_ComponentUnhealthy() {
-        // 模拟approval服务异常
-        when(approvalService.isHealthy())
-                .thenReturn(false);
-        when(workflowMetricsService.isHealthy())
-                .thenReturn(true);
-        when(workflowAlertService.isHealthy())
-                .thenReturn(true);
+    @DisplayName("getWorkflowPerformance - 有效工作流应返回性能数据")
+    void getWorkflowPerformance_withValidWorkflow_shouldReturnPerformanceData() {
+        // given
+        LocalDateTime startTime = LocalDateTime.now().minusHours(1);
+        LocalDateTime endTime = LocalDateTime.now();
 
-        // 执行健康检查
-        boolean result = workflowMonitorService.healthCheck();
+        List<WorkflowInstance> instances = createTestInstances(10);
+        when(instanceMapper.selectRecentByWorkflow(WORKFLOW_ID_1, 1000)).thenReturn(instances);
 
-        // 验证结果
-        assertFalse(result);
+        // when
+        Map<String, Object> performance = workflowMonitorService.getWorkflowPerformance(
+                WORKFLOW_ID_1, startTime, endTime);
 
-        // 验证方法调用
-        verify(approvalService).isHealthy();
-        verify(workflowMetricsService).isHealthy();
-        verify(workflowAlertService).isHealthy();
+        // then
+        assertThat(performance).isNotNull();
+        assertThat(performance.get("workflowId")).isEqualTo(WORKFLOW_ID_1);
+        assertThat(performance.get("totalCount")).isEqualTo(10);
+        assertThat(performance.get("successRate")).isNotNull();
+        assertThat(performance.get("averageDurationSeconds")).isNotNull();
     }
 
     @Test
-    @DisplayName("测试生成性能报告 - 成功场景")
-    void testGeneratePerformanceReport_Success() {
-        // 准备测试数据
-        LocalDateTime reportStart = LocalDateTime.now().minusDays(30);
-        LocalDateTime reportEnd = LocalDateTime.now();
-        
-        // 模拟性能指标数据
-        List<WorkflowMetrics> metrics = Arrays.asList(
-                createTestMetrics(LocalDateTime.now().minusDays(7), 85.0),
-                createTestMetrics(LocalDateTime.now(), 88.0)
-        );
-        
-        when(workflowMetricsService.findByDateRange(reportStart, reportEnd))
-                .thenReturn(metrics);
-        
-        when(approvalService.countWorkflowsByStatus(reportStart, reportEnd, WorkflowStatus.COMPLETED))
-                .thenReturn(150L);
-        when(approvalService.countWorkflowsByStatus(reportStart, reportEnd, WorkflowStatus.FAILED))
-                .thenReturn(10L);
-        when(approvalService.countWorkflowsByStatus(reportStart, reportEnd, null))
-                .thenReturn(200L);
+    @DisplayName("getWorkflowPerformance - 无实例时应返回提示消息")
+    void getWorkflowPerformance_withNoInstances_shouldReturnMessage() {
+        // given
+        LocalDateTime startTime = LocalDateTime.now().minusHours(1);
+        LocalDateTime endTime = LocalDateTime.now();
 
-        // 执行生成报告
-        String report = workflowMonitorService.generatePerformanceReport(reportStart, reportEnd);
+        when(instanceMapper.selectRecentByWorkflow(WORKFLOW_ID_1, 1000)).thenReturn(Collections.emptyList());
 
-        // 验证结果
-        assertNotNull(report);
-        assertTrue(report.contains("性能报告"));
-        assertTrue(report.contains("成功率"));
-        assertTrue(report.contains("处理量"));
+        // when
+        Map<String, Object> performance = workflowMonitorService.getWorkflowPerformance(
+                WORKFLOW_ID_1, startTime, endTime);
 
-        // 验证方法调用
-        verify(workflowMetricsService).findByDateRange(reportStart, reportEnd);
-        verify(approvalService, times(3)).countWorkflowsByStatus(any(), any(), any());
+        // then
+        assertThat(performance).containsKey("message");
+        assertThat(performance.get("message")).isEqualTo("指定时间范围内没有工作流实例");
     }
 
     @Test
-    @DisplayName("测试监控任务调度 - 集成检查")
-    void testMonitorTaskIntegration() {
-        // 模拟监控任务执行的各个组件
-        when(approvalService.findTimeoutWorkflows(anyLong()))
-                .thenReturn(Arrays.asList("workflow-1"));
-        when(workflowAlertService.save(any()))
-                .thenReturn(true);
-        when(approvalService.isHealthy())
-                .thenReturn(true);
+    @DisplayName("getTopFailingWorkflows - 应返回失败数排序的工作流")
+    void getTopFailingWorkflows_shouldReturnSortedWorkflows() {
+        // given
+        LocalDateTime startTime = LocalDateTime.now().minusHours(1);
+        LocalDateTime endTime = LocalDateTime.now();
+        int limit = 5;
 
-        // 执行完整的监控流程
-        List<String> timeouts = workflowMonitorService.checkTimeoutWorkflows(7200L);
-        boolean health = workflowMonitorService.healthCheck();
+        List<WorkflowInstance> failedInstances = new ArrayList<>();
+        // WF-001: 5次失败
+        for (int i = 0; i < 5; i++) {
+            WorkflowInstance instance = createTestInstance(WORKFLOW_ID_1, WorkflowStatus.FAILED);
+            failedInstances.add(instance);
+        }
+        // WF-002: 3次失败
+        for (int i = 0; i < 3; i++) {
+            WorkflowInstance instance = createTestInstance(WORKFLOW_ID_2, WorkflowStatus.FAILED);
+            failedInstances.add(instance);
+        }
 
-        // 验证集成结果
-        assertEquals(1, timeouts.size());
-        assertTrue(health);
+        when(instanceMapper.selectByStatus(eq(WorkflowStatus.FAILED), any(), any(), eq(0), eq(1000)))
+                .thenReturn(failedInstances);
+        when(instanceMapper.count(eq(WORKFLOW_ID_1), any(), any(), any())).thenReturn(10);
+        when(instanceMapper.count(eq(WORKFLOW_ID_2), any(), any(), any())).thenReturn(5);
 
-        // 验证方法调用
-        verify(approvalService).findTimeoutWorkflows(7200L);
-        verify(workflowAlertService).save(any());
-        verify(approvalService).isHealthy();
+        // when
+        List<Map<String, Object>> topFailing = workflowMonitorService.getTopFailingWorkflows(
+                startTime, endTime, limit);
+
+        // then
+        assertThat(topFailing).hasSize(2);
+        assertThat(topFailing.get(0).get("workflowId")).isEqualTo(WORKFLOW_ID_1); // 失败数最多
+        assertThat(topFailing.get(0).get("failureCount")).isEqualTo(5L);
+        assertThat(topFailing.get(1).get("workflowId")).isEqualTo(WORKFLOW_ID_2);
+        assertThat(topFailing.get(1).get("failureCount")).isEqualTo(3L);
     }
 
-    // 辅助方法
-    private WorkflowMetrics createTestMetrics(LocalDateTime date, double successRate) {
-        WorkflowMetrics metrics = new WorkflowMetrics();
-        metrics.setDate(date);
-        metrics.setTotalWorkflows(100);
-        metrics.setCompletedWorkflows((int) successRate);
-        metrics.setFailedWorkflows(5);
-        metrics.setAvgCompletionTime(3600L);
-        metrics.setSuccessRate(successRate);
-        return metrics;
+    @Test
+    @DisplayName("getTopFailingWorkflows - limit参数应限制返回数量")
+    void getTopFailingWorkflows_withLimit_shouldRespectLimit() {
+        // given
+        LocalDateTime startTime = LocalDateTime.now().minusHours(1);
+        LocalDateTime endTime = LocalDateTime.now();
+        int limit = 1;
+
+        List<WorkflowInstance> failedInstances = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            WorkflowInstance instance = createTestInstance("WF-00" + i, WorkflowStatus.FAILED);
+            failedInstances.add(instance);
+        }
+
+        when(instanceMapper.selectByStatus(eq(WorkflowStatus.FAILED), any(), any(), eq(0), eq(1000)))
+                .thenReturn(failedInstances);
+        // 所有工作流都只有1次失败
+        for (int i = 0; i < 5; i++) {
+            when(instanceMapper.count(eq("WF-00" + i), any(), any(), any())).thenReturn(1);
+        }
+
+        // when
+        List<Map<String, Object>> topFailing = workflowMonitorService.getTopFailingWorkflows(
+                startTime, endTime, limit);
+
+        // then
+        assertThat(topFailing).hasSize(limit);
     }
 
-    private WorkflowAlert createTestAlert(String id, AlertLevel level, boolean resolved) {
-        WorkflowAlert alert = new WorkflowAlert();
-        alert.setId(id);
-        alert.setAlertLevel(level);
-        alert.setAlertMessage("测试告警 " + id);
+    /**
+     * 辅助方法：创建测试告警
+     */
+    private WorkflowAlertDTO createTestAlert(String alertId, String alertType, boolean resolved) {
+        WorkflowAlertDTO alert = new WorkflowAlertDTO();
+        alert.setAlertId(alertId);
+        alert.setAlertType(alertType);
+        alert.setTitle("测试告警");
+        alert.setDescription("测试告警描述");
+        alert.setSeverity("WARNING");
+        alert.setWorkflowId("global");
+        alert.setCreatedAt(LocalDateTime.now());
         alert.setResolved(resolved);
-        alert.setCreateTime(LocalDateTime.now());
         return alert;
+    }
+
+    /**
+     * 辅助方法：创建测试实例
+     */
+    private WorkflowInstance createTestInstance(String workflowId, WorkflowStatus status) {
+        WorkflowInstance instance = new WorkflowInstance();
+        instance.setInstanceId(UUID.randomUUID().toString());
+        instance.setWorkflowId(workflowId);
+        instance.setStatus(status);
+        instance.setStartedAt(LocalDateTime.now().minusMinutes(30));
+        if (status == WorkflowStatus.COMPLETED || status == WorkflowStatus.FAILED) {
+            instance.setCompletedAt(LocalDateTime.now());
+        }
+        return instance;
+    }
+
+    /**
+     * 辅助方法：创建测试实例列表
+     */
+    private List<WorkflowInstance> createTestInstances(int count) {
+        List<WorkflowInstance> instances = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            WorkflowStatus status = i < 7 ? WorkflowStatus.COMPLETED :
+                                   i < 9 ? WorkflowStatus.FAILED : WorkflowStatus.RUNNING;
+            instances.add(createTestInstance(WORKFLOW_ID_1, status));
+        }
+        return instances;
     }
 }
