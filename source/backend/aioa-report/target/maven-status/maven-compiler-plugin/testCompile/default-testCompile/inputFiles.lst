@@ -1,4 +1,5 @@
 /root/workspace/AI-OA/source/backend/aioa-report/src/test/java/com/aioa/report/entity/ReportTest.java
+/root/workspace/AI-OA/source/backend/aioa-report/src/test/java/com/aioa/report/entity/ReportTemplateTest.java
 /root/workspace/AI-OA/source/backend/aioa-report/src/test/java/com/aioa/report/enums/ExportFormatEnumTest.java
 /root/workspace/AI-OA/source/backend/aioa-report/src/test/java/com/aioa/report/enums/ReportStatusEnumTest.java
 /root/workspace/AI-OA/source/backend/aioa-report/src/test/java/com/aioa/report/enums/ChartTypeEnumTest.java
