@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="2.876" tests="10" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.knowledge.entity.KnowledgeCategoryTest" time="0.051" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -54,45 +54,10 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="getStatistics_shouldReturnStats" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="2.593">
-    <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/root/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.10/byte-buddy-agent-1.14.10.jar)
-WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
-WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
-WARNING: Dynamic loading of agents will be disallowed by default in a future release
-SLF4J: A SLF4J service provider failed to instantiate:
-org.slf4j.spi.SLF4JServiceProvider: Provider org.slf4j.reload4j.Reload4jServiceProvider could not be instantiated
-]]></system-err>
-  </testcase>
-  <testcase name="getDoc_withInvalidId_shouldReturnNull" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.037"/>
-  <testcase name="search_withNoMatch_shouldReturnEmptyList" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.055">
-    <system-out><![CDATA[23:16:02.791 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 不存在
-]]></system-out>
-  </testcase>
-  <testcase name="semanticSearch_withVectorResults_shouldReturnDocs" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.041">
-    <system-out><![CDATA[23:16:02.849 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 语义搜索: 测试查询, topN=5
-23:16:02.852 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 语义搜索完成，找到 2 个结果
-]]></system-out>
-  </testcase>
-  <testcase name="search_shouldReturnResults" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.024">
-    <system-out><![CDATA[23:16:02.892 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 测试
-]]></system-out>
-  </testcase>
-  <testcase name="semanticSearch_withEmptyQuery_shouldReturnEmpty" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.016">
-    <system-out><![CDATA[23:16:02.915 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 语义搜索: , topN=5
-23:16:02.915 [main] WARN com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 向量搜索无结果，回退到关键词搜索
-23:16:02.916 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 
-]]></system-out>
-  </testcase>
-  <testcase name="search_withEmptyQuery_shouldHandleGracefully" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.013">
-    <system-out><![CDATA[23:16:02.934 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 
-]]></system-out>
-  </testcase>
-  <testcase name="getDoc_withValidId_shouldReturnDoc" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.013"/>
-  <testcase name="getDoc_withNullId_shouldHandleGracefully" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.01"/>
-  <testcase name="semanticSearch_withNoVectorResults_shouldFallbackToKeywordSearch" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.011">
-    <system-out><![CDATA[23:16:02.975 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 语义搜索: 测试, topN=5
-23:16:02.976 [main] WARN com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 向量搜索无结果，回退到关键词搜索
-23:16:02.976 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 测试
-]]></system-out>
-  </testcase>
+  <testcase name="setAndGetStatus" classname="com.aioa.knowledge.entity.KnowledgeCategoryTest" time="0.009"/>
+  <testcase name="setAndGetParentId" classname="com.aioa.knowledge.entity.KnowledgeCategoryTest" time="0.006"/>
+  <testcase name="createKnowledgeCategory" classname="com.aioa.knowledge.entity.KnowledgeCategoryTest" time="0.005"/>
+  <testcase name="setAndGetId" classname="com.aioa.knowledge.entity.KnowledgeCategoryTest" time="0.004"/>
+  <testcase name="setAndGetName" classname="com.aioa.knowledge.entity.KnowledgeCategoryTest" time="0.003"/>
+  <testcase name="setAndGetSort" classname="com.aioa.knowledge.entity.KnowledgeCategoryTest" time="0.002"/>
 </testsuite>
