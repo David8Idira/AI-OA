@@ -157,4 +157,34 @@ class WorkflowMonitorServiceImplTest {
         // then
         assertThat(stats).containsKeys("total", "pending", "approved", "rejected", "successRate");
     }
+
+    @Test
+    @DisplayName("获取流程健康状态 - 无超时审批")
+    void getHealthStatus_withNoOverdue_shouldReturnPerfectScore() {
+        // given
+        when(approvalMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(50L);
+        when(approvalMapper.selectOverdue()).thenReturn(List.of());
+
+        // when
+        Map<String, Object> health = workflowMonitorService.getHealthStatus();
+
+        // then
+        assertThat(health.get("score")).isEqualTo(100);
+        assertThat(health.get("status")).isEqualTo("HEALTHY");
+    }
+
+    @Test
+    @DisplayName("获取流程统计数据 - 带时间范围")
+    void getWorkflowStatistics_withTimeRange_shouldFilterByTime() {
+        // given
+        LocalDateTime start = LocalDateTime.now().minusDays(7);
+        LocalDateTime end = LocalDateTime.now();
+        when(approvalMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(5L);
+
+        // when
+        Map<String, Object> stats = workflowMonitorService.getWorkflowStatistics(start, end);
+
+        // then
+        assertThat(stats).containsKeys("total", "pending", "approved", "rejected");
+    }
 }
