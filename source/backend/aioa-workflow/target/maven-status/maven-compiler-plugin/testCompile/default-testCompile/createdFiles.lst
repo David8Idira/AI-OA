@@ -1,0 +1,8 @@
+com/aioa/workflow/service/ApprovalServiceImplTest.class
+com/aioa/workflow/service/ApprovalServiceImplTest$CancelApprovalTests.class
+com/aioa/workflow/service/ApprovalServiceImplTest$GetApprovalDetailTests.class
+com/aioa/workflow/service/ApprovalServiceImplTest$ApprovalActionTests.class
+com/aioa/workflow/service/ApprovalServiceImplTest$QueryApprovalsTests.class
+com/aioa/workflow/service/ApprovalServiceImplTest$EnumsTests.class
+com/aioa/workflow/service/ApprovalServiceImplTest$StatisticsTests.class
+com/aioa/workflow/service/ApprovalServiceImplTest$CreateApprovalTests.class
