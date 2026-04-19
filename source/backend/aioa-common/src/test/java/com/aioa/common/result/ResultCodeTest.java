@@ -19,9 +19,9 @@ class ResultCodeTest {
     }
 
     @Test
-    @DisplayName("成功消息应为成功")
+    @DisplayName("成功消息应为操作成功")
     void success_message_shouldBeSuccess() {
-        assertThat(ResultCode.SUCCESS.getMessage()).isEqualTo("成功");
+        assertThat(ResultCode.SUCCESS.getMessage()).isEqualTo("操作成功");
     }
 
     @Test
