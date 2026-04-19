@@ -14,6 +14,7 @@ com/aioa/report/vo/ReportVO.class
 com/aioa/report/mapper/ReportMapper.class
 com/aioa/report/enums/ChartTypeEnum.class
 com/aioa/report/enums/ReportStatusEnum.class
+com/aioa/report/service/impl/ReportServiceImpl.class
 com/aioa/report/vo/PageResult.class
 com/aioa/report/ReportApplication.class
 com/aioa/report/dto/ExportReportDTO.class
