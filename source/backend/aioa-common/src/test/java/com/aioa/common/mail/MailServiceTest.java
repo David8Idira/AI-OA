@@ -79,4 +79,30 @@ class MailServiceTest {
         
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }
+
+    @Test
+    @DisplayName("发送简单邮件 - 空收件人")
+    void sendSimpleMail_withEmptyTo_shouldHandleGracefully() {
+        // given
+        doNothing().when(mailSender).send(any(SimpleMailMessage.class));
+
+        // when
+        mailService.sendSimpleMail("", "测试主题", "测试内容");
+
+        // then
+        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    @DisplayName("发送简单邮件 - 空主题")
+    void sendSimpleMail_withEmptySubject_shouldHandleGracefully() {
+        // given
+        doNothing().when(mailSender).send(any(SimpleMailMessage.class));
+
+        // when
+        mailService.sendSimpleMail(TEST_TO, "", "测试内容");
+
+        // then
+        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
+    }
 }
