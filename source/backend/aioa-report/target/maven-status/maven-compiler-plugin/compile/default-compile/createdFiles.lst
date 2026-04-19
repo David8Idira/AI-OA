@@ -9,14 +9,11 @@ com/aioa/report/controller/ReportController.class
 com/aioa/report/dto/GenerateReportDTO.class
 com/aioa/report/dto/ReportQueryDTO.class
 com/aioa/report/enums/ReportTypeEnum.class
-com/aioa/report/service/impl/AiReportGeneratorServiceImpl.class
 com/aioa/report/service/ReportTemplateService.class
-com/aioa/report/service/impl/ReportTemplateServiceImpl.class
 com/aioa/report/vo/ReportVO.class
 com/aioa/report/mapper/ReportMapper.class
 com/aioa/report/enums/ChartTypeEnum.class
 com/aioa/report/enums/ReportStatusEnum.class
-com/aioa/report/service/impl/ReportServiceImpl.class
 com/aioa/report/vo/PageResult.class
 com/aioa/report/ReportApplication.class
 com/aioa/report/dto/ExportReportDTO.class
