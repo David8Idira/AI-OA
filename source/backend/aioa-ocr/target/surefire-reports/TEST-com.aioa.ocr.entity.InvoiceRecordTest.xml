@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ocr.enums.InvoiceTypeTest" time="0.198" tests="28" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ocr.entity.InvoiceRecordTest" time="0.241" tests="7" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -7,7 +7,6 @@
     <property name="java.vm.vendor" value="Ubuntu"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://ubuntu.com/"/>
-    <property name="user.timezone" value="Asia/Shanghai"/>
     <property name="os.name" value="Linux"/>
     <property name="java.vm.specification.version" value="21"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
@@ -54,32 +53,11 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testTrainTicketCode" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testGetByCodeNull" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.002"/>
-  <testcase name="testIsValidCodeFalse(String)[1]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.029"/>
-  <testcase name="testIsValidCodeFalse(String)[2]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.003"/>
-  <testcase name="testIsValidCodeFalse(String)[3]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.002"/>
-  <testcase name="testIsValidCodeFalse(String)[4]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testIsValidCodeFalse(String)[5]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testVatInvoiceCode" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testIsValidCodeNull" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testIsValidCodeTrue(String)[1]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.002"/>
-  <testcase name="testIsValidCodeTrue(String)[2]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testIsValidCodeTrue(String)[3]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.003"/>
-  <testcase name="testIsValidCodeTrue(String)[4]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testGetByCodeInvalid(String)[1]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.002"/>
-  <testcase name="testGetByCodeInvalid(String)[2]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.002"/>
-  <testcase name="testGetByCodeInvalid(String)[3]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.002"/>
-  <testcase name="testGetByCodeInvalid(String)[4]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testTaxiReceiptCode" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.0"/>
-  <testcase name="testInvoiceTypeCount" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.002"/>
-  <testcase name="testGetByCodeValid(String)[1]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.003"/>
-  <testcase name="testGetByCodeValid(String)[2]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testGetByCodeValid(String)[3]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testGetByCodeValid(String)[4]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testAirTicketCode" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testInvoiceTypeFields(InvoiceType)[1]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.003"/>
-  <testcase name="testInvoiceTypeFields(InvoiceType)[2]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testInvoiceTypeFields(InvoiceType)[3]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
-  <testcase name="testInvoiceTypeFields(InvoiceType)[4]" classname="com.aioa.ocr.enums.InvoiceTypeTest" time="0.001"/>
+  <testcase name="setAndGetStatus" classname="com.aioa.ocr.entity.InvoiceRecordTest" time="0.15"/>
+  <testcase name="setAndGetUserId" classname="com.aioa.ocr.entity.InvoiceRecordTest" time="0.002"/>
+  <testcase name="setAndGetTotalAmount" classname="com.aioa.ocr.entity.InvoiceRecordTest" time="0.007"/>
+  <testcase name="setAndGetInvoiceType" classname="com.aioa.ocr.entity.InvoiceRecordTest" time="0.001"/>
+  <testcase name="equals_sameId_shouldBeEqual" classname="com.aioa.ocr.entity.InvoiceRecordTest" time="0.002"/>
+  <testcase name="createInvoiceRecord" classname="com.aioa.ocr.entity.InvoiceRecordTest" time="0.001"/>
+  <testcase name="setAndGetFileName" classname="com.aioa.ocr.entity.InvoiceRecordTest" time="0.002"/>
 </testsuite>
