@@ -1,4 +1,5 @@
 com/aioa/ai/service/AiModelConfigServiceImplTest.class
 com/aioa/ai/service/AiChatServiceImplTest.class
+com/aioa/ai/util/QuotaCalculatorTest.class
 com/aioa/ai/service/AiQuotaServiceImplTest.class
 com/aioa/ai/service/AiUsageHistoryServiceImplTest.class

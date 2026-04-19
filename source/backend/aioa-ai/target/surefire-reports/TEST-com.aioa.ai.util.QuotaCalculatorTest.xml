@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ai.service.AiChatServiceImplTest" time="0.437" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ai.util.QuotaCalculatorTest" time="0.057" tests="10" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -54,6 +54,14 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="getUserQuota_shouldReturnQuotaInfo" classname="com.aioa.ai.service.AiChatServiceImplTest" time="0.405"/>
-  <testcase name="getAvailableModels_shouldReturnList" classname="com.aioa.ai.service.AiChatServiceImplTest" time="0.017"/>
+  <testcase name="calculateRemaining_withValidQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.002"/>
+  <testcase name="needsWarning_whenBelow80Percent" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.001"/>
+  <testcase name="needsWarning_whenExceeds80Percent" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.004"/>
+  <testcase name="isQuotaExceeded_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
+  <testcase name="useQuotaTokens_withNegativeTokens" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
+  <testcase name="useQuotaTokens_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.002"/>
+  <testcase name="useQuotaTokens_withValidInput" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.006"/>
+  <testcase name="needsWarning_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.004"/>
+  <testcase name="calculateRemaining_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
+  <testcase name="isQuotaExceeded_withinQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
 </testsuite>
