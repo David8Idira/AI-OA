@@ -117,4 +117,9 @@ public class Approval extends BaseEntity {
      * Approval result comment (filled by approver)
      */
     private String approvalComment;
+
+    /**
+     * Workflow ID (for monitoring and tracking)
+     */
+    private String workflowId;
 }
