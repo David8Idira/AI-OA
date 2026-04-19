@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.aioa.workflow.enums.ApprovalPriorityEnumTest
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.328 s -- in com.aioa.workflow.enums.ApprovalPriorityEnumTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in com.aioa.workflow.enums.ApprovalPriorityEnumTest

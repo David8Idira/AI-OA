@@ -1,3 +1,4 @@
+com/aioa/workflow/entity/ApprovalTest.class
 com/aioa/workflow/enums/ApprovalActionEnumTest.class
 com/aioa/workflow/enums/ApprovalStatusEnumTest.class
 com/aioa/workflow/enums/ApprovalPriorityEnumTest.class

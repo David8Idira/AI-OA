@@ -1,2 +1,3 @@
 com/aioa/knowledge/service/KnowledgeServiceImplTest.class
 com/aioa/knowledge/service/impl/VectorServiceImplTest.class
+com/aioa/knowledge/entity/KnowledgeDocTest.class
