@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.083" tests="12" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="2.381" tests="7" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -54,38 +54,34 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="generateEmbedding_withNormalText_shouldReturnVector" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.008"/>
-  <testcase name="healthCheck_shouldReturnTrue" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.005">
-    <system-out><![CDATA[09:56:11.080 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量服务健康检查: 内存存储, 向量数=0
+  <testcase name="getStatistics_shouldReturnStats" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="2.188">
+    <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/root/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.10/byte-buddy-agent-1.14.10.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+SLF4J: A SLF4J service provider failed to instantiate:
+org.slf4j.spi.SLF4JServiceProvider: Provider org.slf4j.reload4j.Reload4jServiceProvider could not be instantiated
+]]></system-err>
+  </testcase>
+  <testcase name="getDoc_withInvalidId_shouldReturnNull" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.03"/>
+  <testcase name="search_withNoMatch_shouldReturnEmptyList" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.028">
+    <system-out><![CDATA[09:56:10.953 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 不存在
 ]]></system-out>
   </testcase>
-  <testcase name="generateEmbedding_withEmptyText_shouldReturnEmptyList" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.001"/>
-  <testcase name="generateEmbedding_withNullText_shouldReturnEmptyList" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.003"/>
-  <testcase name="getCollectionStats_shouldReturnStats" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.006"/>
-  <testcase name="deleteVector_withNonExistingId_shouldReturnFalse" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.001"/>
-  <testcase name="storeVector_withNormalDoc_shouldReturnVectorId" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.01">
-    <system-out><![CDATA[09:56:11.108 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量存储成功: vectorId=288687b179224645ada2b3883cd7236e, docId=doc-001
+  <testcase name="semanticSearch_withVectorResults_shouldReturnDocs" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.015">
+    <system-out><![CDATA[09:56:10.980 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 语义搜索: 测试查询, topN=5
+09:56:10.981 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 语义搜索完成，找到 2 个结果
 ]]></system-out>
   </testcase>
-  <testcase name="deleteVector_withExistingId_shouldReturnTrue" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.005">
-    <system-out><![CDATA[09:56:11.116 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量存储成功: vectorId=695a767e571e4ea6a45cd1bbd42a1832, docId=doc-002
-09:56:11.117 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量删除成功: vectorId=695a767e571e4ea6a45cd1bbd42a1832
+  <testcase name="search_shouldReturnResults" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.024">
+    <system-out><![CDATA[09:56:11.002 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 测试
 ]]></system-out>
   </testcase>
-  <testcase name="storeVector_withNullDoc_shouldReturnNull" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.004">
-    <system-out><![CDATA[09:56:11.122 [main] ERROR com.aioa.knowledge.service.impl.VectorServiceImpl -- 文档内容为空，无法生成向量
+  <testcase name="getDoc_withValidId_shouldReturnDoc" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.011"/>
+  <testcase name="semanticSearch_withNoVectorResults_shouldFallbackToKeywordSearch" classname="com.aioa.knowledge.service.KnowledgeServiceImplTest" time="0.014">
+    <system-out><![CDATA[09:56:11.045 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 语义搜索: 测试, topN=5
+09:56:11.045 [main] WARN com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 向量搜索无结果，回退到关键词搜索
+09:56:11.045 [main] INFO com.aioa.knowledge.service.impl.KnowledgeServiceImpl -- 搜索知识库: 测试
 ]]></system-out>
   </testcase>
-  <testcase name="vectorSearch_withNormalQuery_shouldReturnResults" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.009">
-    <system-out><![CDATA[09:56:11.128 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量存储成功: vectorId=d9e48700f1bf4c4b9c0bc33d06ff2a33, docId=doc-003
-09:56:11.132 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量搜索完成: query='Java', topK=10, 结果数=1
-]]></system-out>
-  </testcase>
-  <testcase name="batchStoreVectors_shouldStoreAll" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.003">
-    <system-out><![CDATA[09:56:11.139 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量存储成功: vectorId=e303b97f782742dd8afdfc29dec582b8, docId=doc-batch-1
-09:56:11.139 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 向量存储成功: vectorId=b492c8b7b8bd4a4abbeba27afa677bf1, docId=doc-batch-2
-09:56:11.140 [main] INFO com.aioa.knowledge.service.impl.VectorServiceImpl -- 批量存储向量完成，成功数: 2/2
-]]></system-out>
-  </testcase>
-  <testcase name="vectorSearch_withEmptyQuery_shouldReturnEmptyList" classname="com.aioa.knowledge.service.impl.VectorServiceImplTest" time="0.001"/>
 </testsuite>
