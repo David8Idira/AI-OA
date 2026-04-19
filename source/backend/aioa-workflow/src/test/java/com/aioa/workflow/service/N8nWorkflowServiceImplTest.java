@@ -25,6 +25,15 @@ class N8nWorkflowServiceImplTest {
         ReflectionTestUtils.setField(workflowService, "n8nApiKey", "test-api-key");
     }
 
+    private N8nWorkflowDTO createTestWorkflow() {
+        N8nWorkflowDTO workflow = new N8nWorkflowDTO();
+        workflow.setWorkflowId("wf-001");
+        workflow.setName("测试工作流");
+        workflow.setWebhookUrl("http://example.com/webhook");
+        workflow.setEnabled(true);
+        return workflow;
+    }
+
     @Test
     @DisplayName("触发工作流 - 不存在")
     void triggerWorkflow_withNonExisting_shouldReturnError() {
@@ -39,10 +48,7 @@ class N8nWorkflowServiceImplTest {
     @DisplayName("触发工作流 - 已禁用")
     void triggerWorkflow_withDisabled_shouldReturnError() {
         // given
-        N8nWorkflowDTO workflow = new N8nWorkflowDTO();
-        workflow.setWorkflowId("wf-001");
-        workflow.setName("测试工作流");
-        workflow.setWebhookUrl("http://example.com/webhook");
+        N8nWorkflowDTO workflow = createTestWorkflow();
         workflow.setEnabled(false);
         workflowService.registerWorkflow(workflow);
 
@@ -54,14 +60,24 @@ class N8nWorkflowServiceImplTest {
     }
 
     @Test
+    @DisplayName("触发工作流 - 已注册且启用")
+    void triggerWorkflow_withEnabled_shouldCallWebhook() {
+        // given
+        N8nWorkflowDTO workflow = createTestWorkflow();
+        workflowService.registerWorkflow(workflow);
+
+        // when
+        String result = workflowService.triggerWorkflow("wf-001", "test-data");
+
+        // then
+        assertThat(result).isNotNull();
+    }
+
+    @Test
     @DisplayName("注册工作流 - 正常场景")
     void registerWorkflow_shouldReturnTrue() {
         // given
-        N8nWorkflowDTO workflow = new N8nWorkflowDTO();
-        workflow.setWorkflowId("wf-001");
-        workflow.setName("测试工作流");
-        workflow.setWebhookUrl("http://example.com/webhook");
-        workflow.setEnabled(true);
+        N8nWorkflowDTO workflow = createTestWorkflow();
 
         // when
         boolean result = workflowService.registerWorkflow(workflow);
@@ -81,10 +97,44 @@ class N8nWorkflowServiceImplTest {
     }
 
     @Test
-    @DisplayName("获取工作流状态 - 正常场景")
-    void getWorkflowStatus_shouldReturnStatus() {
+    @DisplayName("触发审批工作流 - 驳回")
+    void triggerApprovalWorkflow_withReject_shouldReturnResult() {
+        // when
+        String result = workflowService.triggerApprovalWorkflow("approval-002", "reject");
+
+        // then
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    @DisplayName("获取工作流状态 - 已注册")
+    void getWorkflowStatus_withRegisteredWorkflow_shouldReturnStatus() {
+        // given
+        N8nWorkflowDTO workflow = createTestWorkflow();
+        workflowService.registerWorkflow(workflow);
+
         // when
         String result = workflowService.getWorkflowStatus("wf-001");
+
+        // then
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    @DisplayName("获取工作流状态 - 未注册")
+    void getWorkflowStatus_withUnregisteredWorkflow_shouldReturnNotFound() {
+        // when
+        String result = workflowService.getWorkflowStatus("non-existing");
+
+        // then
+        assertThat(result).isEqualTo("工作流不存在");
+    }
+
+    @Test
+    @DisplayName("发送Webhook - 正常URL")
+    void sendWebhook_withValidUrl_shouldReturnResponse() {
+        // when
+        String result = workflowService.sendWebhook("http://example.com/webhook", "test-data");
 
         // then
         assertThat(result).isNotNull();
