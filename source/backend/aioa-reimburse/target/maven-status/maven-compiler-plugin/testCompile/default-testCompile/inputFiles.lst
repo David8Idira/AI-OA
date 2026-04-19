@@ -2,4 +2,5 @@
 /root/workspace/AI-OA/source/backend/aioa-reimburse/src/test/java/com/aioa/reimburse/enums/ReimburseTypeEnumTest.java
 /root/workspace/AI-OA/source/backend/aioa-reimburse/src/test/java/com/aioa/reimburse/enums/ReimburseActionEnumTest.java
 /root/workspace/AI-OA/source/backend/aioa-reimburse/src/test/java/com/aioa/reimburse/entity/ReimburseTest.java
+/root/workspace/AI-OA/source/backend/aioa-reimburse/src/test/java/com/aioa/reimburse/entity/ReimburseItemTest.java
 /root/workspace/AI-OA/source/backend/aioa-reimburse/src/test/java/com/aioa/reimburse/enums/ExpenseTypeEnumTest.java
