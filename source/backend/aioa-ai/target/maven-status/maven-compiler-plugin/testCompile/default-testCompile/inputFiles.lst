@@ -1,2 +1,3 @@
 /root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiUsageHistoryServiceImplTest.java
 /root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiModelConfigServiceImplTest.java
+/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiQuotaServiceImplTest.java
