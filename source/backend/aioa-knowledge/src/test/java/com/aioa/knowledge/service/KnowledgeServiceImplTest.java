@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
  * 毛泽东思想指导：实事求是，测试知识库服务
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("KnowledgeServiceImpl 单元测试")
+@DisplayName("KnowledgeServiceImplTest 单元测试")
 class KnowledgeServiceImplTest {
 
     @Mock
@@ -142,5 +142,38 @@ class KnowledgeServiceImplTest {
 
         // then
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    @DisplayName("搜索知识库 - 空查询")
+    void search_withEmptyQuery_shouldHandleGracefully() {
+        // given
+        when(knowledgeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
+
+        // when
+        List<KnowledgeDoc> results = knowledgeService.search("");
+
+        // then
+        assertThat(results).isNotNull();
+    }
+
+    @Test
+    @DisplayName("语义搜索 - 空查询")
+    void semanticSearch_withEmptyQuery_shouldReturnEmpty() {
+        // when
+        List<KnowledgeDoc> results = knowledgeService.semanticSearch("", 5);
+
+        // then
+        assertThat(results).isNotNull();
+    }
+
+    @Test
+    @DisplayName("获取文档详情 - null ID")
+    void getDoc_withNullId_shouldHandleGracefully() {
+        // when
+        KnowledgeDoc result = knowledgeService.getDoc(null);
+
+        // then
+        assertThat(result).isNull();
     }
 }
