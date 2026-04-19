@@ -1,2 +1,1 @@
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiChatServiceTest.java
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/integration/IntegrationTest.java
+/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiUsageHistoryServiceImplTest.java
