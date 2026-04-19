@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.aioa.ocr.client.AliyunOcrClientTest
 -------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.649 s -- in com.aioa.ocr.client.AliyunOcrClientTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.263 s -- in com.aioa.ocr.client.AliyunOcrClientTest

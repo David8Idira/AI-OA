@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.18" tests="12" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.032" tests="8" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -53,16 +53,12 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="isValidCode_withInvalidCode_shouldReturnFalse" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.099"/>
-  <testcase name="PAID_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.008"/>
-  <testcase name="getByCode_withValidCode_shouldReturnEnum" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.003"/>
-  <testcase name="APPROVED_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.002"/>
-  <testcase name="DRAFT_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.002"/>
-  <testcase name="REJECTED_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.005"/>
-  <testcase name="CANCELLED_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.003"/>
-  <testcase name="getByCode_withInvalidCode_shouldReturnNull" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.001"/>
-  <testcase name="getByCode_withNull_shouldReturnNull" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.001"/>
-  <testcase name="values_shouldHaveSixValues" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.01"/>
-  <testcase name="isValidCode_withValidCode_shouldReturnTrue" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.001"/>
-  <testcase name="PENDING_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseStatusEnumTest" time="0.001"/>
+  <testcase name="getByCode_withValidCode_shouldReturnEnum" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.008"/>
+  <testcase name="APPROVE_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.003"/>
+  <testcase name="REJECT_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.004"/>
+  <testcase name="CANCEL_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.002"/>
+  <testcase name="values_shouldHaveFourValues" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.001"/>
+  <testcase name="getByCode_withInvalidCode_shouldReturnNull" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.001"/>
+  <testcase name="getByCode_withNull_shouldReturnNull" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.002"/>
+  <testcase name="REQUEST_EXTRA_shouldHaveCorrectCodeAndDescription" classname="com.aioa.reimburse.enums.ReimburseActionEnumTest" time="0.001"/>
 </testsuite>

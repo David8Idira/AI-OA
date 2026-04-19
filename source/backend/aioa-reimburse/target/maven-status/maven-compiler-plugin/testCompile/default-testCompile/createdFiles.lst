@@ -1,2 +1,4 @@
+com/aioa/reimburse/enums/ReimburseActionEnumTest.class
 com/aioa/reimburse/enums/ReimburseTypeEnumTest.class
 com/aioa/reimburse/enums/ReimburseStatusEnumTest.class
+com/aioa/reimburse/enums/ExpenseTypeEnumTest.class
