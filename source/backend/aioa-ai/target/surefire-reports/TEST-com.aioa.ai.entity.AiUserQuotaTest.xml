@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ai.dto.ChatRequestDTOTest" time="0.154" tests="10" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ai.entity.AiUserQuotaTest" time="0.421" tests="12" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -54,14 +54,16 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="setAndGetConversationId" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.004"/>
-  <testcase name="setAndGetHistoryCount" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.004"/>
-  <testcase name="equalsAndHashCode" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.005"/>
-  <testcase name="setAndGetSystemPrompt" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.004"/>
-  <testcase name="defaultConstructor_shouldCreateEmptyRequest" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.014"/>
-  <testcase name="setAndGetModelCode" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.005"/>
-  <testcase name="setAndGetMessage" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.004"/>
-  <testcase name="setAndGetMaxTokens" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.006"/>
-  <testcase name="toString_shouldContainMessage" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.058"/>
-  <testcase name="setAndGetTemperature" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.006"/>
+  <testcase name="setAndGetUserId" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.249"/>
+  <testcase name="addUsage" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.007"/>
+  <testcase name="setAndGetMonthlyUsed" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.005"/>
+  <testcase name="calculateRemainingDaily" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.003"/>
+  <testcase name="checkDailyExceeded" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.004"/>
+  <testcase name="setAndGetModelCode" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.004"/>
+  <testcase name="setAndGetTodayUsed" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.002"/>
+  <testcase name="setAndGetDailyLimit" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.002"/>
+  <testcase name="setAndGetLastResetDate" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.046"/>
+  <testcase name="setAndGetTotalUsed" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.003"/>
+  <testcase name="createAiUserQuota" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.001"/>
+  <testcase name="setAndGetMonthlyLimit" classname="com.aioa.ai.entity.AiUserQuotaTest" time="0.003"/>
 </testsuite>
