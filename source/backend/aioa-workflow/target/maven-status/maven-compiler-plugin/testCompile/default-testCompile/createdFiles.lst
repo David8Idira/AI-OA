@@ -1,4 +1,5 @@
 com/aioa/workflow/enums/ApprovalActionEnumTest.class
 com/aioa/workflow/enums/ApprovalStatusEnumTest.class
+com/aioa/workflow/enums/ApprovalPriorityEnumTest.class
 com/aioa/workflow/service/N8nWorkflowServiceImplTest.class
 com/aioa/workflow/service/WorkflowMonitorServiceImplTest.class
