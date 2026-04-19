@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
-Test set: com.aioa.report.entity.ReportTest
+Test set: com.aioa.system.entity.SysRoleTest
 -------------------------------------------------------------------------------
-Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.365 s -- in com.aioa.report.entity.ReportTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.327 s -- in com.aioa.system.entity.SysRoleTest
