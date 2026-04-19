@@ -1,5 +1,6 @@
 /root/workspace/AI-OA/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/service/WorkflowMonitorServiceImplTest.java
 /root/workspace/AI-OA/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/service/N8nWorkflowServiceImplTest.java
+/root/workspace/AI-OA/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/entity/ApprovalRecordTest.java
 /root/workspace/AI-OA/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/enums/ApprovalPriorityEnumTest.java
 /root/workspace/AI-OA/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/entity/ApprovalTest.java
 /root/workspace/AI-OA/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/enums/ApprovalActionEnumTest.java
