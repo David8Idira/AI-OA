@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ai.util.QuotaCalculatorTest" time="0.046" tests="10" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.aioa.ai.dto.ChatRequestDTOTest" time="0.207" tests="10" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -7,7 +7,6 @@
     <property name="java.vm.vendor" value="Ubuntu"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.vendor.url" value="https://ubuntu.com/"/>
-    <property name="user.timezone" value="Asia/Shanghai"/>
     <property name="os.name" value="Linux"/>
     <property name="java.vm.specification.version" value="21"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
@@ -54,14 +53,14 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="calculateRemaining_withValidQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
-  <testcase name="needsWarning_whenBelow80Percent" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.002"/>
-  <testcase name="needsWarning_whenExceeds80Percent" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.001"/>
-  <testcase name="isQuotaExceeded_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.004"/>
-  <testcase name="useQuotaTokens_withNegativeTokens" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.001"/>
-  <testcase name="useQuotaTokens_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
-  <testcase name="useQuotaTokens_withValidInput" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
-  <testcase name="needsWarning_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.004"/>
-  <testcase name="calculateRemaining_withNullQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.003"/>
-  <testcase name="isQuotaExceeded_withinQuota" classname="com.aioa.ai.util.QuotaCalculatorTest" time="0.002"/>
+  <testcase name="setAndGetConversationId" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.132"/>
+  <testcase name="setAndGetHistoryCount" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.004"/>
+  <testcase name="equalsAndHashCode" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.002"/>
+  <testcase name="setAndGetSystemPrompt" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.002"/>
+  <testcase name="defaultConstructor_shouldCreateEmptyRequest" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.004"/>
+  <testcase name="setAndGetModelCode" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.002"/>
+  <testcase name="setAndGetMessage" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.002"/>
+  <testcase name="setAndGetMaxTokens" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.001"/>
+  <testcase name="toString_shouldContainMessage" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.014"/>
+  <testcase name="setAndGetTemperature" classname="com.aioa.ai.dto.ChatRequestDTOTest" time="0.002"/>
 </testsuite>
