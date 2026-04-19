@@ -11,6 +11,7 @@ com/aioa/workflow/entity/Approval.class
 com/aioa/workflow/enums/ApprovalStatusEnum.class
 com/aioa/workflow/dto/N8nWorkflowDTO.class
 com/aioa/workflow/enums/ApprovalActionEnum.class
+com/aioa/workflow/service/impl/WorkflowMonitorServiceImpl.class
 com/aioa/workflow/vo/ApprovalVO.class
 com/aioa/workflow/service/impl/ApprovalServiceImpl.class
 com/aioa/workflow/dto/CreateApprovalDTO.class
