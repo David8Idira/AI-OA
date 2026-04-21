@@ -1,0 +1,56 @@
+-------------------------------------------------------------------------------
+Test set: com.aioa.report.service.ReportServiceImplTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 5, Skipped: 0, Time elapsed: 2.446 s <<< FAILURE! -- in com.aioa.report.service.ReportServiceImplTest
+com.aioa.report.service.ReportServiceImplTest.regenerateReport_withNonExistingReport_shouldReturnNull -- Time elapsed: 2.257 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.report.service.impl.ReportServiceImpl.regenerateReport(ReportServiceImpl.java:120)
+	at com.aioa.report.service.ReportServiceImplTest.regenerateReport_withNonExistingReport_shouldReturnNull(ReportServiceImplTest.java:120)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.report.service.ReportServiceImplTest.exportReport_withNonExistingReport_shouldReturnNull -- Time elapsed: 0.015 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.report.service.impl.ReportServiceImpl.getReportDetail(ReportServiceImpl.java:57)
+	at com.aioa.report.service.impl.ReportServiceImpl.exportReport(ReportServiceImpl.java:91)
+	at com.aioa.report.service.ReportServiceImplTest.exportReport_withNonExistingReport_shouldReturnNull(ReportServiceImplTest.java:107)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.report.service.ReportServiceImplTest.getReportDetail_withNonExistingId_shouldReturnNull -- Time elapsed: 0.016 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.report.service.impl.ReportServiceImpl.getReportDetail(ReportServiceImpl.java:57)
+	at com.aioa.report.service.ReportServiceImplTest.getReportDetail_withNonExistingId_shouldReturnNull(ReportServiceImplTest.java:79)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.report.service.ReportServiceImplTest.generateReport_withValidInput_shouldCallInsert -- Time elapsed: 0.030 s <<< ERROR!
+org.mockito.exceptions.base.MockitoException: 
+
+Only void methods can doNothing()!
+Example of correct use of doNothing():
+    doNothing().
+    doThrow(new RuntimeException())
+    .when(mock).someVoidMethod();
+Above means:
+someVoidMethod() does nothing the 1st time but throws an exception the 2nd time is called
+	at com.aioa.report.service.ReportServiceImplTest.generateReport_withValidInput_shouldCallInsert(ReportServiceImplTest.java:61)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.report.service.ReportServiceImplTest.deleteReport_withDifferentUser_shouldReturnFalse -- Time elapsed: 0.012 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.report.service.impl.ReportServiceImpl.deleteReport(ReportServiceImpl.java:74)
+	at com.aioa.report.service.ReportServiceImplTest.deleteReport_withDifferentUser_shouldReturnFalse(ReportServiceImplTest.java:94)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

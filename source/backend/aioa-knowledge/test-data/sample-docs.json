@@ -1,0 +1,23 @@
+[
+  {
+    "title": "Spring Boot配置指南",
+    "content": "Spring Boot应用程序可以通过application.properties或application.yml文件进行配置。支持多环境配置、外部化配置、条件化配置等功能。",
+    "summary": "Spring Boot配置方法详解",
+    "docType": "manual",
+    "status": "published"
+  },
+  {
+    "title": "MySQL数据库优化",
+    "content": "MySQL数据库优化包括索引优化、查询优化、配置优化和架构优化。合理使用索引可以显著提升查询性能，避免全表扫描。",
+    "summary": "MySQL性能优化技巧",
+    "docType": "article",
+    "status": "published"
+  },
+  {
+    "title": "微服务架构设计原则",
+    "content": "微服务架构设计遵循单一职责、自治性、可独立部署、技术异构性等原则。每个微服务应该有清晰的边界和明确的职责。",
+    "summary": "微服务架构核心设计原则",
+    "docType": "guide",
+    "status": "published"
+  }
+]

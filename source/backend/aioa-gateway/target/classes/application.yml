@@ -1,0 +1,100 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: aioa-gateway
+  
+  cloud:
+    gateway:
+      # 路由配置
+      routes:
+        - id: aioa-system
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/system/**
+          filters:
+            - StripPrefix=1
+        
+        - id: aioa-workflow
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/workflow/**
+          filters:
+            - StripPrefix=1
+            
+        - id: aioa-ai
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - StripPrefix=1
+            
+        - id: aioa-im
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/im/**
+          filters:
+            - StripPrefix=1
+            
+        - id: aioa-ocr
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/ocr/**
+          filters:
+            - StripPrefix=1
+            
+        - id: aioa-reimburse
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/reimburse/**
+          filters:
+            - StripPrefix=1
+            
+        - id: aioa-report
+          uri: http://localhost:8087
+          predicates:
+            - Path=/api/report/**
+          filters:
+            - StripPrefix=1
+      
+      # 全局过滤器
+      global-filters:
+        - name: AuthFilter
+          args:
+            enabled: true
+      
+      # CORS配置
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"
+        allowed-headers: "*"
+        allowed-credentials: false
+        max-age: 3600
+  
+  # Redis配置 (用于限流、共享session)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+# JWT配置
+aioa:
+  jwt:
+    secret: ${JWT_SECRET:aioa-jwt-secret-key-for-signing-tokens-must-be-at-least-256-bits-long}
+    expiration: 86400000 # 24小时（毫秒）
+    issuer: aioa-system
+
+# 日志配置
+logging:
+  level:
+    com.aioa: DEBUG
+    org.springframework.cloud.gateway: DEBUG

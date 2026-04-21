@@ -1,0 +1,73 @@
+-------------------------------------------------------------------------------
+Test set: com.aioa.im.service.ConversationServiceTest
+-------------------------------------------------------------------------------
+Tests run: 10, Failures: 0, Errors: 8, Skipped: 0, Time elapsed: 3.178 s <<< FAILURE! -- in com.aioa.im.service.ConversationServiceTest
+com.aioa.im.service.ConversationServiceTest.markAsRead_success -- Time elapsed: 2.888 s <<< ERROR!
+com.aioa.common.exception.BusinessException: You are not a member of this conversation
+	at com.aioa.im.service.impl.ConversationServiceImpl.markAsRead(ConversationServiceImpl.java:220)
+	at com.aioa.im.service.ConversationServiceTest.markAsRead_success(ConversationServiceTest.java:218)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.im.service.ConversationServiceTest.getOrCreatePrivateConversation_createNew -- Time elapsed: 0.029 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectList(com.baomidou.mybatisplus.core.conditions.Wrapper)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.list(IService.java:406)
+	at com.aioa.im.service.impl.ConversationServiceImpl.getOrCreatePrivateConversation(ConversationServiceImpl.java:191)
+	at com.aioa.im.service.ConversationServiceTest.getOrCreatePrivateConversation_createNew(ConversationServiceTest.java:101)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.im.service.ConversationServiceTest.muteConversation_success -- Time elapsed: 0.017 s <<< ERROR!
+com.aioa.common.exception.BusinessException: You are not a member of this conversation
+	at com.aioa.im.service.impl.ConversationServiceImpl.muteConversation(ConversationServiceImpl.java:270)
+	at com.aioa.im.service.ConversationServiceTest.muteConversation_success(ConversationServiceTest.java:175)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.im.service.ConversationServiceTest.deleteConversation_success -- Time elapsed: 0.013 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.im.service.impl.ConversationServiceImpl.deleteConversation(ConversationServiceImpl.java:241)
+	at com.aioa.im.service.ConversationServiceTest.deleteConversation_success(ConversationServiceTest.java:204)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.im.service.ConversationServiceTest.getOrCreatePrivateConversation_existing -- Time elapsed: 0.025 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectList(com.baomidou.mybatisplus.core.conditions.Wrapper)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.list(IService.java:406)
+	at com.aioa.im.service.impl.ConversationServiceImpl.getOrCreatePrivateConversation(ConversationServiceImpl.java:191)
+	at com.aioa.im.service.ConversationServiceTest.getOrCreatePrivateConversation_existing(ConversationServiceTest.java:131)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.im.service.ConversationServiceTest.topConversation_success -- Time elapsed: 0.015 s <<< ERROR!
+com.aioa.common.exception.BusinessException: You are not a member of this conversation
+	at com.aioa.im.service.impl.ConversationServiceImpl.topConversation(ConversationServiceImpl.java:285)
+	at com.aioa.im.service.ConversationServiceTest.topConversation_success(ConversationServiceTest.java:188)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.im.service.ConversationServiceTest.getConversationList_withConversations -- Time elapsed: 0.025 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectList(com.baomidou.mybatisplus.core.conditions.Wrapper)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.list(IService.java:406)
+	at com.aioa.im.service.impl.ConversationServiceImpl.getConversationList(ConversationServiceImpl.java:82)
+	at com.aioa.im.service.ConversationServiceTest.getConversationList_withConversations(ConversationServiceTest.java:84)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.im.service.ConversationServiceTest.createConversation_group -- Time elapsed: 0.011 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.insert(Object)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.save(IService.java:60)
+	at com.aioa.im.service.impl.ConversationServiceImpl.createConversation(ConversationServiceImpl.java:163)
+	at com.aioa.im.service.ConversationServiceTest.createConversation_group(ConversationServiceTest.java:149)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

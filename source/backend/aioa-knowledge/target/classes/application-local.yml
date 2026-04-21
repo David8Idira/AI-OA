@@ -1,0 +1,64 @@
+# 本地知识库配置
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_oa?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.aioa.knowledge.entity
+
+# Milvus配置
+milvus:
+  host: localhost
+  port: 19530
+  collection-name: aioa_knowledge
+  vector-dim: 1536
+
+# AI向量化配置
+ai:
+  embedding:
+    mode: openai  # openai或local
+    dimension: 1536
+    batch-size: 10
+    timeout-seconds: 30
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: https://api.openai.com/v1
+      model: text-embedding-ada-002
+      max-tokens: 8191
+    local:
+      model-path: ${LOCAL_MODEL_PATH:}
+      model-type: bge-m3
+      gpu-accelerated: false
+      max-length: 512
+
+# 日志配置
+logging:
+  level:
+    com.aioa.knowledge: DEBUG
+    io.milvus: INFO
+  file:
+    name: logs/aioa-knowledge.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 知识库配置
+knowledge:
+  default-category: 1
+  page-size: 20
+  cache-enabled: true
+  cache-ttl: 3600  # 1小时

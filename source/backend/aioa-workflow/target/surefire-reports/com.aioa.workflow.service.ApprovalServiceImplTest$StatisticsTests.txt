@@ -1,0 +1,13 @@
+-------------------------------------------------------------------------------
+Test set: com.aioa.workflow.service.ApprovalServiceImplTest$StatisticsTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.121 s <<< FAILURE! -- in com.aioa.workflow.service.ApprovalServiceImplTest$StatisticsTests
+com.aioa.workflow.service.ApprovalServiceImplTest$StatisticsTests.shouldGetStatisticsCorrectly -- Time elapsed: 0.088 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectCount(com.baomidou.mybatisplus.core.conditions.Wrapper)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.count(IService.java:397)
+	at com.aioa.workflow.service.ApprovalServiceImplTest$StatisticsTests.shouldGetStatisticsCorrectly(ApprovalServiceImplTest.java:485)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

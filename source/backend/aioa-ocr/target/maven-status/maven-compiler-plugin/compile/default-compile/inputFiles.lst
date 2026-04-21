@@ -1,0 +1,9 @@
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/service/impl/OcrServiceImpl.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/service/OcrService.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/entity/InvoiceRecord.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/dto/OcrRequest.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/enums/InvoiceType.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/client/AliyunOcrClient.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/config/AliyunOcrConfig.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/controller/OcrController.java
+/root/workspace/AI-OA/source/backend/aioa-ocr/src/main/java/com/aioa/ocr/dto/OcrResponse.java

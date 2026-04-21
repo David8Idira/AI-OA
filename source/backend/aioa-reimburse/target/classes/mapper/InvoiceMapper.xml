@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aioa.reimburse.mapper.InvoiceMapper">
+
+    <resultMap id="BaseResultMap" type="com.aioa.reimburse.entity.Invoice">
+        <id column="id" property="id"/>
+        <result column="reimburse_id" property="reimburseId"/>
+        <result column="reimburse_item_id" property="reimburseItemId"/>
+        <result column="ocr_record_id" property="ocrRecordId"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="invoice_type_name" property="invoiceTypeName"/>
+        <result column="invoice_no" property="invoiceNo"/>
+        <result column="invoice_code" property="invoiceCode"/>
+        <result column="invoice_date" property="invoiceDate"/>
+        <result column="invoice_date_str" property="invoiceDateStr"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="pretax_amount" property="pretaxAmount"/>
+        <result column="tax_amount" property="taxAmount"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="currency" property="currency"/>
+        <result column="seller_name" property="sellerName"/>
+        <result column="seller_tax_id" property="sellerTaxId"/>
+        <result column="buyer_name" property="buyerName"/>
+        <result column="buyer_tax_id" property="buyerTaxId"/>
+        <result column="ocr_confidence" property="ocrConfidence"/>
+        <result column="source" property="source"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_name" property="fileName"/>
+        <result column="verified" property="verified"/>
+        <result column="verify_remark" property="verifyRemark"/>
+        <result column="verified_by" property="verifiedBy"/>
+        <result column="verified_time" property="verifiedTime"/>
+        <result column="status" property="status"/>
+        <result column="invalidate_reason" property="invalidateReason"/>
+        <result column="raw_ocr_result" property="rawOcrResult"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <select id="selectByReimburseId" resultMap="BaseResultMap">
+        SELECT * FROM reimburse_invoice
+        WHERE deleted = 0 AND reimburse_id = #{reimburseId}
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectByReimburseItemId" resultMap="BaseResultMap">
+        SELECT * FROM reimburse_invoice
+        WHERE deleted = 0 AND reimburse_item_id = #{reimburseItemId}
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectByOcrRecordId" resultMap="BaseResultMap">
+        SELECT * FROM reimburse_invoice
+        WHERE deleted = 0 AND ocr_record_id = #{ocrRecordId}
+        LIMIT 1
+    </select>
+
+    <select id="countByReimburseId" resultType="long">
+        SELECT COUNT(*) FROM reimburse_invoice WHERE deleted = 0 AND reimburse_id = #{reimburseId}
+    </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO reimburse_invoice (
+            id, reimburse_id, reimburse_item_id, ocr_record_id, invoice_type, invoice_type_name,
+            invoice_no, invoice_code, invoice_date, invoice_date_str, total_amount, pretax_amount,
+            tax_amount, tax_rate, currency, seller_name, seller_tax_id, buyer_name, buyer_tax_id,
+            ocr_confidence, source, file_url, file_name, verified, status, remark,
+            create_by, create_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.reimburseId}, #{item.reimburseItemId}, #{item.ocrRecordId},
+                #{item.invoiceType}, #{item.invoiceTypeName}, #{item.invoiceNo}, #{item.invoiceCode},
+                #{item.invoiceDate}, #{item.invoiceDateStr}, #{item.totalAmount}, #{item.pretaxAmount},
+                #{item.taxAmount}, #{item.taxRate}, #{item.currency}, #{item.sellerName},
+                #{item.sellerTaxId}, #{item.buyerName}, #{item.buyerTaxId}, #{item.ocrConfidence},
+                #{item.source}, #{item.fileUrl}, #{item.fileName}, #{item.verified}, #{item.status},
+                #{item.remark}, #{item.createBy}, #{item.createTime}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateVerifyStatus">
+        UPDATE reimburse_invoice
+        SET verified = #{verified},
+            verified_by = #{verifiedBy},
+            verify_remark = #{verifyRemark},
+            verified_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

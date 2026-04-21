@@ -1,0 +1,40 @@
+-------------------------------------------------------------------------------
+Test set: com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 4, Skipped: 0, Time elapsed: 0.084 s <<< FAILURE! -- in com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests
+com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldGetApprovalDetailForApplicant -- Time elapsed: 0.020 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldGetApprovalDetailForApplicant(ApprovalServiceImplTest.java:173)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldThrowExceptionWhenNoPermission -- Time elapsed: 0.012 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldThrowExceptionWhenNoPermission(ApprovalServiceImplTest.java:221)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldGetApprovalDetailForApprover -- Time elapsed: 0.013 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldGetApprovalDetailForApprover(ApprovalServiceImplTest.java:190)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldThrowExceptionWhenApprovalNotFound -- Time elapsed: 0.012 s <<< ERROR!
+java.lang.NullPointerException: Cannot invoke "com.baomidou.mybatisplus.core.mapper.BaseMapper.selectById(java.io.Serializable)" because the return value of "com.baomidou.mybatisplus.extension.service.IService.getBaseMapper()" is null
+	at com.baomidou.mybatisplus.extension.service.IService.getById(IService.java:289)
+	at com.aioa.workflow.service.ApprovalServiceImplTest$GetApprovalDetailTests.shouldThrowExceptionWhenApprovalNotFound(ApprovalServiceImplTest.java:206)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

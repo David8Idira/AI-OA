@@ -1,0 +1,64 @@
+{
+  "poc_name": "im",
+  "timestamp": "2026-04-05T15:40:15.437521",
+  "results": [
+    {
+      "name": "消息延迟测试",
+      "p50": 238.34860822433782,
+      "p95": 429.716917399534,
+      "p99": 449.5670818799965,
+      "avg": 239.09996451987752,
+      "threshold_p99": 500,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "消息到达率测试",
+      "total_messages": 10000,
+      "delivered": 9998,
+      "delivery_rate": 0.9998,
+      "threshold": 0.999,
+      "passed": true,
+      "score": 0.9998
+    },
+    {
+      "name": "同时在线人数测试",
+      "tests": [
+        {
+          "users": 500,
+          "success": 0.9918640473692447
+        },
+        {
+          "users": 1000,
+          "success": 0.9934544013836788
+        },
+        {
+          "users": 1500,
+          "success": 0.9594679083115918
+        }
+      ],
+      "avg_success": 0.9815954523548385,
+      "max_users": 1500,
+      "threshold": 1000,
+      "passed": true,
+      "score": 0.9815954523548385
+    },
+    {
+      "name": "多设备同步测试",
+      "avg_sync_time": 1.1203923778180744,
+      "max_sync_time": 1.7382166675892086,
+      "threshold": 2.0,
+      "passed": true,
+      "score": 1.0
+    },
+    {
+      "name": "心跳稳定性测试",
+      "total_heartbeats": 1000,
+      "missed_heartbeats": 4,
+      "stability_rate": 0.996,
+      "threshold": 0.99,
+      "passed": true,
+      "score": 0.996
+    }
+  ]
+}
