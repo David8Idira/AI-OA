@@ -47,14 +47,6 @@ public class MonitorConfig {
     }
     
     /**
-     * Milvus监控指标
-     */
-    @Bean
-    public MilvusMetrics milvusMetrics(MeterRegistry meterRegistry) {
-        return new MilvusMetrics(meterRegistry);
-    }
-    
-    /**
      * 缓存监控指标
      */
     @Bean

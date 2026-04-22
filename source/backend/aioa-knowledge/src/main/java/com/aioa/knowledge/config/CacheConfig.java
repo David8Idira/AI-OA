@@ -195,6 +195,24 @@ public class CacheConfig {
         }
         
         @Override
+        public <T> T get(Object key, java.util.concurrent.Callable<T> valueLoader) {
+            // 先从L1缓存获取
+            T value = l1Cache != null ? l1Cache.get(key, valueLoader) : null;
+            if (value != null) {
+                return value;
+            }
+            
+            // L1未命中，从L2获取
+            value = l2Cache != null ? l2Cache.get(key, valueLoader) : null;
+            if (value != null && l1Cache != null) {
+                // 将L2的值写入L1缓存
+                l1Cache.put(key, value);
+            }
+            
+            return value;
+        }
+        
+        @Override
         public void put(Object key, Object value) {
             // 同时写入L1和L2缓存
             if (l1Cache != null) {

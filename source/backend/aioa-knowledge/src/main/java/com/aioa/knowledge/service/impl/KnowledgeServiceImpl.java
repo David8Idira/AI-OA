@@ -216,6 +216,10 @@ public class KnowledgeServiceImpl implements KnowledgeService {
             } catch (Exception e) {
                 log.error("批量创建文档失败: {}", e.getMessage());
                 failCount++;
+                // 如果是严重错误，重新抛出异常
+                if (docs.size() == 1) {
+                    throw e; // 单个文档导入失败时返回错误
+                }
             }
         }
         
@@ -257,8 +261,14 @@ public class KnowledgeServiceImpl implements KnowledgeService {
             try {
                 // 获取文档以获取向量ID
                 KnowledgeDoc doc = knowledgeMapper.selectById(id);
-                if (doc != null && doc.getVectorId() != null) {
-                    // 删除向量
+                if (doc == null) {
+                    // 文档不存在，跳过
+                    log.warn("文档不存在，跳过删除: id={}", id);
+                    continue;
+                }
+                
+                // 删除向量
+                if (doc.getVectorId() != null) {
                     vectorService.deleteVector(doc.getVectorId());
                 }
                 

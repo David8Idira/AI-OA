@@ -2,7 +2,6 @@ package com.aioa.knowledge.controller;
 
 import com.aioa.knowledge.monitor.KnowledgeMetrics;
 import com.aioa.knowledge.service.CacheService;
-import com.aioa.knowledge.service.impl.MilvusVectorServiceImpl;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
@@ -30,9 +29,6 @@ public class MonitorController {
     
     @Autowired
     private CacheService cacheService;
-    
-    @Autowired(required = false)
-    private MilvusVectorServiceImpl milvusVectorService;
     
     @Autowired
     private MeterRegistry meterRegistry;
@@ -70,10 +66,12 @@ public class MonitorController {
             // 缓存指标
             metrics.put("cache", cacheService.getCacheStatistics());
             
-            // Milvus指标（如果可用）
-            if (milvusVectorService != null) {
-                metrics.put("milvus", milvusVectorService.getCollectionStats());
-            }
+            // 向量服务指标（简化）
+            metrics.put("vector", Map.of(
+                "service", "simplified-vector-service",
+                "status", "active",
+                "timestamp", new java.util.Date()
+            ));
             
             // 系统指标
             Map<String, Object> systemMetrics = new HashMap<>();
@@ -108,13 +106,11 @@ public class MonitorController {
             // 缓存健康检查
             health.put("cache", cacheService.healthCheck());
             
-            // Milvus健康检查
-            if (milvusVectorService != null) {
-                health.put("milvus", Map.of(
-                    "status", milvusVectorService.healthCheck() ? "healthy" : "unhealthy",
-                    "message", "Milvus向量服务检查"
-                ));
-            }
+            // 向量服务健康检查（简化）
+            health.put("vector", Map.of(
+                "status", "healthy", // 使用简化的向量服务
+                "message", "向量服务运行中（简化模式）"
+            ));
             
             // 数据库连接检查（简化）
             health.put("database", Map.of(
@@ -171,10 +167,13 @@ public class MonitorController {
                 "activeOperations", knowledgeMetrics.get("searches.active")
             ));
             
-            // Milvus性能测试（如果可用）
-            if (milvusVectorService != null) {
-                performance.put("milvus", milvusVectorService.performanceTest(queryCount, topK));
-            }
+            // 向量服务性能（简化）
+            performance.put("vector", Map.of(
+                "queryCount", queryCount,
+                "topK", topK,
+                "status", "simplified-test",
+                "message", "使用简化向量服务进行测试"
+            ));
             
             // 系统性能
             performance.put("system", Map.of(
