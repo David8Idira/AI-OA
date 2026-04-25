@@ -1,7 +1,0 @@
-com/aioa/ai/entity/AiUserQuotaTest.class
-com/aioa/ai/service/AiModelConfigServiceImplTest.class
-com/aioa/ai/service/AiChatServiceImplTest.class
-com/aioa/ai/util/QuotaCalculatorTest.class
-com/aioa/ai/dto/ChatRequestDTOTest.class
-com/aioa/ai/service/AiQuotaServiceImplTest.class
-com/aioa/ai/service/AiUsageHistoryServiceImplTest.class

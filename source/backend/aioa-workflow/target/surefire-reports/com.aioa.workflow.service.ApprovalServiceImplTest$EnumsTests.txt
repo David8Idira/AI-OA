@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.aioa.workflow.service.ApprovalServiceImplTest$EnumsTests
--------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.310 s -- in com.aioa.workflow.service.ApprovalServiceImplTest$EnumsTests

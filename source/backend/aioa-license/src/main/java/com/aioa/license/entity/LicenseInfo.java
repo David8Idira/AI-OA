@@ -1,0 +1,117 @@
+package com.aioa.license.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+/**
+ * 证照信息实体
+ */
+@Data
+@TableName("license_info")
+public class LicenseInfo {
+    
+    /**
+     * 主键ID
+     */
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    
+    /**
+     * 证照编号
+     */
+    private String licenseNo;
+    
+    /**
+     * 证照名称
+     */
+    private String licenseName;
+    
+    /**
+     * 证照分类ID
+     */
+    private Long categoryId;
+    
+    /**
+     * 颁发机构
+     */
+    private String issuingAuthority;
+    
+    /**
+     * 颁发日期
+     */
+    private LocalDate issueDate;
+    
+    /**
+     * 有效开始日期
+     */
+    private LocalDate validFrom;
+    
+    /**
+     * 有效结束日期
+     */
+    private LocalDate validTo;
+    
+    /**
+     * 年审日期
+     */
+    private LocalDate annualReviewDate;
+    
+    /**
+     * 年审周期（月）
+     */
+    private Integer reviewCycle;
+    
+    /**
+     * 保管人
+     */
+    private String keeper;
+    
+    /**
+     * 保管人ID
+     */
+    private String keeperId;
+    
+    /**
+     * 保管部门
+     */
+    private String keeperDepartment;
+    
+    /**
+     * 证照状态：1-正常，2-借用中，3-年审中，4-已过期
+     */
+    private Integer licenseStatus;
+    
+    /**
+     * 状态：0-禁用，1-启用
+     */
+    private Integer status;
+    
+    /**
+     * 创建人
+     */
+    private String createBy;
+    
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+    
+    /**
+     * 更新人
+     */
+    private String updateBy;
+    
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
+    
+    /**
+     * 备注
+     */
+    private String remark;
+}

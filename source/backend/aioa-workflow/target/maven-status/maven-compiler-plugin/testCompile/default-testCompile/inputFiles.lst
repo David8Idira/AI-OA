@@ -1,8 +1,0 @@
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/enums/ApprovalActionEnumTest.java
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/enums/ApprovalPriorityEnumTest.java
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/entity/ApprovalRecordTest.java
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/entity/ApprovalTest.java
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/service/N8nWorkflowServiceImplTest.java
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/dto/ApprovalActionDTOTest.java
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/enums/ApprovalStatusEnumTest.java
-/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-workflow/src/test/java/com/aioa/workflow/service/WorkflowMonitorServiceImplTest.java

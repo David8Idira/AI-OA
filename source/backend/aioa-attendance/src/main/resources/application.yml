@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: aioa-attendance
+  datasource:
+    url: jdbc:mysql://localhost:3306/ai_oa_attendance?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+server:
+  port: 8083
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+attendance:
+  # GPS check-in radius (meters)
+  gps-checkin-radius: 100
+  # Auto checkout time (hours after check-in)
+  auto-checkout-hours: 12
+  # Daily attendance processing time (cron expression)
+  daily-process-cron: "0 0 2 * * ?"
+  # Monthly statistics generation time (cron expression)
+  monthly-stat-cron: "0 0 3 1 * ?"
+
+logging:
+  level:
+    com.aioa.attendance: DEBUG
+    org.springframework.web: INFO

@@ -1,8 +1,0 @@
-com/aioa/workflow/service/WorkflowMonitorServiceImplTest.class
-com/aioa/workflow/entity/ApprovalTest.class
-com/aioa/workflow/enums/ApprovalActionEnumTest.class
-com/aioa/workflow/entity/ApprovalRecordTest.class
-com/aioa/workflow/enums/ApprovalStatusEnumTest.class
-com/aioa/workflow/dto/ApprovalActionDTOTest.class
-com/aioa/workflow/enums/ApprovalPriorityEnumTest.class
-com/aioa/workflow/service/N8nWorkflowServiceImplTest.class
