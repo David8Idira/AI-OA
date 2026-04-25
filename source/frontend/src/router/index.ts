@@ -95,6 +95,42 @@ const protectedRoutes: RouteRecordRaw[] = [
         name: 'Settings',
         component: () => import('@/views/settings/Settings.vue'),
         meta: { title: '系统设置' }
+      },
+      {
+        path: 'attendance',
+        name: 'Attendance',
+        component: () => import('@/views/attendance/Checkin.vue'),
+        meta: { title: '考勤打卡' }
+      },
+      {
+        path: 'attendance/records',
+        name: 'AttendanceRecords',
+        component: () => import('@/views/attendance/Records.vue'),
+        meta: { title: '考勤记录' }
+      },
+      {
+        path: 'attendance/statistics',
+        name: 'AttendanceStatistics',
+        component: () => import('@/views/attendance/Statistics.vue'),
+        meta: { title: '考勤统计' }
+      },
+      {
+        path: 'attendance/rules',
+        name: 'AttendanceRules',
+        component: () => import('@/views/attendance/Rules.vue'),
+        meta: { title: '考勤规则' }
+      },
+      {
+        path: 'attendance/groups',
+        name: 'AttendanceGroups',
+        component: () => import('@/views/attendance/Groups.vue'),
+        meta: { title: '考勤组' }
+      },
+      {
+        path: 'attendance/exceptions',
+        name: 'AttendanceExceptions',
+        component: () => import('@/views/attendance/Exceptions.vue'),
+        meta: { title: '考勤异常' }
       }
     ]
   }

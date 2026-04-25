@@ -92,6 +92,11 @@ public class OfficeSupplyRequestVO {
     private Integer totalQuantity;
     
     /**
+     * 总金额
+     */
+    private BigDecimal totalAmount;
+    
+    /**
      * 已领取数量
      */
     private Integer claimedQuantity;

@@ -7,7 +7,7 @@ import com.aioa.asset.dto.OfficeSupplyItemDTO;
 import com.aioa.asset.service.OfficeSupplyRequestService;
 import com.aioa.asset.vo.OfficeSupplyRequestVO;
 import com.aioa.asset.vo.OfficeSupplyStatsVO;
-import com.aioa.common.core.domain.R;
+import com.aioa.common.result.Result;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static com.aioa.common.result.ResultCode.SUCCESS;
 
 /**
  * 办公用品控制器单元测试
