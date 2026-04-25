@@ -1,8 +1,9 @@
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/entity/BaseEntity.java
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/result/ResultCode.java
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/annotation/Login.java
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/exception/BusinessException.java
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/result/Result.java
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/mail/MailService.java
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/mail/MailServiceImpl.java
-/root/workspace/AI-OA/source/backend/aioa-common/src/main/java/com/aioa/common/exception/GlobalExceptionHandler.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/mail/MailService.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/mail/MailServiceImpl.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/annotation/Login.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/entity/BaseEntity.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/exception/GlobalExceptionHandler.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/result/ResultCode.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/vo/PageResult.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/result/Result.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-common/src/main/java/com/aioa/common/exception/BusinessException.java

@@ -7,7 +7,7 @@ import com.aioa.workflow.dto.ApprovalQueryDTO;
 import com.aioa.workflow.dto.CreateApprovalDTO;
 import com.aioa.workflow.service.ApprovalService;
 import com.aioa.workflow.vo.ApprovalVO;
-import com.aioa.workflow.vo.PageResult;
+import com.aioa.common.vo.PageResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

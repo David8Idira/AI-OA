@@ -7,7 +7,7 @@ import com.aioa.workflow.entity.Approval;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.aioa.workflow.vo.ApprovalVO;
-import com.aioa.workflow.vo.PageResult;
+import com.aioa.common.vo.PageResult;
 
 import java.util.List;
 

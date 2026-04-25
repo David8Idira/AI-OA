@@ -1,7 +1,7 @@
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiChatServiceImplTest.java
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiUsageHistoryServiceImplTest.java
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiModelConfigServiceImplTest.java
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiQuotaServiceImplTest.java
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/entity/AiUserQuotaTest.java
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/util/QuotaCalculatorTest.java
-/root/workspace/AI-OA/source/backend/aioa-ai/src/test/java/com/aioa/ai/dto/ChatRequestDTOTest.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiModelConfigServiceImplTest.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiUsageHistoryServiceImplTest.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-ai/src/test/java/com/aioa/ai/entity/AiUserQuotaTest.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiChatServiceImplTest.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-ai/src/test/java/com/aioa/ai/dto/ChatRequestDTOTest.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-ai/src/test/java/com/aioa/ai/service/AiQuotaServiceImplTest.java
+/root/.openclaw/workspace/AI-OA-Project/source/backend/aioa-ai/src/test/java/com/aioa/ai/util/QuotaCalculatorTest.java

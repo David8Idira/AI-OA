@@ -1,4 +1,174 @@
 -------------------------------------------------------------------------------
 Test set: com.aioa.workflow.service.ApprovalServiceImplTest
 -------------------------------------------------------------------------------
-Tests run: 0, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.145 s -- in com.aioa.workflow.service.ApprovalServiceImplTest
+Tests run: 17, Failures: 0, Errors: 17, Skipped: 0, Time elapsed: 2.635 s <<< FAILURE! -- in com.aioa.workflow.service.ApprovalServiceImplTest
+com.aioa.workflow.service.ApprovalServiceImplTest.buildQueryParams_withApplicantId_shouldSucceed -- Time elapsed: 2.384 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@53c68ce] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalStatus_cancelled_shouldBeThree -- Time elapsed: 0.012 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@37191ef0] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalStatus_approved_shouldBeOne -- Time elapsed: 0.011 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@7b4acdc2] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.pagination_pageSize_shouldBeTen -- Time elapsed: 0.013 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@75798d03] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.pagination_firstPage_shouldBeOne -- Time elapsed: 0.013 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@7d070ef5] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.defaultApprover_shouldBeAdmin -- Time elapsed: 0.005 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@7f572c37] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalType_expense_shouldBeExpense -- Time elapsed: 0.004 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@5445f5ba] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalPriority_high_shouldBeTwo -- Time elapsed: 0.009 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@77134e08] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalPriority_normal_shouldBeOne -- Time elapsed: 0.008 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@20749d9] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.buildQueryParams_withBasicParams_shouldSucceed -- Time elapsed: 0.012 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@7c75db8b] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalStatus_rejected_shouldBeTwo -- Time elapsed: 0.008 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@a137d7a] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalPriority_low_shouldBeZero -- Time elapsed: 0.004 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@4df39a88] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalStatus_pending_shouldBeZero -- Time elapsed: 0.006 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@3f49e266] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalType_leave_shouldBeLeave -- Time elapsed: 0.005 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@281ce6bb] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalType_purchase_shouldBePurchase -- Time elapsed: 0.007 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@5e8c34a0] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.approvalPriority_urgent_shouldBeThree -- Time elapsed: 0.003 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@55ec556] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+com.aioa.workflow.service.ApprovalServiceImplTest.buildQueryParams_withTypeFilter_shouldSucceed -- Time elapsed: 0.002 s <<< ERROR!
+java.lang.IllegalArgumentException: Could not find field 'defaultApproverId' of type [null] on target object [com.aioa.workflow.service.impl.ApprovalServiceImpl@38018b62] or target class [class com.aioa.workflow.service.impl.ApprovalServiceImpl]
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:190)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:107)
+	at org.springframework.test.util.ReflectionTestUtils.setField(ReflectionTestUtils.java:91)
+	at com.aioa.workflow.service.ApprovalServiceImplTest.setUp(ApprovalServiceImplTest.java:37)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+

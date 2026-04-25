@@ -10,7 +10,7 @@ import com.aioa.reimburse.entity.Invoice;
 import com.aioa.reimburse.service.ReimburseService;
 import com.aioa.reimburse.vo.OcrAutoFillVO;
 import com.aioa.reimburse.vo.ReimburseVO;
-import com.aioa.workflow.vo.PageResult;
+import com.aioa.common.vo.PageResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

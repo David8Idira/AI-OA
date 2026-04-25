@@ -23,7 +23,7 @@ import com.aioa.workflow.service.ApprovalRecordService;
 import com.aioa.workflow.service.ApprovalService;
 import com.aioa.workflow.vo.ApprovalRecordVO;
 import com.aioa.workflow.vo.ApprovalVO;
-import com.aioa.workflow.vo.PageResult;
+import com.aioa.common.vo.PageResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

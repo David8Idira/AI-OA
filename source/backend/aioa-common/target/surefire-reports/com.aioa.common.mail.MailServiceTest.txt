@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.aioa.common.mail.MailServiceTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.595 s -- in com.aioa.common.mail.MailServiceTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.124 s -- in com.aioa.common.mail.MailServiceTest
