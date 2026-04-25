@@ -62,7 +62,7 @@ public class AttendanceExceptionServiceImpl extends ServiceImpl<AttendanceExcept
         
         // TODO: Trigger workflow approval
         
-        return Result.success("Attendance exception application submitted", exception);
+        return Result.success(exception);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class AttendanceExceptionServiceImpl extends ServiceImpl<AttendanceExcept
             queryWrapper.eq(AttendanceException::getStatus, status);
         }
         
-        queryWrapper.orderByDesc(AttendanceException::getApplyTime);
+        queryWrapper.orderByDesc(AttendanceException::getCreateTime);
         
         Page<AttendanceException> page = new Page<>(pageNum, pageSize);
         page(page, queryWrapper);
@@ -166,14 +166,15 @@ public class AttendanceExceptionServiceImpl extends ServiceImpl<AttendanceExcept
         
         LambdaQueryWrapper<AttendanceException> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(AttendanceException::getStatus, 1) // Approved
-                   .eq(AttendanceException::getProcessed, 0) // Not processed
+                   .eq(AttendanceException::getProcessResult, 0) // Not processed
                    .lt(AttendanceException::getEndTime, LocalDateTime.now()); // Ended
         
         List<AttendanceException> exceptions = list(queryWrapper);
         
         for (AttendanceException exception : exceptions) {
             processException(exception);
-            exception.setProcessed(1);
+            exception.setProcessResult(1);
+            exception.setProcessTime(LocalDateTime.now());
             updateById(exception);
         }
     }
@@ -186,7 +187,7 @@ public class AttendanceExceptionServiceImpl extends ServiceImpl<AttendanceExcept
         
         LambdaQueryWrapper<AttendanceException> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(AttendanceException::getStatus, 0) // Pending
-                   .lt(AttendanceException::getApplyTime, oneWeekAgo); // Applied more than 1 week ago
+                   .lt(AttendanceException::getCreateTime, oneWeekAgo); // Applied more than 1 week ago
         
         List<AttendanceException> exceptions = list(queryWrapper);
         
