@@ -1,4 +1,5 @@
 package com.aioa.system.controller;
+import com.aioa.system.TestApplication;
 
 import com.aioa.common.mail.MailService;
 import com.aioa.common.result.Result;
@@ -28,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * SysDepartmentController 单元测试
  */
 @DisplayName("SysDepartmentControllerTest 部门控制器测试")
-@SpringBootTest
+@SpringBootTest(classes = TestApplication.class)
 @AutoConfigureMockMvc
 class SysDepartmentControllerTest {
 

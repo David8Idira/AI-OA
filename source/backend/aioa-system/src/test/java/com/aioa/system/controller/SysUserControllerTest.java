@@ -1,4 +1,5 @@
 package com.aioa.system.controller;
+import com.aioa.system.TestApplication;
 
 import com.aioa.common.result.Result;
 import com.aioa.system.dto.LoginDTO;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * SysUserController 单元测试
  */
 @DisplayName("SysUserControllerTest 系统用户控制器测试")
-@SpringBootTest
+@SpringBootTest(classes = TestApplication.class)
 @AutoConfigureMockMvc
 class SysUserControllerTest {
 
