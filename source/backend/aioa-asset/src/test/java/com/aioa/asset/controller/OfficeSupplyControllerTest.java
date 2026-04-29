@@ -139,7 +139,7 @@ class OfficeSupplyControllerTest {
         mockMvc.perform(post("/office-supply/request/submit/{requestId}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(500))
-                .andExpect(jsonPath("$.msg").value("提交办公用品申请失败: 申请单不存在"));
+                .andExpect(jsonPath("$.message").value("提交办公用品申请失败: 申请单不存在"));
         
         // 验证服务层调用
         verify(officeSupplyRequestService, times(1)).submitRequest(eq(1L));
