@@ -3,21 +3,22 @@ spring:
     url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
-    password: 
+    password:
   sql:
     init:
-      mode: never
-  autoconfigure:
-    exclude:
-      - com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration
+      mode: embedded
+      schema-locations: classpath:schema-test.sql
+  h2:
+    console:
+      enabled: false
 
-mybatis:
-  mapper-locations: classpath:mapper/*.xml
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.aioa.workflow.entity
   configuration:
     map-underscore-to-camel-case: true
 
-# 确保MyBatis配置正确
-mybatis-plus:
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.aioa.workflow.entity
+logging:
+  level:
+    com.aioa.workflow: WARN
+    com.baomidou.mybatisplus: WARN
