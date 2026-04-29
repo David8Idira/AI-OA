@@ -7,6 +7,7 @@ import com.aioa.workflow.dto.CreateApprovalDTO;
 import com.aioa.workflow.service.ApprovalService;
 import com.aioa.workflow.vo.ApprovalVO;
 import com.aioa.common.vo.PageResult;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -168,7 +169,7 @@ class ApprovalControllerTest {
     void doAction_success_approve() throws Exception {
         // given
         ApprovalActionDTO dto = new ApprovalActionDTO();
-        dto.setActionType("APPROVE");
+        dto.setActionType(1);
         dto.setComment("同意");
 
         ApprovalVO vo = createMockApprovalVO("approval-001", "请假申请");
@@ -189,7 +190,7 @@ class ApprovalControllerTest {
     void doAction_success_reject() throws Exception {
         // given
         ApprovalActionDTO dto = new ApprovalActionDTO();
-        dto.setActionType("REJECT");
+        dto.setActionType(2);
         dto.setComment("材料不全");
 
         ApprovalVO vo = createMockApprovalVO("approval-001", "请假申请");
