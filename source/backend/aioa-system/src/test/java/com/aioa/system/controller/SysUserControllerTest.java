@@ -16,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import com.aioa.common.mail.MailService;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import java.util.List;
 
@@ -40,6 +42,12 @@ class SysUserControllerTest {
 
     @MockBean
     private SysUserService userService;
+
+    @MockBean
+    private JavaMailSender javaMailSender;
+
+    @MockBean
+    private MailService mailService;
 
     // ==================== Login Tests ====================
 
