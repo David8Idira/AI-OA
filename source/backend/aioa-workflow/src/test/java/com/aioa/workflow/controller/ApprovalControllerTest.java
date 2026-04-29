@@ -2,6 +2,7 @@ package com.aioa.workflow.controller;
 import com.aioa.workflow.TestApplication;
 
 import com.aioa.common.result.Result;
+import com.aioa.common.mail.MailService;
 import com.aioa.workflow.dto.ApprovalActionDTO;
 import com.aioa.workflow.dto.ApprovalQueryDTO;
 import com.aioa.workflow.dto.CreateApprovalDTO;
@@ -44,6 +45,13 @@ class ApprovalControllerTest {
 
     @MockBean
     private ApprovalService approvalService;
+
+    @MockBean
+    private MailService mailService;
+
+    @MockBean
+    private org.springframework.mail.javamail.JavaMailSender javaMailSender;
+
 
     private ApprovalVO createMockApprovalVO(String id, String title) {
         ApprovalVO vo = new ApprovalVO();
