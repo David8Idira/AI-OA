@@ -6,7 +6,7 @@ import com.aioa.workflow.dto.ApprovalQueryDTO;
 import com.aioa.workflow.dto.CreateApprovalDTO;
 import com.aioa.workflow.service.ApprovalService;
 import com.aioa.workflow.vo.ApprovalVO;
-import com.aioa.workflow.vo.PageResult;
+import com.aioa.common.vo.PageResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ class ApprovalControllerTest {
         vo.setId(id);
         vo.setTitle(title);
         vo.setType("LEAVE");
-        vo.setStatus("PENDING");
+        vo.setStatus(0);
         return vo;
     }
 
@@ -59,7 +59,7 @@ class ApprovalControllerTest {
     void listApprovals_success() throws Exception {
         // given
         PageResult<ApprovalVO> pageResult = new PageResult<>();
-        pageResult.setList(List.of(createMockApprovalVO("approval-001", "请假申请")));
+        pageResult.setRecords(List.of(createMockApprovalVO("approval-001", "请假申请")));
         pageResult.setTotal(1L);
         when(approvalService.queryApprovals(anyString(), any(ApprovalQueryDTO.class))).thenReturn(pageResult);
 
@@ -69,7 +69,7 @@ class ApprovalControllerTest {
                         .param("mode", "MY_APPLY"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.list.length()").value(1));
+                .andExpect(jsonPath("$.data.records.length()").value(1));
     }
 
     @Test
@@ -77,7 +77,7 @@ class ApprovalControllerTest {
     void listApprovals_empty() throws Exception {
         // given
         PageResult<ApprovalVO> pageResult = new PageResult<>();
-        pageResult.setList(List.of());
+        pageResult.setRecords(List.of());
         pageResult.setTotal(0L);
         when(approvalService.queryApprovals(anyString(), any(ApprovalQueryDTO.class))).thenReturn(pageResult);
 
@@ -86,7 +86,7 @@ class ApprovalControllerTest {
                         .requestAttr("userId", "user-001"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.list.length()").value(0));
+                .andExpect(jsonPath("$.data.records.length()").value(0));
     }
 
     // ==================== Get Approval Detail ====================
@@ -172,7 +172,7 @@ class ApprovalControllerTest {
         dto.setComment("同意");
 
         ApprovalVO vo = createMockApprovalVO("approval-001", "请假申请");
-        vo.setStatus("APPROVED");
+        vo.setStatus(1);
         when(approvalService.doAction(anyString(), anyString(), any(ApprovalActionDTO.class))).thenReturn(vo);
 
         // when & then
@@ -193,7 +193,7 @@ class ApprovalControllerTest {
         dto.setComment("材料不全");
 
         ApprovalVO vo = createMockApprovalVO("approval-001", "请假申请");
-        vo.setStatus("REJECTED");
+        vo.setStatus(2);
         when(approvalService.doAction(anyString(), anyString(), any(ApprovalActionDTO.class))).thenReturn(vo);
 
         // when & then
@@ -241,7 +241,7 @@ class ApprovalControllerTest {
     void getPendingApprovals_success() throws Exception {
         // given
         PageResult<ApprovalVO> pageResult = new PageResult<>();
-        pageResult.setList(List.of(createMockApprovalVO("approval-001", "请假申请")));
+        pageResult.setRecords(List.of(createMockApprovalVO("approval-001", "请假申请")));
         pageResult.setTotal(1L);
         when(approvalService.getPendingApprovals("approver-001", 1, 10)).thenReturn(pageResult);
 
@@ -252,7 +252,7 @@ class ApprovalControllerTest {
                         .param("pageSize", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.list.length()").value(1));
+                .andExpect(jsonPath("$.data.records.length()").value(1));
     }
 
     // ==================== Get My Approvals ====================
@@ -262,7 +262,7 @@ class ApprovalControllerTest {
     void getMyApprovals_success() throws Exception {
         // given
         PageResult<ApprovalVO> pageResult = new PageResult<>();
-        pageResult.setList(List.of(createMockApprovalVO("approval-001", "请假申请")));
+        pageResult.setRecords(List.of(createMockApprovalVO("approval-001", "请假申请")));
         pageResult.setTotal(1L);
         when(approvalService.getMyApprovals("user-001", 1, 10)).thenReturn(pageResult);
 
@@ -273,7 +273,7 @@ class ApprovalControllerTest {
                         .param("pageSize", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.list.length()").value(1));
+                .andExpect(jsonPath("$.data.records.length()").value(1));
     }
 
     // ==================== Get Statistics ====================
