@@ -1,4 +1,5 @@
 package com.aioa.workflow.controller;
+import com.aioa.workflow.TestApplication;
 
 import com.aioa.common.result.Result;
 import com.aioa.workflow.dto.ApprovalActionDTO;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * ApprovalController 单元测试
  */
 @DisplayName("ApprovalControllerTest 审批控制器测试")
-@SpringBootTest
+@SpringBootTest(classes = TestApplication.class)
 @AutoConfigureMockMvc
 class ApprovalControllerTest {
 
