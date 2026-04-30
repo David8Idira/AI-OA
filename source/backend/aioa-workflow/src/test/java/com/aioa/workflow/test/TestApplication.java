@@ -1,4 +1,4 @@
-package com.aioa.workflow;
+package com.aioa.workflow.test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,23 +6,17 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import com.aioa.workflow.service.impl.*;
+import org.springframework.context.annotation.Configuration;
+import com.aioa.workflow.mapper.ApprovalMapper;
+import com.aioa.workflow.mapper.ApprovalRecordMapper;
 
-@SpringBootApplication(
-    scanBasePackages = "com.aioa",
-    exclude = {
-        DataSourceAutoConfiguration.class,
-        MybatisPlusAutoConfiguration.class
-    }
-)
+@Configuration
 @ComponentScan(
-    basePackages = "com.aioa",
+    basePackages = {"com.aioa.workflow", "com.aioa.common"},
     excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
-            ApprovalServiceImpl.class,
-            ApprovalRecordServiceImpl.class,
-            N8nWorkflowServiceImpl.class,
-            WorkflowMonitorServiceImpl.class
+            ApprovalMapper.class,
+            ApprovalRecordMapper.class
         })
     }
 )
