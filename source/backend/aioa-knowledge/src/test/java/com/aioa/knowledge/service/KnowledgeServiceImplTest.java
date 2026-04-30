@@ -56,8 +56,8 @@ class KnowledgeServiceImplTest {
         KnowledgeDoc doc = createTestDoc();
         when(knowledgeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(doc));
 
-        // when
-        List<KnowledgeDoc> results = knowledgeService.search("测试");
+        // when - with user role parameters
+        List<KnowledgeDoc> results = knowledgeService.search("测试", "admin", 6);
 
         // then
         assertThat(results).hasSize(1);
@@ -71,7 +71,7 @@ class KnowledgeServiceImplTest {
         when(knowledgeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
 
         // when
-        List<KnowledgeDoc> results = knowledgeService.search("不存在");
+        List<KnowledgeDoc> results = knowledgeService.search("不存在", "admin", 6);
 
         // then
         assertThat(results).isEmpty();
@@ -83,8 +83,8 @@ class KnowledgeServiceImplTest {
         // given
         when(vectorService.vectorSearch(anyString(), anyInt())).thenReturn(List.of("doc-1", "doc-2"));
 
-        // when
-        List<KnowledgeDoc> results = knowledgeService.semanticSearch("测试查询", 5);
+        // when - with user role parameters
+        List<KnowledgeDoc> results = knowledgeService.semanticSearch("测试查询", 5, "admin", 6);
 
         // then
         assertThat(results).isNotNull();
@@ -100,7 +100,7 @@ class KnowledgeServiceImplTest {
         when(knowledgeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of(doc));
 
         // when
-        List<KnowledgeDoc> results = knowledgeService.semanticSearch("测试", 5);
+        List<KnowledgeDoc> results = knowledgeService.semanticSearch("测试", 5, "admin", 6);
 
         // then
         assertThat(results).hasSize(1);
@@ -151,7 +151,7 @@ class KnowledgeServiceImplTest {
         when(knowledgeMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
 
         // when
-        List<KnowledgeDoc> results = knowledgeService.search("");
+        List<KnowledgeDoc> results = knowledgeService.search("", "admin", 6);
 
         // then
         assertThat(results).isNotNull();
@@ -161,7 +161,7 @@ class KnowledgeServiceImplTest {
     @DisplayName("语义搜索 - 空查询")
     void semanticSearch_withEmptyQuery_shouldReturnEmpty() {
         // when
-        List<KnowledgeDoc> results = knowledgeService.semanticSearch("", 5);
+        List<KnowledgeDoc> results = knowledgeService.semanticSearch("", 5, "admin", 6);
 
         // then
         assertThat(results).isNotNull();
@@ -171,7 +171,7 @@ class KnowledgeServiceImplTest {
     @DisplayName("获取文档详情 - null ID")
     void getDoc_withNullId_shouldHandleGracefully() {
         // when
-        KnowledgeDoc result = knowledgeService.getDoc(null);
+        KnowledgeDoc result = knowledgeService.getDoc(0L);
 
         // then
         assertThat(result).isNull();
