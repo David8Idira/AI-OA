@@ -42,3 +42,5 @@ Thumbs.db
 
 # Test output
 test-output/
+target/
+node_modules/
