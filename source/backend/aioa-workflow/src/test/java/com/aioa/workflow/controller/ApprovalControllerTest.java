@@ -124,9 +124,9 @@ class ApprovalControllerTest {
         dto.setTitle("请假申请");
         dto.setType("LEAVE");
         dto.setContent("因病请假2天");
-        dto.setApproverId("approver-001");
         dto.setPriority(1);
-        
+        dto.setApproverId("approver-001");
+
         ApprovalVO created = createMockApprovalVO("new-approval-id", "请假申请");
         when(approvalService.createApproval(anyString(), any(CreateApprovalDTO.class)))
                 .thenReturn(created);
@@ -146,7 +146,7 @@ class ApprovalControllerTest {
         ApprovalActionDTO dto = new ApprovalActionDTO();
         dto.setActionType(1);
         dto.setComment("同意");
-        
+
         ApprovalVO resultVO = createMockApprovalVO("approval-001", "请假申请");
         when(approvalService.doAction(eq("approval-001"), anyString(), any(ApprovalActionDTO.class)))
                 .thenReturn(resultVO);
@@ -165,7 +165,7 @@ class ApprovalControllerTest {
         ApprovalActionDTO dto = new ApprovalActionDTO();
         dto.setActionType(2);
         dto.setComment("材料不全");
-        
+
         ApprovalVO resultVO = createMockApprovalVO("approval-001", "请假申请");
         when(approvalService.doAction(eq("approval-001"), anyString(), any(ApprovalActionDTO.class)))
                 .thenReturn(resultVO);
@@ -238,7 +238,7 @@ class ApprovalControllerTest {
     @Test
     @DisplayName("取消审批成功")
     void cancelApproval_success() throws Exception {
-        when(approvalService.cancelApproval(anyString(), anyString(), any()))
+        when(approvalService.cancelApproval(anyString(), anyString(), anyString()))
                 .thenReturn(true);
 
         mockMvc.perform(post("/api/v1/approvals/approval-001/cancel")
@@ -264,7 +264,7 @@ class ApprovalControllerTest {
     @DisplayName("转交审批人成功")
     void reassignApprover_success() throws Exception {
         ApprovalVO resultVO = createMockApprovalVO("approval-001", "请假申请");
-        when(approvalService.reassignApprover(anyString(), anyString(), anyString(), any()))
+        when(approvalService.reassignApprover(any(), anyString(), anyString(), any()))
                 .thenReturn(resultVO);
 
         mockMvc.perform(post("/api/v1/approvals/approval-001/reassign")

@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/init-h2.sql
+      data-locations: classpath:sql/data-h2.sql
+      encoding: UTF-8
+  h2:
+    console:
+      enabled: false
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+
+logging:
+  level:
+    com.aioa.asset: DEBUG
