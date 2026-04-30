@@ -25,6 +25,8 @@
         <module>aioa-asset</module>
         <module>aioa-hr</module>
         <module>aioa-license</module>
+        <module>aioa-core</module>
+        <module>aioa-attendance</module>
     </modules>
 
     <!-- Spring Boot 3.x -->
