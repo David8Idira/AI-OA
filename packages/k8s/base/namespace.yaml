@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-oa
+  labels:
+    app.kubernetes.io/name: ai-oa
+    app.kubernetes.io/managed-by: kubectl
