@@ -77,13 +77,13 @@ export class ApiClient {
 
     // 创建HTTP请求
     const httpRequest = http.createHttp()
-    
+
     // 构建请求头
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...options.header
     }
-    
+
     // 添加Token
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
@@ -163,7 +163,157 @@ export class ApiClient {
       header: headers
     })
   }
+
+  // ============ 消息模块 API ============
+
+  // 获取会话列表
+  async getConversations(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/im/conversations', params)
+  }
+
+  // 获取会话详情
+  async getConversation(conversationId: string): Promise<ApiResponse<any>> {
+    return this.get<any>(`/api/im/conversations/${conversationId}`)
+  }
+
+  // 获取消息列表
+  async getMessages(conversationId: string, params?: { page?: number; pageSize?: number; before?: number }): Promise<ApiResponse<any>> {
+    return this.get<any>(`/api/im/conversations/${conversationId}/messages`, params)
+  }
+
+  // 发送消息
+  async sendMessage(data: { conversationId: string; type: string; content: string; imageUrl?: string }): Promise<ApiResponse<any>> {
+    return this.post<any>('/api/im/messages', data)
+  }
+
+  // 标记消息已读
+  async markRead(conversationId: string, messageId?: string): Promise<ApiResponse<any>> {
+    return this.post<any>(`/api/im/conversations/${conversationId}/read`, { messageId })
+  }
+
+  // ============ 审批模块 API ============
+
+  // 获取审批列表
+  async getApprovals(params?: {
+    status?: string;
+    type?: string;
+    page?: number;
+    pageSize?: number;
+    keyword?: string;
+  }): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/approval/approvals', params)
+  }
+
+  // 获取审批详情
+  async getApproval(approvalId: string): Promise<ApiResponse<any>> {
+    return this.get<any>(`/api/approval/approvals/${approvalId}`)
+  }
+
+  // 创建审批
+  async createApproval(data: any): Promise<ApiResponse<any>> {
+    return this.post<any>('/api/approval/approvals', data)
+  }
+
+  // 审批操作（同意/拒绝/转交）
+  async approvalAction(data: { approvalId: string; nodeId: string; action: string; comment?: string; transferAssigneeId?: string }): Promise<ApiResponse<any>> {
+    return this.post<any>('/api/approval/approvals/action', data)
+  }
+
+  // 撤回审批
+  async cancelApproval(approvalId: string): Promise<ApiResponse<any>> {
+    return this.post<any>(`/api/approval/approvals/${approvalId}/cancel`, {})
+  }
+
+  // 获取审批类型列表
+  async getApprovalTypes(): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/approval/types')
+  }
+
+  // 获取审批统计数据
+  async getApprovalStatistics(): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/approval/statistics')
+  }
+
+  // ============ 考勤模块 API ============
+
+  // 打卡
+  async checkIn(data: { type: string; latitude: number; longitude: number; location: string }): Promise<ApiResponse<any>> {
+    return this.post<any>('/api/attendance/checkin', data)
+  }
+
+  // 获取打卡记录列表
+  async getCheckInRecords(params?: { startDate?: string; endDate?: string; page?: number; pageSize?: number }): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/attendance/records', params)
+  }
+
+  // 获取今日打卡状态
+  async getTodayCheckInStatus(): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/attendance/today')
+  }
+
+  // 获取考勤月统计
+  async getAttendanceSummary(year: number, month: number): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/attendance/summary', { year, month })
+  }
+
+  // 获取考勤规则
+  async getAttendanceRule(): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/attendance/rule')
+  }
+
+  // 申请请假
+  async applyLeave(data: { type: string; startDate: string; endDate: string; totalDays: number; reason: string }): Promise<ApiResponse<any>> {
+    return this.post<any>('/api/attendance/leave', data)
+  }
+
+  // 获取请假记录
+  async getLeaveRecords(params?: { page?: number; pageSize?: number }): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/attendance/leave', params)
+  }
+
+  // 取消请假申请
+  async cancelLeave(leaveId: string): Promise<ApiResponse<any>> {
+    return this.delete<any>(`/api/attendance/leave/${leaveId}`)
+  }
+
+  // 获取考勤统计数据
+  async getAttendanceStatistics(): Promise<ApiResponse<any>> {
+    return this.get<any>('/api/attendance/statistics')
+  }
 }
 
 // 导出默认实例
 export default ApiClient
+
+// 用户模型
+export interface User {
+  id: string
+  name: string
+  avatar?: string
+  email?: string
+  phone?: string
+  department?: string
+  position?: string
+  roles?: string[]
+  token?: string
+}
+
+// 登录请求参数
+export interface LoginParams {
+  username: string
+  password: string
+  rememberMe?: boolean
+}
+
+// 登录响应
+export interface LoginResponse {
+  token: string
+  user: User
+  expireAt: number
+}
+
+// 用户信息响应
+export interface UserInfoResponse {
+  user: User
+  permissions: string[]
+}
