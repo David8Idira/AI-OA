@@ -5,9 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.aioa.knowledge.entity.KnowledgeDoc;
+import com.aioa.knowledge.enums.SecurityLevel;
 import com.aioa.knowledge.mapper.KnowledgeMapper;
 import com.aioa.knowledge.service.KnowledgeService;
 import com.aioa.knowledge.service.VectorService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,8 +33,8 @@ public class KnowledgeServiceImpl implements KnowledgeService {
     private VectorService vectorService;
     
     @Override
-    public List<KnowledgeDoc> search(String keyword) {
-        log.info("搜索知识库: {}", keyword);
+    public List<KnowledgeDoc> search(String keyword, String userRoleCode, int userRoleLevel) {
+        log.info("搜索知识库: {}, 用户角色: {}, 角色等级: {}", keyword, userRoleCode, userRoleLevel);
         
         LambdaQueryWrapper<KnowledgeDoc> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(KnowledgeDoc::getStatus, "published")
@@ -40,19 +43,67 @@ public class KnowledgeServiceImpl implements KnowledgeService {
                           .or().like(KnowledgeDoc::getSummary, keyword))
                .orderByDesc(KnowledgeDoc::getViewCount);
         
-        return knowledgeMapper.selectList(wrapper);
+        List<KnowledgeDoc> results = knowledgeMapper.selectList(wrapper);
+        
+        // Filter by security level
+        return filterBySecurityLevel(results, userRoleCode, userRoleLevel);
+    }
+    
+    /**
+     * Filter documents by security level based on user role
+     */
+    private List<KnowledgeDoc> filterBySecurityLevel(List<KnowledgeDoc> docs, String userRoleCode, int userRoleLevel) {
+        if (docs == null || docs.isEmpty()) {
+            return docs;
+        }
+        return docs.stream()
+            .filter(doc -> canUserAccessDoc(doc, userRoleCode, userRoleLevel))
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Check if user can access a specific document
+     */
+    private boolean canUserAccessDoc(KnowledgeDoc doc, String userRoleCode, int userRoleLevel) {
+        if (doc == null) {
+            return false;
+        }
+        String docLevel = doc.getSecurityLevel();
+        
+        // If no security level set, treat as public
+        if (docLevel == null || docLevel.isEmpty() || "public".equals(docLevel)) {
+            return true;
+        }
+        
+        // Check allowed roles first (specific role permissions)
+        String allowedRoles = doc.getAllowedRoles();
+        if (allowedRoles != null && !allowedRoles.isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                List<String> roleList = mapper.readValue(allowedRoles, new TypeReference<List<String>>() {});
+                if (roleList != null && roleList.contains(userRoleCode)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                log.warn("解析allowedRoles失败: {}", allowedRoles);
+            }
+        }
+        
+        // Fall back to security level check
+        SecurityLevel level = SecurityLevel.fromCode(docLevel);
+        return userRoleLevel >= level.getLevel();
     }
     
     @Override
-    public List<KnowledgeDoc> semanticSearch(String query, int topN) {
-        log.info("语义搜索: {}, topN={}", query, topN);
+    public List<KnowledgeDoc> semanticSearch(String query, int topN, String userRoleCode, int userRoleLevel) {
+        log.info("语义搜索: {}, topN={}, 用户角色: {}, 角色等级: {}", query, topN, userRoleCode, userRoleLevel);
         
         // 使用向量服务进行语义搜索
         List<String> vectorResults = vectorService.vectorSearch(query, topN);
         
         if (vectorResults.isEmpty()) {
             log.warn("向量搜索无结果，回退到关键词搜索");
-            return search(query);
+            return search(query, userRoleCode, userRoleLevel);
         }
         
         // 根据向量搜索结果获取文档详情
@@ -67,8 +118,8 @@ public class KnowledgeServiceImpl implements KnowledgeService {
             results.add(doc);
         }
         
-        log.info("语义搜索完成，找到 {} 个结果", results.size());
-        return results;
+        // 过滤权限
+        return filterBySecurityLevel(results, userRoleCode, userRoleLevel);
     }
     
     @Override
@@ -179,15 +230,22 @@ public class KnowledgeServiceImpl implements KnowledgeService {
     }
     
     /**
-     * RAG检索增强生成
+     * RAG检索增强生成（内部使用，默认公开权限）
      * @param query 用户查询
      * @return 增强的上下文
      */
     public String ragRetrieve(String query) {
         log.info("RAG检索: {}", query);
         
-        // 使用向量搜索获取相关文档
-        List<KnowledgeDoc> relevantDocs = semanticSearch(query, 5);
+        // 使用向量搜索获取相关文档（内部RAG使用，不做权限过滤）
+        List<KnowledgeDoc> relevantDocs = vectorService.vectorSearch(query, 5).stream().map(vectorId -> {
+            KnowledgeDoc doc = new KnowledgeDoc();
+            doc.setTitle(vectorId);
+            doc.setContent("语义搜索结果: " + query);
+            doc.setVectorId(vectorId);
+            doc.setSecurityLevel("public"); // RAG内部使用，设为公开
+            return doc;
+        }).collect(Collectors.toList());
         
         if (relevantDocs.isEmpty()) {
             return "未找到相关信息";

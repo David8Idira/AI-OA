@@ -14,6 +14,8 @@
         <result column="view_count" property="viewCount"/>
         <result column="like_count" property="likeCount"/>
         <result column="vector_id" property="vectorId"/>
+        <result column="security_level" property="securityLevel"/>
+        <result column="allowed_roles" property="allowedRoles"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="create_by" property="createBy"/>
@@ -21,3 +23,14 @@
     </resultMap>
 
 </mapper>
+
+    <!-- 根据用户角色和密级过滤文档查询 -->
+    <select id="selectBySecurityLevel" resultMap="BaseResultMap">
+        SELECT * FROM knowledge_doc 
+        WHERE status = 'published'
+        AND (security_level IS NULL OR security_level = 'public')
+        OR (security_level IN ('project', 'internal') AND #{userRoleLevel} &gt;= 4)
+        OR (security_level = 'confidential' AND #{userRoleLevel} &gt;= 3)
+        OR (security_level = 'secret' AND #{userRoleLevel} &gt;= 2)
+        OR (security_level = 'top-secret' AND #{userRoleLevel} &gt;= 1)
+    </select>

@@ -60,4 +60,14 @@ public class KnowledgeDoc extends BaseEntity {
      * 向量ID(用于语义搜索)
      */
     private String vectorId;
+    
+    /**
+     * 密级: top-secret(绝密), secret(机密), confidential(秘密), internal(内部), project(项目)
+     */
+    private String securityLevel;
+    
+    /**
+     * 允许访问的角色ID列表(JSON数组), 空表示所有登录用户可读
+     */
+    private String allowedRoles;
 }

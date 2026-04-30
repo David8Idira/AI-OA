@@ -22,22 +22,30 @@ public class KnowledgeController {
     private KnowledgeService knowledgeService;
     
     /**
-     * 搜索
+     * 搜索（带权限过滤）
+     * @param keyword 关键词
+     * @param userRoleCode 用户角色编码（默认admin）
+     * @param userRoleLevel 用户角色等级，1=绝密级，6=公开（默认6）
      */
     @GetMapping("/search")
-    public Result<List<KnowledgeDoc>> search(@RequestParam String keyword) {
-        List<KnowledgeDoc> results = knowledgeService.search(keyword);
+    public Result<List<KnowledgeDoc>> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "admin") String userRoleCode,
+            @RequestParam(defaultValue = "6") int userRoleLevel) {
+        List<KnowledgeDoc> results = knowledgeService.search(keyword, userRoleCode, userRoleLevel);
         return Result.success(results);
     }
     
     /**
-     * 语义搜索
+     * 语义搜索（带权限过滤）
      */
     @GetMapping("/semantic")
     public Result<List<KnowledgeDoc>> semanticSearch(
             @RequestParam String query,
-            @RequestParam(defaultValue = "5") int topN) {
-        List<KnowledgeDoc> results = knowledgeService.semanticSearch(query, topN);
+            @RequestParam(defaultValue = "5") int topN,
+            @RequestParam(defaultValue = "admin") String userRoleCode,
+            @RequestParam(defaultValue = "6") int userRoleLevel) {
+        List<KnowledgeDoc> results = knowledgeService.semanticSearch(query, topN, userRoleCode, userRoleLevel);
         return Result.success(results);
     }
     
@@ -79,9 +87,8 @@ public class KnowledgeController {
      */
     @GetMapping("/rag")
     public Result<String> ragRetrieve(@RequestParam String query) {
-        // 注意：这里需要先cast到KnowledgeServiceImpl，或者添加接口方法
-        // 简化处理，直接调用search
-        List<KnowledgeDoc> results = knowledgeService.search(query);
+        // RAG内部使用，传入最大权限进行搜索（不对外暴露接口，是内部AI调用）
+        List<KnowledgeDoc> results = knowledgeService.search(query, "admin", 1);
         StringBuilder context = new StringBuilder("RAG上下文:\n");
         for (KnowledgeDoc doc : results) {
             context.append("- ").append(doc.getTitle()).append(": ").append(doc.getSummary()).append("\n");

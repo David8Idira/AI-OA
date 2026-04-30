@@ -11,5 +11,6 @@
 /root/workspace/AI-OA/source/backend/aioa-knowledge/src/main/java/com/aioa/knowledge/service/impl/VectorServiceImpl.java
 /root/workspace/AI-OA/source/backend/aioa-knowledge/src/main/java/com/aioa/knowledge/mapper/KnowledgeMapper.java
 /root/workspace/AI-OA/source/backend/aioa-knowledge/src/main/java/com/aioa/knowledge/KnowledgeApplication.java
+/root/workspace/AI-OA/source/backend/aioa-knowledge/src/main/java/com/aioa/knowledge/enums/SecurityLevel.java
 /root/workspace/AI-OA/source/backend/aioa-knowledge/src/main/java/com/aioa/knowledge/service/impl/KnowledgeServiceImpl.java
 /root/workspace/AI-OA/source/backend/aioa-knowledge/src/main/java/com/aioa/knowledge/config/MilvusConfig.java

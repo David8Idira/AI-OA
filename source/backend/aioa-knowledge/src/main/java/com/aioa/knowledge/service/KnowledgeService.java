@@ -11,19 +11,23 @@ import java.util.Map;
 public interface KnowledgeService {
     
     /**
-     * 搜索知识库
+     * 搜索知识库（带权限过滤）
      * @param keyword 关键词
+     * @param userRoleCode 用户角色编码
+     * @param userRoleLevel 用户角色等级（1-6，1最高）
      * @return 搜索结果
      */
-    List<KnowledgeDoc> search(String keyword);
+    List<KnowledgeDoc> search(String keyword, String userRoleCode, int userRoleLevel);
     
     /**
-     * 语义搜索(基于向量)
+     * 语义搜索(基于向量，带权限过滤)
      * @param query 查询
      * @param topN 返回数量
+     * @param userRoleCode 用户角色编码
+     * @param userRoleLevel 用户角色等级
      * @return 结果列表
      */
-    List<KnowledgeDoc> semanticSearch(String query, int topN);
+    List<KnowledgeDoc> semanticSearch(String query, int topN, String userRoleCode, int userRoleLevel);
     
     /**
      * 创建文档
