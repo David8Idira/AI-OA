@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Role Controller
@@ -86,6 +87,34 @@ public class SysRoleController {
     @PostMapping("/user/{userId}/assign")
     public Result<Void> assignRoles(@PathVariable String userId, @RequestBody List<String> roleIds) {
         sysRoleService.assignRoles(userId, roleIds);
+        return Result.success();
+    }
+
+    /**
+     * Get all roles with knowledge base access config (for role permission page)
+     */
+    @GetMapping("/knowledge-config")
+    public Result<List<Map<String, Object>>> getKnowledgeConfig() {
+        return Result.success(sysRoleService.getRoleKnowledgeConfig());
+    }
+
+    /**
+     * Get single role's knowledge base access settings
+     */
+    @GetMapping("/{id}/knowledge-access")
+    public Result<Map<String, Object>> getKnowledgeAccess(@PathVariable String id) {
+        return Result.success(sysRoleService.getKnowledgeAccess(Long.parseLong(id)));
+    }
+
+    /**
+     * Update role's knowledge base access settings
+     */
+    @PutMapping("/{id}/knowledge-access")
+    public Result<Void> updateKnowledgeAccess(
+            @PathVariable String id,
+            @RequestParam Integer knowledgeAccessLevel,
+            @RequestParam(required = false) String allowedSecurityLevels) {
+        sysRoleService.updateKnowledgeAccess(Long.parseLong(id), knowledgeAccessLevel, allowedSecurityLevels);
         return Result.success();
     }
 }

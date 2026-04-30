@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -70,5 +71,50 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         return allRoles.stream()
                 .sorted((r1, r2) -> r1.getSortOrder().compareTo(r2.getSortOrder()))
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public boolean updateKnowledgeAccess(Long roleId, Integer knowledgeAccessLevel, String allowedSecurityLevels) {
+        SysRole role = getById(roleId);
+        if (role == null) {
+            return false;
+        }
+        role.setKnowledgeAccessLevel(knowledgeAccessLevel);
+        role.setAllowedSecurityLevels(allowedSecurityLevels);
+        return updateById(role);
+    }
+    
+    @Override
+    public Map<String, Object> getKnowledgeAccess(Long roleId) {
+        SysRole role = getById(roleId);
+        if (role == null) {
+            return null;
+        }
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("roleId", role.getId());
+        result.put("roleName", role.getRoleName() != null ? role.getRoleName() : "");
+        result.put("roleCode", role.getRoleCode() != null ? role.getRoleCode() : "");
+        result.put("knowledgeAccessLevel", role.getKnowledgeAccessLevel() != null ? role.getKnowledgeAccessLevel() : 6);
+        result.put("allowedSecurityLevels", role.getAllowedSecurityLevels() != null ? role.getAllowedSecurityLevels() : "[]");
+        return result;
+    }
+    
+    @Override
+    public List<Map<String, Object>> getRoleKnowledgeConfig() {
+        List<SysRole> roles = list();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (SysRole role : roles) {
+            Map<String, Object> item = new java.util.HashMap<>();
+            item.put("roleId", role.getId());
+            item.put("roleName", role.getRoleName() != null ? role.getRoleName() : "");
+            item.put("roleCode", role.getRoleCode() != null ? role.getRoleCode() : "");
+            item.put("roleType", role.getRoleType() != null ? role.getRoleType() : "");
+            item.put("status", role.getStatus() != null ? role.getStatus() : 1);
+            item.put("knowledgeAccessLevel", role.getKnowledgeAccessLevel() != null ? role.getKnowledgeAccessLevel() : 6);
+            item.put("allowedSecurityLevels", role.getAllowedSecurityLevels() != null ? role.getAllowedSecurityLevels() : "[]");
+            item.put("sortOrder", role.getSortOrder() != null ? role.getSortOrder() : 0);
+            result.add(item);
+        }
+        return result;
     }
 }
