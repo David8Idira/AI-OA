@@ -1,5 +1,112 @@
 import http from '@ohos.net.http'
-import { ApiConfig } from '../../../../config/api-config'
+import { getApiConfig } from '../../../../config/api-config'
+
+// API配置常量
+export const API_BASE_URL = 'https://api.example.com'
+export const API_TIMEOUT = 30000
+
+// ============ 认证模块 API ============
+
+// 登录
+export const API_AUTH_LOGIN = '/api/v1/auth/login'
+export const API_AUTH_LOGOUT = '/api/v1/auth/logout'
+export const API_AUTH_REFRESH = '/api/v1/auth/refresh'
+export const API_AUTH_REGISTER = '/api/v1/auth/register'
+export const API_AUTH_FORGET_PASSWORD = '/api/v1/auth/forget-password'
+export const API_AUTH_RESET_PASSWORD = '/api/v1/auth/reset-password'
+
+// ============ 用户模块 API ============
+
+export const API_USER_INFO = '/api/v1/user/info'
+export const API_USER_LIST = '/api/v1/user/list'
+export const API_USER_DETAIL = '/api/v1/user/detail'
+export const API_USER_UPDATE = '/api/v1/user/update'
+export const API_USER_PASSWORD = '/api/v1/user/password'
+export const API_USER_AVATAR = '/api/v1/user/avatar'
+
+// ============ 角色模块 API ============
+
+export const API_ROLE_LIST = '/api/v1/roles'
+export const API_ROLE_DETAIL = '/api/v1/roles/detail'
+export const API_ROLE_CREATE = '/api/v1/roles/create'
+export const API_ROLE_UPDATE = '/api/v1/roles/update'
+export const API_ROLE_DELETE = '/api/v1/roles/delete'
+export const API_ROLE_PERMISSIONS = '/api/v1/roles/permissions'
+export const API_ROLE_USERS = '/api/v1/roles/users'
+
+// ============ 部门模块 API ============
+
+export const API_DEPT_LIST = '/api/v1/departments'
+export const API_DEPT_DETAIL = '/api/v1/departments/detail'
+export const API_DEPT_CREATE = '/api/v1/departments/create'
+export const API_DEPT_UPDATE = '/api/v1/departments/update'
+export const API_DEPT_DELETE = '/api/v1/departments/delete'
+export const API_DEPT_USERS = '/api/v1/departments/users'
+
+// ============ 知识库模块 API ============
+
+export const API_KNOWLEDGE_DOCUMENTS = '/api/v1/knowledge/documents'
+export const API_KNOWLEDGE_CATEGORIES = '/api/v1/knowledge/categories'
+export const API_KNOWLEDGE_SEARCH = '/api/v1/knowledge/search'
+export const API_KNOWLEDGE_STARS = '/api/v1/knowledge/stars'
+export const API_KNOWLEDGE_RECENT = '/api/v1/knowledge/recent'
+export const API_KNOWLEDGE_RECOMMENDED = '/api/v1/knowledge/recommended'
+export const API_KNOWLEDGE_MY = '/api/v1/knowledge/my'
+
+// ============ 审批模块 API ============
+
+export const API_APPROVAL_LIST = '/api/v1/approval/approvals'
+export const API_APPROVAL_DETAIL = '/api/v1/approval/approvals/detail'
+export const API_APPROVAL_CREATE = '/api/v1/approval/approvals/create'
+export const API_APPROVAL_ACTION = '/api/v1/approval/approvals/action'
+export const API_APPROVAL_TYPES = '/api/v1/approval/types'
+export const API_APPROVAL_STATISTICS = '/api/v1/approval/statistics'
+export const API_APPROVAL_APPROVERS = '/api/v1/approval/approvers'
+
+// ============ 考勤模块 API ============
+
+export const API_ATTENDANCE_CHECKIN = '/api/v1/attendance/checkin'
+export const API_ATTENDANCE_RECORDS = '/api/v1/attendance/records'
+export const API_ATTENDANCE_TODAY = '/api/v1/attendance/today'
+export const API_ATTENDANCE_SUMMARY = '/api/v1/attendance/summary'
+export const API_ATTENDANCE_RULE = '/api/v1/attendance/rule'
+export const API_ATTENDANCE_LEAVE = '/api/v1/attendance/leave'
+export const API_ATTENDANCE_STATISTICS = '/api/v1/attendance/statistics'
+export const API_ATTENDANCE_MAKEUP = '/api/v1/attendance/makeup'
+export const API_ATTENDANCE_OVERTIME = '/api/v1/attendance/overtime'
+export const API_ATTENDANCE_SCHEDULE = '/api/v1/attendance/schedule'
+export const API_ATTENDANCE_ABNORMAL = '/api/v1/attendance/abnormal'
+
+// ============ IM模块 API ============
+
+export const API_IM_CONVERSATIONS = '/api/v1/im/conversations'
+export const API_IM_MESSAGES = '/api/v1/im/messages'
+export const API_IM_CONTACTS = '/api/v1/im/contacts'
+export const API_IM_DRAFTS = '/api/v1/im/drafts'
+export const API_IM_READ_ALL = '/api/v1/im/read-all'
+export const API_IM_UNREAD_COUNT = '/api/v1/im/unread-count'
+
+// ============ 报表模块 API ============
+
+export const API_REPORT_LIST = '/api/v1/reports'
+export const API_REPORT_DETAIL = '/api/v1/reports/detail'
+export const API_REPORT_CREATE = '/api/v1/reports/create'
+export const API_REPORT_EXPORT = '/api/v1/reports/export'
+export const API_REPORT_DASHBOARD = '/api/v1/reports/dashboard'
+
+// ============ 通知模块 API ============
+
+export const API_NOTIFICATION_LIST = '/api/v1/notifications'
+export const API_NOTIFICATION_READ = '/api/v1/notifications/read'
+export const API_NOTIFICATION_READ_ALL = '/api/v1/notifications/read-all'
+export const API_NOTIFICATION_COUNT = '/api/v1/notifications/count'
+
+// ============ 文件模块 API ============
+
+export const API_FILE_UPLOAD = '/api/v1/files/upload'
+export const API_FILE_DOWNLOAD = '/api/v1/files/download'
+export const API_FILE_DELETE = '/api/v1/files/delete'
+export const API_FILE_LIST = '/api/v1/files/list'
 
 // HTTP响应结果封装
 export interface ApiResponse<T> {
@@ -40,19 +147,23 @@ interface RequestOptions {
 export class ApiClient {
   private static instance: ApiClient
   private config: ClientConfig = {
-    baseUrl: '',
-    timeout: 30000
+    baseUrl: API_BASE_URL,
+    timeout: API_TIMEOUT
   }
   private context: any = null
 
   private constructor() {}
 
   // 初始化
-  static init(config: ClientConfig): void {
+  static init(config?: Partial<ClientConfig>): void {
     if (!ApiClient.instance) {
       ApiClient.instance = new ApiClient()
     }
-    ApiClient.instance.config = { ...ApiClient.instance.config, ...config }
+    const apiConfig = getApiConfig()
+    ApiClient.instance.config = {
+      baseUrl: config?.baseUrl || apiConfig.baseUrl || API_BASE_URL,
+      timeout: config?.timeout || apiConfig.timeout || API_TIMEOUT
+    }
   }
 
   // 设置上下文
