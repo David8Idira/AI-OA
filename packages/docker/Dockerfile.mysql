@@ -1,0 +1,19 @@
+# ============================================================
+# MySQL 8 Init Dockerfile
+# Creates all required databases for AI-OA microservices
+# ============================================================
+FROM mysql:8.0
+
+# Copy initialization SQL scripts
+COPY init/*.sql /docker-entrypoint-initdb.d/
+
+# Override default.cnf for performance
+RUN echo "[mysqld]\n" \
+  "innodb_buffer_pool_size=512M\n" \
+  "max_connections=500\n" \
+  "character-set-server=utf8mb4\n" \
+  "collation-server=utf8mb4_unicode_ci\n" \
+  "default-time-zone='+08:00'\n" \
+  >> /etc/mysql/conf.d/custom.cnf
+
+EXPOSE 3306

@@ -1,0 +1,522 @@
+version: '3.8'
+
+services:
+  # ============================================================
+  # MySQL Database
+  # ============================================================
+  mysql:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile.mysql
+    container_name: aioa-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root123456}
+      MYSQL_DATABASE: ai_oa
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-root123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    networks:
+      - aioa-network
+
+  # ============================================================
+  # Redis Cache
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: aioa-redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD:-} --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - aioa-network
+
+  # ============================================================
+  # Backend Microservices
+  # Each service is built from the Spring Boot multi-stage Dockerfile
+  # ============================================================
+
+  aioa-gateway:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-gateway
+        JAR_NAME: aioa-gateway
+    container_name: aioa-gateway
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      JWT_SECRET: ${JWT_SECRET:-aioa-jwt-secret-key-for-signing-tokens-must-be-at-least-256-bits-long}
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  aioa-system:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-system
+        JAR_NAME: aioa-system
+    container_name: aioa-system
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-workflow:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-workflow
+        JAR_NAME: aioa-workflow
+    container_name: aioa-workflow
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8082
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-knowledge:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-knowledge
+        JAR_NAME: aioa-knowledge
+    container_name: aioa-knowledge
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8083
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-ai:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-ai
+        JAR_NAME: aioa-ai
+    container_name: aioa-ai
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8084
+      # AI Provider Config
+      MIMI_API_KEY: ${MIMI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY:-}
+    ports:
+      - "8084:8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-asset:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-asset
+        JAR_NAME: aioa-asset
+    container_name: aioa-asset
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8085
+    ports:
+      - "8085:8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-attendance:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-attendance
+        JAR_NAME: aioa-attendance
+    container_name: aioa-attendance
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa_attendance
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8086
+    ports:
+      - "8086:8086"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-hr:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-hr
+        JAR_NAME: aioa-hr
+    container_name: aioa-hr
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8087
+    ports:
+      - "8087:8087"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-license:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-license
+        JAR_NAME: aioa-license
+    container_name: aioa-license
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8088
+    ports:
+      - "8088:8088"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-ocr:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-ocr
+        JAR_NAME: aioa-ocr
+    container_name: aioa-ocr
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: aioa_ocr
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8089
+    ports:
+      - "8089:8089"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-reimburse:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-reimburse
+        JAR_NAME: aioa-reimburse
+    container_name: aioa-reimburse
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8090
+    ports:
+      - "8090:8090"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-report:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-report
+        JAR_NAME: aioa-report
+    container_name: aioa-report
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai_oa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8091
+    ports:
+      - "8091:8091"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  aioa-im:
+    build:
+      context: ${BACKEND_SOURCE:-../../source/backend}
+      dockerfile: ${DOCKERFILE_PATH:-./Dockerfile.app}
+      args:
+        MODULE: aioa-im
+        JAR_NAME: aioa-im
+    container_name: aioa-im
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: aioa
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-root123456}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SERVER_PORT: 8092
+    ports:
+      - "8092:8092"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - aioa-network
+
+  # ============================================================
+  # Frontend - Vue 3 SPA
+  # ============================================================
+  frontend:
+    image: nginx:alpine
+    container_name: aioa-frontend
+    restart: always
+    ports:
+      - "${FRONTEND_HTTP_PORT:-80}:80"
+      - "${FRONTEND_HTTPS_PORT:-443}:443"
+    volumes:
+      - ${FRONTEND_DIST_PATH:-../../source/frontend/dist}:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - aioa-gateway
+    networks:
+      - aioa-network
+
+  # ============================================================
+  # Nginx Reverse Proxy (API Gateway & Static Assets)
+  # All backend services are exposed through Nginx
+  # ============================================================
+  nginx:
+    image: nginx:alpine
+    container_name: aioa-nginx
+    restart: always
+    ports:
+      - "${NGINX_PORT:-8000}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - aioa-gateway
+      - aioa-system
+      - aioa-workflow
+      - aioa-knowledge
+      - aioa-ai
+      - aioa-asset
+      - aioa-attendance
+      - aioa-hr
+      - aioa-license
+      - aioa-ocr
+      - aioa-reimburse
+      - aioa-report
+      - aioa-im
+    networks:
+      - aioa-network
+
+# ============================================================
+# Networks
+# ============================================================
+networks:
+  aioa-network:
+    driver: bridge
+
+# ============================================================
+# Volumes
+# ============================================================
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
