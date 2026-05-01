@@ -6,7 +6,7 @@
 microservice/
 ├── scripts/
 │   ├── init-cluster.sh      # 集群初始化脚本
-│   ├── deploy-mysql.sh       # MySQL主备部署
+│   ├── deploy-kingbase.sh       # Kingbase主备部署
 │   ├── deploy-redis.sh      # Redis Cluster部署
 │   ├── deploy-rabbitmq.sh    # RabbitMQ集群部署
 │   ├── deploy-minio.sh      # MinIO分布式部署
@@ -40,8 +40,8 @@ microservice/
 | IP | 角色 | 服务 |
 |-----|------|------|
 | 192.168.1.101 | 负载均衡 | Nginx+Keepalived |
-| 192.168.1.111 | MySQL主 | MySQL Master |
-| 192.168.1.112 | MySQL从 | MySQL Slave |
+| 192.168.1.111 | Kingbase主 | Kingbase Master |
+| 192.168.1.112 | Kingbase从 | Kingbase Slave |
 | 192.168.1.121-123 | Redis | Redis Cluster |
 | 192.168.1.131-133 | RabbitMQ | RabbitMQ Cluster |
 | 192.168.1.141-144 | MinIO | MinIO分布式 |
@@ -61,7 +61,7 @@ chmod +x scripts/*.sh
 sudo ./scripts/init-cluster.sh
 
 # 4. 部署中间件
-sudo ./scripts/deploy-mysql.sh
+sudo ./scripts/deploy-kingbase.sh
 sudo ./scripts/deploy-redis.sh
 sudo ./scripts/deploy-rabbitmq.sh
 sudo ./scripts/deploy-minio.sh
@@ -81,7 +81,7 @@ sudo ./scripts/deploy-services.sh
 | 角色 | CPU | 内存 | 磁盘 |
 |------|-----|------|------|
 | 负载均衡 | 8核 | 16GB | 100GB SSD |
-| MySQL | 16核 | 64GB | 500GB SSD |
+| Kingbase | 16核 | 64GB | 500GB SSD |
 | Redis | 8核 | 32GB | 100GB SSD |
 | RabbitMQ | 8核 | 16GB | 200GB SSD |
 | MinIO | 8核 | 16GB | 2TB HDD |
@@ -98,7 +98,7 @@ sudo ./scripts/deploy-services.sh
 | Report Service | 8083 |
 | AI Service | 8084 |
 | Chat Service | 8085 |
-| MySQL | 3306, 3307 |
+| Kingbase | 3306, 3307 |
 | Redis | 6379-6381 |
 | RabbitMQ | 5672, 15672 |
 | MinIO | 9000, 9001 |

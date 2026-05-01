@@ -60,11 +60,9 @@ open http://localhost
 
 | 服务 | 镜像 | 端口 |
 |------|------|------|
-| MySQL | mysql:8.0 | 3306 |
+| Kingbase | kingbase:v9.1 | 54321 |
 | Redis | redis:7-alpine | 6379 |
-| MinIO | minio/minio | 9000, 9001 |
-| RabbitMQ | rabbitmq:3.12-management | 5672, 15672 |
-| n8n | n8nio/n8n | 5678 |
+| RabbitMQ | rabbitmq:3.13-management-alpine | 5672, 15672 |
 | AI-OA | aioa/app | 8080 |
 | Nginx | nginx:alpine | 80, 443 |
 

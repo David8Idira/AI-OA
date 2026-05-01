@@ -2,24 +2,22 @@ version: '3.8'
 
 services:
   # ============================================================
-  # MySQL Database
+  # Kingbase Database (金仓数据库)
   # ============================================================
-  mysql:
-    build:
-      context: ./mysql
-      dockerfile: Dockerfile.mysql
-    container_name: aioa-mysql
+  kingbase:
+    image: kingbase:v9.1
+    container_name: aioa-kingbase
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root123456}
-      MYSQL_DATABASE: ai_oa
+      KINGBASE_PASSWORD: ${DB_PASSWORD:-root123456}
+      KINGBASE_DATABASE: ai_oa
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "${DB_PORT:-54321}:54321"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql/init:/docker-entrypoint-initdb.d
+      - kingbase_data:/var/lib/kingbase
+      - ./kingbase/init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-root123456}"]
+      test: ["CMD", "curl", "-f", "http://localhost:54321"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -49,6 +47,30 @@ services:
       - aioa-network
 
   # ============================================================
+  # RabbitMQ Message Queue (单消息队列)
+  # ============================================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: aioa-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin123}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - aioa-network
+
+  # ============================================================
   # Backend Microservices
   # Each service is built from the Spring Boot multi-stage Dockerfile
   # ============================================================
@@ -64,22 +86,28 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       JWT_SECRET: ${JWT_SECRET:-aioa-jwt-secret-key-for-signing-tokens-must-be-at-least-256-bits-long}
       SERVER_PORT: 8080
     ports:
       - "8080:8080"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -101,21 +129,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8081
     ports:
       - "8081:8081"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -131,21 +165,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8082
     ports:
       - "8082:8082"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -161,21 +201,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8083
     ports:
       - "8083:8083"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -191,25 +237,30 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8084
-      # AI Provider Config
       MIMI_API_KEY: ${MIMI_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       CLAUDE_API_KEY: ${CLAUDE_API_KEY:-}
     ports:
       - "8084:8084"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -225,21 +276,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8085
     ports:
       - "8085:8085"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -255,21 +312,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa_attendance
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8086
     ports:
       - "8086:8086"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -285,21 +348,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8087
     ports:
       - "8087:8087"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -315,21 +384,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8088
     ports:
       - "8088:8088"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -345,21 +420,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: aioa_ocr
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8089
     ports:
       - "8089:8089"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -375,21 +456,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8090
     ports:
       - "8090:8090"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -405,21 +492,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: kingbase
+      DB_PORT: 54321
       DB_NAME: ai_oa
-      DB_USERNAME: root
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8091
     ports:
       - "8091:8091"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -435,21 +528,27 @@ services:
     restart: always
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES:-dev}
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_NAME: aioa
-      DB_USERNAME: root
+      DB_HOST: kingbase
+      DB_PORT: 54321
+      DB_NAME: ai_oa
+      DB_USERNAME: system
       DB_PASSWORD: ${DB_PASSWORD:-root123456}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin123}
       SERVER_PORT: 8092
     ports:
       - "8092:8092"
     depends_on:
-      mysql:
+      kingbase:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - aioa-network
@@ -516,7 +615,9 @@ networks:
 # Volumes
 # ============================================================
 volumes:
-  mysql_data:
+  kingbase_data:
     driver: local
   redis_data:
+    driver: local
+  rabbitmq_data:
     driver: local

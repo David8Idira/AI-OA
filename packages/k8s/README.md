@@ -6,15 +6,15 @@
 k8s/
 ├── namespace.yaml            # 命名空间定义
 ├── secrets/                 # 密钥配置
-│   ├── mysql-secret.yaml
+│   ├── kingbase-secret.yaml
 │   ├── redis-secret.yaml
 │   ├── minio-secret.yaml
 │   └── rabbitmq-secret.yaml
 ├── configmap/              # 配置字典
-│   ├── mysql-config.yaml
+│   ├── kingbase-config.yaml
 │   ├── redis-config.yaml
 │   └── app-config.yaml
-├── mysql/                  # MySQL部署
+├── kingbase/                  # Kingbase部署
 │   ├── statefulset.yaml
 │   ├── service.yaml
 │   └── pvc.yaml
@@ -114,7 +114,7 @@ helm uninstall aioa -n aioa
 
 | Pod | 副本 | CPU Request | Memory Request |
 |-----|------|-------------|----------------|
-| mysql | 1 | 500m | 2Gi |
+| kingbase | 1 | 500m | 2Gi |
 | redis | 1 | 200m | 512Mi |
 | rabbitmq | 1 | 200m | 512Mi |
 | minio | 1 | 200m | 512Mi |

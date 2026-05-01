@@ -18,7 +18,7 @@ AI-OA 是一款基于 RuoYi 开源框架开发的智能化OA系统，整合了 *
 | 🔥 **财务审批** | OCR发票识别 + 行程单对接 + n8n审批流 | 置信度<85%自动邮件通知审批人+提交人 |
 | 📊 **智能报表** | 周刊/月刊/年刊 + AI生图/视频 | 多模型按功能分配 |
 | 🤖 **AI助手** | 侧边栏对话 + 知识库RAG + **自主学习** | 回复包含文档/审批跳转链接 |
-| 💬 **企业聊天** | 即时消息 + 群聊 + WebSocket | Kafka高吞吐 |
+| 💬 **企业聊天** | 即时消息 + 群聊 + WebSocket | RabbitMQ可靠消息 |
 | ⚙️ **系统配置** | AI模型配置 + 网关限流 + 缓存管理 | 可视化配置界面 |
 
 ---
@@ -36,7 +36,7 @@ AI-OA 是一款基于 RuoYi 开源框架开发的智能化OA系统，整合了 *
 ├─────────┴─────────┴─────────┴─────────┴─────────┴─────────┤
 │                    n8n 工作流引擎                           │
 ├─────────────────────────────────────────────────────────────┤
-│  Kafka (高吞吐)          │          RabbitMQ (可靠消息)    │
+│  RabbitMQ (可靠消息)          │          RabbitMQ (可靠消息)    │
 ├─────────────────────────────────────────────────────────────┤
 │  MySQL (主备库+读写分离) │  Redis Cluster (L1+L2缓存)     │
 │  Milvus (向量数据库)     │          MinIO (S3存储)        │
@@ -88,9 +88,9 @@ AI-OA/
 | **后端** | Java 17+ / Spring Boot 3.x / Spring Cloud |
 | **前端** | Vue 3 + Element UI |
 | **移动端** | 鸿蒙APP (ArkTS) · iOS APP (Swift) · Android APP (Kotlin) |
-| **数据库** | MySQL 8.0 (主备库+读写分离) |
+| **数据库** | Kingbase V9 (金仓数据库) |
 | **缓存** | Redis Cluster ( Caffeine L1 + Redis L2 ) |
-| **消息队列** | Apache Kafka + RabbitMQ |
+| **消息队列** | RabbitMQ |
 | **文件存储** | MinIO (S3兼容) |
 | **AI能力** | GPT-4o / Claude 3.5 / Kimi / DALL-E 3 / Sora |
 | **OCR** | PaddleOCR + 阿里云OCR |

@@ -6,10 +6,10 @@
 standalone/
 ├── scripts/
 │   ├── deploy.sh           # 一键部署脚本
-│   ├── install-mysql.sh    # MySQL安装脚本
+│   ├── install-kingbase.sh    # Kingbase安装脚本
 │   ├── install-redis.sh    # Redis安装脚本
 │   ├── install-minio.sh    # MinIO安装脚本
-│   ├── install-kafka.sh    # Kafka安装脚本
+│   ├── install-kafka.sh    # 安装脚本
 │   ├── install-n8n.sh      # n8n安装脚本
 │   ├── install-nginx.sh    # Nginx安装脚本
 │   └── uninstall.sh        # 卸载脚本
@@ -17,7 +17,7 @@ standalone/
 │   ├── application.yml     # 应用配置模板
 │   ├── nginx.conf         # Nginx配置
 │   ├── redis.conf         # Redis配置
-│   ├── mysql.cnf          # MySQL配置
+│   ├── kingbase.cnf          # Kingbase配置
 │   └── minio.conf         # MinIO配置
 ├── sql/
 │   └── init.sql           # 数据库初始化脚本
@@ -59,10 +59,10 @@ curl http://localhost:80
 | 服务 | 端口 |
 |------|------|
 | Nginx | 80, 443 |
-| MySQL | 3306 |
+| Kingbase | 3306 |
 | Redis | 6379 |
 | MinIO | 9000, 9001 |
-| Kafka | 9092 |
+|  | 9092 |
 | n8n | 5678 |
 | AI-OA | 8080 |
 
@@ -70,8 +70,8 @@ curl http://localhost:80
 
 | 服务 | 账号 | 密码 |
 |------|------|------|
-| MySQL root | root | (安装时设置) |
-| MySQL aioa | aioa | AioaPassword123! |
+| Kingbase root | root | (安装时设置) |
+| Kingbase aioa | aioa | AioaPassword123! |
 | Redis | - | RedisPassword123 |
 | MinIO | aioaadmin | MinioPassword123! |
 | n8n | admin@aioa.com | N8nPassword123! |
