@@ -1,0 +1,14 @@
+AI-OA Docker Compose Deployment Package
+Version: 1.1.0
+Release Date: 2026-05-01
+Type: Containerized Microservice Deployment (Docker Compose)
+Branch: feature/kingbase-rabbitmq
+Features:
+  - Kingbase V9 (金仓数据库) as primary database
+  - RabbitMQ 3.13 as message queue
+  - Redis 7 as cache
+  - 13 Spring Boot microservices
+  - Vue 3 frontend with Nginx
+  - API Gateway (Nginx reverse proxy)
+Author: AI-OA Team
+License: MIT

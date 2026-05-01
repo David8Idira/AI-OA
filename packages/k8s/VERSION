@@ -1,0 +1,16 @@
+AI-OA Kubernetes Deployment Package
+Version: 1.1.0
+Release Date: 2026-05-01
+Type: Kubernetes (K8s) Microservice Deployment
+Branch: feature/kingbase-rabbitmq
+Components:
+  - Namespace: ai-oa
+  - Kingbase V9 StatefulSet + Service + PVC
+  - Redis Deployment + Service + PVC
+  - RabbitMQ Deployment + Service + PVC
+  - 13 Microservice Deployments (each with HPA)
+  - Ingress for external access
+  - ConfigMap + Secret for configuration
+Services: gateway, system, workflow, knowledge, ai, asset, attendance, hr, license, ocr, reimburse, report, im
+Author: AI-OA Team
+License: MIT

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ============================================================
   # Kingbase Database (金仓数据库)
@@ -17,7 +15,7 @@ services:
       - kingbase_data:/var/lib/kingbase
       - ./kingbase/init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:54321"]
+      test: ["CMD-SHELL", "pg_isready -p 54321"]
       interval: 10s
       timeout: 5s
       retries: 5

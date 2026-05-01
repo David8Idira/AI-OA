@@ -1,0 +1,17 @@
+AI-OA Microservice Deployment Package
+Version: 1.1.0
+Release Date: 2026-05-01
+Type: Non-Containerized Microservice Deployment (Bare Metal)
+Branch: feature/kingbase-rabbitmq
+Target: Medium-to-Large Enterprises (100-500 users)
+Servers: 8-12 nodes
+Components:
+  - MySQL/MariaDB cluster (1 master + 1 slave)
+  - Redis Cluster (3 nodes)
+  - RabbitMQ Cluster (3 nodes)
+  - MinIO Distributed (4 nodes)
+  - Nginx + Keepalived load balancer
+  - 13 Spring Boot microservices
+  - Vue 3 frontend
+Author: AI-OA Team
+License: MIT
