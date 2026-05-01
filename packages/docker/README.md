@@ -1,29 +1,35 @@
-# AI-OA Docker Compose部署包
+# AI-OA Docker Compose部署包 (Kingbase + RabbitMQ)
 
 ## 包含内容
 
 ```
 docker/
-├── docker-compose.yml        # 完整编排文件
-├── .env                     # 环境变量模板
-├── Dockerfile.app           # 应用镜像构建
-├── Dockerfile.mysql         # MySQL镜像
-├── Dockerfile.minio        # MinIO镜像
+├── docker-compose.yml        # 完整编排文件 (Kingbase + RabbitMQ)
+├── .env                      # 环境变量模板
+├── Dockerfile.app            # 应用镜像构建
+├── kingbase/
+│   └── init/
+│       └── 01-init.sql       # Kingbase数据库初始化
+├── rabbitmq/                 # RabbitMQ配置目录
 ├── nginx/
-│   └── nginx.conf          # Nginx配置
+│   └── nginx.conf            # Nginx配置
 ├── scripts/
-│   ├── start.sh            # 启动脚本
-│   ├── stop.sh             # 停止脚本
-│   ├── restart.sh           # 重启脚本
-│   ├── logs.sh              # 日志查看
-│   ├── backup.sh            # 数据备份
-│   └── restore.sh           # 数据恢复
-├── data/                    # 数据持久化目录
-├── html/                    # 前端静态文件
-├── backups/                 # 备份目录
+│   ├── common.sh             # 公共函数
+│   └── deploy.sh             # 部署脚本
 ├── README.md
 └── VERSION
 ```
+
+## 技术架构
+
+| 服务 | 镜像 | 端口 | 说明 |
+|------|------|------|------|
+| Kingbase | kingbase:v9.1 | 54321 | 金仓数据库 |
+| Redis | redis:7-alpine | 6379 | 缓存 |
+| RabbitMQ | rabbitmq:3.13-management-alpine | 5672, 15672 | 消息队列 |
+| AI-OA后端 | build | 8080-8092 | 13个微服务 |
+| Frontend | nginx:alpine | 80 | Vue 3前端 |
+| Nginx | nginx:alpine | 8000 | API网关 |
 
 ## 快速部署
 
@@ -38,13 +44,13 @@ vim .env  # 修改密码等
 
 # 3. 启动服务
 chmod +x scripts/*.sh
-sudo ./scripts/start.sh
+sudo ./scripts/deploy.sh
 
 # 4. 查看状态
-docker-compose ps
+docker compose ps
 
 # 5. 查看日志
-./scripts/logs.sh -f
+docker compose logs -f
 
 # 6. 访问
 open http://localhost
@@ -70,55 +76,32 @@ open http://localhost
 
 ```bash
 # 启动
-./scripts/start.sh
+docker compose up -d
 
 # 停止
-./scripts/stop.sh
-
-# 重启
-./scripts/restart.sh
+docker compose down
 
 # 查看日志
-./scripts/logs.sh -f [服务名]
+docker compose logs -f [服务名]
 
-# 备份
-./scripts/backup.sh
+# 进入Kingbase容器
+docker exec -it aioa-kingbase bash
 
-# 恢复
-./scripts/restore.sh backup_20260405.tar.gz
-
-# 进入容器
-docker exec -it aioa-mysql bash
-
-# 重建单个服务
-docker-compose up -d --force-recreate mysql
+# 进入RabbitMQ管理界面
+open http://localhost:15672
 ```
 
 ## 数据持久化
 
-| 服务 | 宿主机目录 |
-|------|------------|
-| MySQL | ./data/mysql |
-| Redis | ./data/redis |
-| MinIO | ./data/minio |
-| RabbitMQ | ./data/rabbitmq |
-| n8n | ./data/n8n |
+| 数据类型 | 存储位置 |
+|----------|----------|
+| Kingbase数据 | kingbase_data volume |
+| Redis数据 | redis_data volume |
+| RabbitMQ数据 | rabbitmq_data volume |
+| Nginx日志 | ./nginx/logs |
 
-## 健康检查
+## 注意事项
 
-```bash
-# 检查所有服务
-curl http://localhost/api/health
-
-# 检查单个服务
-curl http://localhost:3306  # MySQL
-curl http://localhost:6379  # Redis
-curl http://localhost:9000/minio/health/live  # MinIO
-curl http://localhost:15672  # RabbitMQ
-curl http://localhost:5678/healthz  # n8n
-```
-
----
-
-版本：1.0.0
-更新日期：2026-04-05
+1. Kingbase V9 首次启动需要60秒初始化
+2. 确保 54321 端口未被占用
+3. 生产环境请修改默认密码
