@@ -1,13 +1,14 @@
 #!/bin/bash
 #===============================================================================
 # AI-OA Docker Compose 部署脚本
+# 支持新旧版Docker (docker-compose 和 docker compose)
 # 
 # 适用场景: 开发/测试环境 (<200用户)
 # 服务器数量: 2-4台
 # 
 # 功能:
-#   - Docker + Docker Compose 安装
-#   - MySQL/Redis/MinIO/RabbitMQ/n8n 容器化部署
+#   - Docker + Docker Compose 安装 (兼容新旧版本)
+#   - Kingbase/Redis/RabbitMQ 容器化部署
 #   - AI-OA 应用容器化部署
 #===============================================================================
 
@@ -15,6 +16,121 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/common.sh"
+
+#-------------------------------------------------------------------------------
+# Docker Compose 兼容函数 (支持新旧版本)
+#-------------------------------------------------------------------------------
+DOCKER_COMPOSE_CMD=""
+
+check_docker_compose() {
+    info "检测Docker Compose环境..."
+    
+    # 优先使用docker compose (新版, v2+)
+    if docker compose version >/dev/null 2>&1; then
+        DOCKER_COMPOSE_CMD="docker compose"
+        success "检测到 Docker Compose (V2+): $(docker compose version --short)"
+        return 0
+    fi
+    
+    # 备选docker-compose (旧版, v1)
+    if command -v docker-compose >/dev/null 2>&1; then
+        DOCKER_COMPOSE_CMD="docker-compose"
+        success "检测到 Docker Compose (V1): $(docker-compose --version)"
+        return 0
+    fi
+    
+    # 两者都不存在
+    return 1
+}
+
+install_docker_compose_plugin() {
+    info "安装Docker Compose插件..."
+    
+    case "$TARGET_OS" in
+        centos|rhel)
+            yum install -y docker-compose-plugin >> "$INSTALL_LOG" 2>&1 || true
+            ;;
+        ubuntu|debian)
+            apt-get update >> "$INSTALL_LOG" 2>&1
+            apt-get install -y docker-compose-plugin >> "$INSTALL_LOG" 2>&1 || true
+            ;;
+    esac
+    
+    if docker compose version >/dev/null 2>&1; then
+        DOCKER_COMPOSE_CMD="docker compose"
+        success "Docker Compose插件安装成功: $(docker compose version --short)"
+        return 0
+    fi
+    
+    return 1
+}
+
+install_docker_compose_standalone() {
+    info "安装独立docker-compose..."
+    
+    local arch=""
+    case "$(uname -m)" in
+        x86_64) arch="x86_64" ;;
+        aarch64|arm64) arch="aarch64" ;;
+        *) arch="x86_64" ;;
+    esac
+    
+    curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-${arch}" -o /usr/local/bin/docker-compose >> "$INSTALL_LOG" 2>&1
+    chmod +x /usr/local/bin/docker-compose >> "$INSTALL_LOG" 2>&1
+    
+    if command -v docker-compose >/dev/null 2>&1; then
+        DOCKER_COMPOSE_CMD="docker-compose"
+        success "docker-compose安装成功: $(docker-compose --version)"
+        return 0
+    fi
+    
+    return 1
+}
+
+ensure_docker_compose() {
+    if ! check_docker_compose; then
+        info "Docker Compose未检测到，开始安装..."
+        
+        # 方案1: 安装docker-compose-plugin (推荐)
+        if install_docker_compose_plugin; then
+            return 0
+        fi
+        
+        # 方案2: 安装独立docker-compose
+        if install_docker_compose_standalone; then
+            return 0
+        fi
+        
+        error "Docker Compose安装失败"
+        exit 1
+    fi
+}
+
+# Docker Compose 封装命令 (自动适配新旧版本)
+dc_pull() {
+    ensure_docker_compose
+    $DOCKER_COMPOSE_CMD pull
+}
+
+dc_up() {
+    ensure_docker_compose
+    $DOCKER_COMPOSE_CMD up -d
+}
+
+dc_ps() {
+    ensure_docker_compose
+    $DOCKER_COMPOSE_CMD ps
+}
+
+dc_down() {
+    ensure_docker_compose
+    $DOCKER_COMPOSE_CMD down
+}
+
+dc_logs() {
+    ensure_docker_compose
+    $DOCKER_COMPOSE_CMD logs -f
+}
 
 #-------------------------------------------------------------------------------
 # 安装Docker和Docker Compose
@@ -42,12 +158,15 @@ install_docker() {
     systemctl enable docker
     systemctl start docker
     
+    # 验证Docker Compose并确保可用
+    ensure_docker_compose
+    
     # 添加当前用户到docker组
     if [ -n "$SUDO_USER" ]; then
         usermod -aG docker "$SUDO_USER"
     fi
     
-    success "Docker安装完成: $(docker --version)"
+    success "Docker安装完成: $(docker --version), $(docker compose version --short 2>/dev/null || docker-compose --version 2>/dev/null)"
 }
 
 #-------------------------------------------------------------------------------
@@ -338,10 +457,10 @@ start_services() {
     
     # 拉取镜像
     info "拉取基础镜像..."
-    docker-compose pull
+    dc_pull
     
     # 启动服务
-    docker-compose up -d
+    dc_up
     
     # 等待服务启动
     info "等待服务启动..."
@@ -349,7 +468,7 @@ start_services() {
     
     # 显示状态
     info "服务状态:"
-    docker-compose ps
+    dc_ps
     
     success "Docker服务启动完成"
 }
@@ -361,8 +480,8 @@ verify_deployment() {
     info "验证Docker部署..."
     
     # 检查容器状态
-    local running=$(docker-compose ps | grep -c "Up" || echo "0")
-    local total=$(docker-compose ps | grep -c "aioa-" || echo "0")
+    local running=$(dc_ps 2>/dev/null | grep -c "Up" || echo "0")
+    local total=$(dc_ps 2>/dev/null | grep -c "aioa-" || echo "0")
     
     if [ "$running" -ge "$total" ] && [ "$total" -gt 0 ]; then
         success "所有容器运行正常 ($running/$total)"
@@ -386,7 +505,7 @@ verify_deployment() {
 stop_services() {
     info "停止Docker服务..."
     cd /opt/aioa/docker
-    docker-compose down
+    dc_down
     success "服务已停止"
 }
 
@@ -396,7 +515,7 @@ stop_services() {
 uninstall() {
     warn "卸载Docker部署..."
     cd /opt/aioa/docker
-    docker-compose down -v
+    dc_down
     rm -rf /opt/aioa/docker
     success "卸载完成"
 }
@@ -433,10 +552,10 @@ show_docker_info() {
     echo ""
     echo "  管理命令:"
     echo "    cd /opt/aioa/docker"
-    echo "    docker-compose ps      # 查看状态"
-    echo "    docker-compose logs -f # 查看日志"
-    echo "    docker-compose stop     # 停止服务"
-    echo "    docker-compose start   # 启动服务"
+    echo "    dc_ps        # 查看状态 (兼容新旧版本)"
+    echo "    dc_logs      # 查看日志"
+    echo "    dc_down      # 停止服务"
+    echo "    dc_up        # 启动服务"
     echo ""
     echo "  访问地址:"
     echo "    前端:     http://<服务器IP>"
