@@ -1,0 +1,22 @@
+{
+  "src": [
+    "pages/Main",
+    "pages/Login",
+    "pages/home/HomeIndex",
+    "pages/approval/ApprovalList",
+    "pages/approval/ApprovalDetail",
+    "pages/approval/ApprovalCreate",
+    "pages/attendance/CheckInPage",
+    "pages/attendance/AttendanceRecord",
+    "pages/attendance/LeaveApply",
+    "pages/message/MessageList",
+    "pages/message/ChatDetail",
+    "pages/asset/AssetList",
+    "pages/asset/AssetDetail",
+    "pages/report/ReportList",
+    "pages/knowledge/KnowledgeList",
+    "pages/ai/AiChatPage",
+    "pages/settings/SettingsPage",
+    "pages/contacts/ContactsPage"
+  ]
+}
