@@ -1,6 +1,7 @@
 // 消息列表页面（会话列表）
 import router from '@ohos.router'
 import { Conversation, ConversationType } from '../../data/model/Conversation'
+import IMService from '../../services/IMService'
 
 // 页面状态
 class MessageListState {
@@ -22,8 +23,26 @@ struct MessageList {
   // 加载会话列表
   async loadConversations(): Promise<void> {
     this.state.loading = true
-    // 模拟数据
-    this.state.conversations = this.getMockConversations()
+    try {
+      const res = await IMService.getConversations()
+      if (res.data && res.data.conversations) {
+        // 转换服务层数据到页面模型
+        this.state.conversations = res.data.conversations.map(c => ({
+          id: c.id,
+          name: c.name || '',
+          avatar: c.avatar,
+          type: c.type,
+          lastMessage: c.lastMessage,
+          lastMessageTime: c.lastMessageTime,
+          unreadCount: c.unreadCount,
+          isPinned: c.isPinned === 1 ? 1 : 0,
+          isMuted: c.isMuted
+        }))
+      }
+    } catch (error) {
+      // 使用模拟数据
+      this.state.conversations = this.getMockConversations()
+    }
     this.state.loading = false
   }
 

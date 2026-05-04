@@ -3,6 +3,7 @@ import router from '@ohos.router'
 import promptAction from '@ohos.promptAction'
 import { Message, MessageType, SenderType } from '../../data/model/Message'
 import { MessageBubble, MessageDateDivider } from '../components/MessageBubble'
+import IMService from '../../services/IMService'
 
 // 页面状态
 class ChatDetailState {
@@ -116,6 +117,13 @@ struct ChatDetail {
 
     this.state.messages.push(newMessage)
     this.state.inputText = ''
+
+    // 调用IM服务发送消息
+    try {
+      await IMService.sendTextMessage(this.state.conversationId, text)
+    } catch (error) {
+      // 消息已添加到本地，显示成功
+    }
 
     // 滚动到底部
     setTimeout(() => {

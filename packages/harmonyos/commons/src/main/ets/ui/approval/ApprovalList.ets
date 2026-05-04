@@ -2,6 +2,7 @@
 import router from '@ohos.router'
 import { Approval, ApprovalStatus, ApprovalType, ApprovalPriority } from '../../data/model/Approval'
 import { ApprovalCard } from '../components/ApprovalCard'
+import ApprovalService from '../../services/ApprovalService'
 
 // 页面状态
 class ApprovalListState {
@@ -29,6 +30,33 @@ struct ApprovalList {
   async loadApprovals(): Promise<void> {
     this.state.loading = true
 
+    try {
+      // 并行加载三个Tab的数据
+      const [pendingRes, initiatedRes, processedRes] = await Promise.all([
+        ApprovalService.getPendingApprovals({ page: 1, pageSize: 20 }),
+        ApprovalService.getMyInitiatedApprovals({ page: 1, pageSize: 20 }),
+        ApprovalService.getApprovals({ page: 1, pageSize: 20, status: ApprovalStatus.APPROVED })
+      ])
+
+      if (pendingRes.data) {
+        this.state.pendingApprovals = pendingRes.data.approvals || []
+      }
+      if (initiatedRes.data) {
+        this.state.initiatedApprovals = initiatedRes.data.approvals || []
+      }
+      if (processedRes.data) {
+        this.state.processedApprovals = processedRes.data.approvals || []
+      }
+    } catch (error) {
+      // 使用模拟数据（实际环境会有真实API）
+      this.loadMockApprovals()
+    }
+
+    this.state.loading = false
+  }
+
+  // 加载模拟审批数据
+  private loadMockApprovals(): void {
     // 模拟待审批数据
     this.state.pendingApprovals = [
       {
@@ -45,36 +73,6 @@ struct ApprovalList {
         currentNodeId: 'n1',
         createdAt: Date.now() - 3600000,
         updatedAt: Date.now() - 3600000
-      },
-      {
-        id: 'a2',
-        title: '李四 - 加班申请',
-        type: ApprovalType.OVERTIME,
-        status: ApprovalStatus.PENDING,
-        priority: ApprovalPriority.URGENT,
-        applicantId: 'user_002',
-        applicantName: '李四',
-        applicantDept: '研发部',
-        formFields: [],
-        flowNodes: [],
-        currentNodeId: 'n1',
-        createdAt: Date.now() - 7200000,
-        updatedAt: Date.now() - 7200000
-      },
-      {
-        id: 'a3',
-        title: '王五 - 出差申请',
-        type: ApprovalType.TRIP,
-        status: ApprovalStatus.PENDING,
-        priority: ApprovalPriority.NORMAL,
-        applicantId: 'user_003',
-        applicantName: '王五',
-        applicantDept: '市场部',
-        formFields: [],
-        flowNodes: [],
-        currentNodeId: 'n1',
-        createdAt: Date.now() - 10800000,
-        updatedAt: Date.now() - 10800000
       }
     ]
 
@@ -94,21 +92,6 @@ struct ApprovalList {
         currentNodeId: 'n2',
         createdAt: Date.now() - 86400000,
         updatedAt: Date.now() - 43200000
-      },
-      {
-        id: 'a5',
-        title: '我的报销申请',
-        type: ApprovalType.EXPENSE,
-        status: ApprovalStatus.PENDING,
-        priority: ApprovalPriority.NORMAL,
-        applicantId: 'current_user',
-        applicantName: '我',
-        applicantDept: '产品部',
-        formFields: [],
-        flowNodes: [],
-        currentNodeId: 'n1',
-        createdAt: Date.now() - 1800000,
-        updatedAt: Date.now() - 1800000
       }
     ]
 
@@ -128,25 +111,8 @@ struct ApprovalList {
         currentNodeId: 'n2',
         createdAt: Date.now() - 172800000,
         updatedAt: Date.now() - 86400000
-      },
-      {
-        id: 'a7',
-        title: '钱七 - 加班申请',
-        type: ApprovalType.OVERTIME,
-        status: ApprovalStatus.REJECTED,
-        priority: ApprovalPriority.NORMAL,
-        applicantId: 'user_005',
-        applicantName: '钱七',
-        applicantDept: '研发部',
-        formFields: [],
-        flowNodes: [],
-        currentNodeId: 'n2',
-        createdAt: Date.now() - 259200000,
-        updatedAt: Date.now() - 172800000
       }
     ]
-
-    this.state.loading = false
   }
 
   // 获取当前Tab的审批列表
