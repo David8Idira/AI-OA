@@ -299,8 +299,6 @@ class AttendanceControllerTest {
         @Test
         @DisplayName("自动签退 - 服务异常")
         void autoCheckout_serviceError() throws Exception {
-            // This is hard to test because it throws but catches internally
-            // The endpoint returns success even on error (just logs it)
             mockMvc.perform(post("/api/attendance/autoCheckout"))
                     .andExpect(status().isOk());
         }
