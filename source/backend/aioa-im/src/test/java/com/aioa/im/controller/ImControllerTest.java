@@ -1,5 +1,6 @@
 package com.aioa.im.controller;
 
+import com.aioa.common.result.Result;
 import com.aioa.im.dto.ConversationCreateDTO;
 import com.aioa.im.dto.ReadConfirmDTO;
 import com.aioa.im.dto.SendMessageDTO;
@@ -8,17 +9,17 @@ import com.aioa.im.service.MessageService;
 import com.aioa.im.vo.ConversationVO;
 import com.aioa.im.vo.MessageVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,33 +31,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * ImController 单元测试
- * 测试即时通讯模块 REST API
+ * 使用 MockMvc standalone mode，不依赖 Spring context
  */
-@WebMvcTest(controllers = ImController.class)
-@Import(ImControllerTest.TestConfig.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 @DisplayName("ImControllerTest 即时通讯控制器测试")
 class ImControllerTest {
 
-    @Configuration
-    static class TestConfig {
-        @Bean
-        public ObjectMapper objectMapper() {
-            return new ObjectMapper();
-        }
-    }
-
-    @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Mock
     private ConversationService conversationService;
 
-    @MockBean
+    @Mock
     private MessageService messageService;
+
+    @InjectMocks
+    private ImController imController;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(imController)
+                .build();
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+    }
 
     // ==================== Conversation APIs ====================
 
