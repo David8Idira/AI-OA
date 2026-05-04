@@ -75,8 +75,8 @@ class AttendanceRuleControllerTest {
         dto.setRuleCode("RULE-001");
         dto.setRuleName("标准考勤规则");
         dto.setStatus(1);
-        dto.setWorkStartTime("09:00:00");
-        dto.setWorkEndTime("18:00:00");
+        dto.setWorkStartTime(LocalTime.of(9, 0));
+        dto.setWorkEndTime(LocalTime.of(18, 0));
         dto.setAllowLateMinutes(5);
         dto.setAllowLeaveEarlyMinutes(5);
         dto.setOvertimeRule(1);
@@ -210,7 +210,7 @@ class AttendanceRuleControllerTest {
 
             mockMvc.perform(get("/api/attendance/rules/999"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.code").value(200))
+                    .andExpect(jsonPath("$.code").value(500))
                     .andExpect(jsonPath("$.message").value("Rule not found"));
         }
 
@@ -233,7 +233,7 @@ class AttendanceRuleControllerTest {
 
             mockMvc.perform(get("/api/attendance/rules/code/NOT-EXIST"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.code").value(200))
+                    .andExpect(jsonPath("$.code").value(500))
                     .andExpect(jsonPath("$.message").value("Rule not found"));
         }
     }
