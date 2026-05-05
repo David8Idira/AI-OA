@@ -1,285 +1,280 @@
-import router from '@ohos.router'
+/**
+ * Reimburse List Page - 报销列表页面
+ */
+import router from '@ohos.router';
+import { ReimburseInfo, ReimburseStats } from '../../model/reimburse/ReimburseModel';
+import { reimburseService } from '../../service/ReimburseService';
 
-interface Reimburse {
-  id: string
-  title: string
-  amount: number
-  type: string
-  status: string
-  createTime: string
-  applicant: string
-}
-
-class ReimburseListState {
-  reimburses: Reimburse[] = []
-  loading: boolean = false
-  selectedStatus: string = '全部'
-}
-
-@Entry
 @Component
-struct ReimburseList {
-  @State state: ReimburseListState = new ReimburseListState()
-  private scrollController: Scroller = new Scroller()
+export struct ReimburseList {
+  @State reimburses: ReimburseInfo[] = [];
+  @State stats: ReimburseStats = { pendingAmount: 0, pendingCount: 0, monthTotal: 0, invoiceCount: 0 };
+  @State loading: boolean = false;
+  @State filterStatus: string = '';
+  @State filterKeyword: string = '';
+  @State showCreateDialog: boolean = false;
 
-  private statuses: string[] = ['全部', '待审批', '审批中', '已通过', '已驳回', '已打款']
+  private scroller: Scroller = new Scroller();
+  private statusOptions = ['全部', '草稿', '待审批', '已通过', '已拒绝', '已打款'];
 
   aboutToAppear() {
-    this.loadReimburses()
+    this.loadReimburses();
+    this.loadStats();
   }
 
-  async loadReimburses(): Promise<void> {
-    this.state.loading = true
-    setTimeout(() => {
-      this.state.reimburses = [
-        { id: '1', title: '4月差旅费报销', amount: 3500, type: '差旅费', status: '待审批', createTime: '2024-04-28', applicant: '张三' },
-        { id: '2', title: '办公采购报销', amount: 1200, type: '采购费', status: '已通过', createTime: '2024-04-25', applicant: '李四' },
-        { id: '3', title: '客户招待费', amount: 2800, type: '招待费', status: '审批中', createTime: '2024-04-24', applicant: '王五' },
-        { id: '4', title: '交通费报销', amount: 560, type: '交通费', status: '已打款', createTime: '2024-04-20', applicant: '赵六' },
-        { id: '5', title: '培训费用报销', amount: 1500, type: '培训费', status: '已驳回', createTime: '2024-04-18', applicant: '钱七' },
-        { id: '6', title: '3月通讯费报销', amount: 300, type: '通讯费', status: '已打款', createTime: '2024-04-15', applicant: '张三' },
-        { id: '7', title: '设备维修费', amount: 800, type: '维修费', status: '已通过', createTime: '2024-04-12', applicant: '孙八' },
-        { id: '8', title: '团建活动报销', amount: 2200, type: '团建费', status: '审批中', createTime: '2024-04-10', applicant: '李四' }
-      ]
-      this.state.loading = false
-    }, 500)
+  loadReimburses() {
+    this.loading = true;
+    reimburseService.getReimburseList({
+      status: this.filterStatus,
+      keyword: this.filterKeyword
+    }).then((result) => {
+      this.reimburses = result;
+    }).catch(() => {
+      // 处理错误
+    }).finally(() => {
+      this.loading = false;
+    });
   }
 
-  private getFilteredReimburses(): Reimburse[] {
-    return this.state.reimburses.filter(item => {
-      return this.state.selectedStatus === '全部' || item.status === this.state.selectedStatus
-    })
-  }
-
-  private getStatusColor(status: string): string {
-    switch (status) {
-      case '待审批': return '#FAAD14'
-      case '审批中': return '#1890FF'
-      case '已通过': return '#52C41A'
-      case '已驳回': return '#FF4D4F'
-      case '已打款': return '#722ED1'
-      default: return '#999999'
-    }
-  }
-
-  private getTypeIcon(type: string): string {
-    switch (type) {
-      case '差旅费': return '✈️'
-      case '采购费': return '🛒'
-      case '招待费': return '🍽️'
-      case '交通费': return '🚗'
-      case '培训费': return '📚'
-      case '通讯费': return '📱'
-      case '维修费': return '🔧'
-      case '团建费': return '🎉'
-      default: return '💰'
-    }
+  loadStats() {
+    reimburseService.getReimburseStats().then((s) => {
+      this.stats = s;
+    }).catch(() => {
+      // 处理错误
+    });
   }
 
   build() {
     Column() {
-      // 顶部导航
-      Row() {
-        Text('报销管理')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#333333')
-      }
-      .width('100%')
-      .height(56)
-      .padding({ left: 16 })
-      .backgroundColor('#FFFFFF')
-      .shadow({ radius: 4, color: '#10000000', offsetX: 0, offsetY: 2 })
+      // 顶部导航栏
+      this.NavigationBar()
 
-      // 状态筛选
-      Column() {
-        Scroll() {
-          Row() {
-            ForEach(this.statuses, (status: string) => {
-              Text(status)
-                .fontSize(13)
-                .fontColor(this.state.selectedStatus === status ? '#FFFFFF' : '#666666')
-                .backgroundColor(this.state.selectedStatus === status ? '#1890FF' : '#E6E6E6')
-                .borderRadius(16)
-                .padding({ left: 14, right: 14, top: 6, bottom: 6 })
-                .margin({ right: 8 })
-                .onClick(() => {
-                  this.state.selectedStatus = status
-                })
-            })
-          }
+      Scroll(this.scroller) {
+        Column() {
+          // 统计卡片
+          this.StatsCards()
+
+          // 筛选区域
+          this.FilterArea()
+
+          // 报销列表
+          this.ReimburseListSection()
         }
         .width('100%')
-        .scrollable(ScrollDirection.Horizontal)
-        .scrollBar(BarState.Off)
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16, top: 12 })
-
-      // 报销列表
-      Scroll(this.scrollController) {
-        Column() {
-          if (this.state.loading) {
-            Row() {
-              Text('加载中...')
-                .fontSize(14)
-                .fontColor('#999999')
-            }
-            .width('100%')
-            .padding(40)
-          } else {
-            // 统计卡片
-            Row() {
-              Column() {
-                Text('待审批')
-                  .fontSize(12)
-                  .fontColor('#666666')
-                Text('2')
-                  .fontSize(20)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#FAAD14')
-                  .margin({ top: 4 })
-              }
-              .layoutWeight(1)
-              .padding(16)
-              .backgroundColor('#FFF7E6')
-              .borderRadius(12)
-              .margin({ right: 8 })
-
-              Column() {
-                Text('审批中')
-                  .fontSize(12)
-                  .fontColor('#666666')
-                Text('2')
-                  .fontSize(20)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#1890FF')
-                  .margin({ top: 4 })
-              }
-              .layoutWeight(1)
-              .padding(16)
-              .backgroundColor('#E6F0FF')
-              .borderRadius(12)
-              .margin({ right: 8 })
-
-              Column() {
-                Text('已打款')
-                  .fontSize(12)
-                  .fontColor('#666666')
-                Text('2')
-                  .fontSize(20)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#722ED1')
-                  .margin({ top: 4 })
-              }
-              .layoutWeight(1)
-              .padding(16)
-              .backgroundColor('#F9F0FF')
-              .borderRadius(12)
-            }
-            .width('100%')
-            .margin({ bottom: 16 })
-
-            Text(`共 ${this.getFilteredReimburses().length} 条记录`)
-              .fontSize(12)
-              .fontColor('#999999')
-              .alignSelf(HorizontalAlign.Start)
-              .margin({ bottom: 12, left: 4 })
-
-            ForEach(this.getFilteredReimburses(), (item: Reimburse) => {
-              this.buildReimburseItem(item)
-            })
-          }
-        }
         .padding(16)
       }
-      .width('100%')
       .layoutWeight(1)
-      .backgroundColor('#F5F5F5')
+      .scrollBar(BarState.Auto)
+      .edgeEffect(EdgeEffect.Spring)
 
-      // 底部新建按钮
-      Row() {
-        Button('新建报销')
-          .fontSize(16)
-          .fontColor('#FFFFFF')
-          .backgroundColor('#1890FF')
-          .borderRadius(24)
-          .width('80%')
-          .height(48)
-          .onClick(() => {
-            router.pushUrl({ url: 'pages/ReimburseCreate' })
-          })
-      }
-      .width('100%')
-      .padding(16)
-      .backgroundColor('#FFFFFF')
+      // 底部操作按钮
+      this.BottomActions()
     }
     .width('100%')
     .height('100%')
+    .backgroundColor('#F5F7FA')
   }
 
   @Builder
-  buildReimburseItem(item: Reimburse) {
+  NavigationBar() {
     Row() {
-      Text(this.getTypeIcon(item.type))
-        .fontSize(28)
-        .width(50)
-        .height(50)
-        .backgroundColor('#F0F5FF')
-        .borderRadius(12)
+      Image($r('app.media.ic_back'))
+        .width(24)
+        .height(24)
+        .onClick(() => router.back())
+
+      Text('财务报销管理')
+        .fontSize(18)
+        .fontWeight(FontWeight.Medium)
+        .layoutWeight(1)
         .textAlign(TextAlign.Center)
 
-      Column() {
-        Row() {
+      Text('')
+        .width(24)
+    }
+    .width('100%')
+    .height(56)
+    .padding({ left: 16, right: 16 })
+    .backgroundColor('#FFFFFF')
+    .shadow({ radius: 4, color: '#08000000', offsetX: 0, offsetY: 2 })
+  }
+
+  @Builder
+  StatsCards() {
+    Column() {
+      Row() {
+        this.StatCard(this.stats.pendingAmount.toLocaleString(), '待报销金额', '#E6A23C')
+        this.StatCard(this.stats.pendingCount.toString(), '待审批单据', '#409EFF')
+      }
+      .width('100%')
+
+      Row() {
+        this.StatCard(this.stats.monthTotal.toLocaleString(), '本月报销总额', '#67C23A')
+        this.StatCard(this.stats.invoiceCount.toString(), '已识别发票', '#667EEA')
+      }
+      .width('100%')
+      .margin({ top: 12 })
+    }
+    .width('100%')
+    .margin({ bottom: 16 })
+  }
+
+  @Builder
+  StatCard(value: string, label: string, color: string) {
+    Column() {
+      Text(`¥${value}`)
+        .fontSize(20)
+        .fontWeight(FontWeight.Bold)
+        .fontColor(color)
+
+      Text(label)
+        .fontSize(12)
+        .fontColor('#999999')
+        .margin({ top: 4 })
+    }
+    .width('47%')
+    .padding(16)
+    .backgroundColor('#FFFFFF')
+    .borderRadius(12)
+    .alignItems(HorizontalAlign.Center)
+  }
+
+  @Builder
+  FilterArea() {
+    Column() {
+      Row() {
+        TextInput({ placeholder: '标题/申请人' })
+          .width('60%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#FFFFFF')
+          .onChange((value: string) => {
+            this.filterKeyword = value;
+          })
+
+        Select(this.statusOptions)
+          .width('35%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#FFFFFF')
+          .margin({ left: 12 })
+          .onSelect((index: number) => {
+            this.filterStatus = index === 0 ? '' : ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'PAID'][index - 1];
+          })
+      }
+      .width('100%')
+
+      Row() {
+        Blank()
+
+        Button('查询')
+          .height(32)
+          .fontSize(12)
+          .backgroundColor('#667EEA')
+          .borderRadius(16)
+          .onClick(() => {
+            this.loadReimburses();
+          })
+
+        Button('重置')
+          .height(32)
+          .fontSize(12)
+          .backgroundColor('#FFFFFF')
+          .fontColor('#666666')
+          .border({ width: 1, color: '#E8E8E8', radius: 16 })
+          .margin({ left: 8 })
+          .onClick(() => {
+            this.filterStatus = '';
+            this.filterKeyword = '';
+            this.loadReimburses();
+          })
+      }
+      .width('100%')
+      .margin({ top: 12 })
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor('#FFFFFF')
+    .borderRadius(12)
+    .margin({ bottom: 16 })
+  }
+
+  @Builder
+  ReimburseListSection() {
+    Column() {
+      if (this.loading) {
+        LoadingProgress()
+          .width(40)
+          .height(40)
+          .color('#667EEA')
+      } else if (this.reimburses.length === 0) {
+        Column() {
+          Image($r('app.media.ic_empty'))
+            .width(80)
+            .height(80)
+            .opacity(0.5)
+
+          Text('暂无报销记录')
+            .fontSize(14)
+            .fontColor('#999999')
+            .margin({ top: 16 })
+        }
+        .width('100%')
+        .padding(60)
+        .backgroundColor('#FFFFFF')
+        .borderRadius(12)
+        .alignItems(HorizontalAlign.Center)
+      } else {
+        ForEach(this.reimburses, (item: ReimburseInfo) => {
+          this.ReimburseCard(item)
+        })
+      }
+    }
+    .width('100%')
+  }
+
+  @Builder
+  ReimburseCard(item: ReimburseInfo) {
+    Column() {
+      Row() {
+        Column() {
           Text(item.title)
-            .fontSize(15)
+            .fontSize(14)
             .fontWeight(FontWeight.Medium)
             .fontColor('#333333')
 
-          Text(item.status)
-            .fontSize(11)
-            .fontColor('#FFFFFF')
-            .backgroundColor(this.getStatusColor(item.status))
-            .borderRadius(8)
-            .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-            .margin({ left: 8 })
+          Row() {
+            Text(item.applicant || '-')
+              .fontSize(12)
+              .fontColor('#666666')
+              .margin({ right: 12 })
+
+            Text(item.createTime)
+              .fontSize(12)
+              .fontColor('#999999')
+          }
+          .margin({ top: 6 })
         }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
 
-        Row() {
-          Text(item.type)
-            .fontSize(12)
-            .fontColor('#666666')
-
-          Text(' | ')
-            .fontSize(12)
-            .fontColor('#CCCCCC')
-
-          Text('申请人：' + item.applicant)
-            .fontSize(12)
-            .fontColor('#666666')
-        }
-        .margin({ top: 6 })
-
-        Row() {
-          Text(`申请时间：${item.createTime}`)
-            .fontSize(11)
-            .fontColor('#999999')
-
-          Text('¥' + item.amount.toLocaleString())
-            .fontSize(15)
+        Column() {
+          Text(`¥${item.amount.toFixed(2)}`)
+            .fontSize(16)
             .fontWeight(FontWeight.Bold)
-            .fontColor('#FF4D4F')
-            .margin({ left: 12 })
-        }
-        .margin({ top: 4 })
-      }
-      .alignItems(HorizontalAlign.Start)
-      .layoutWeight(1)
-      .margin({ left: 12 })
+            .fontColor('#333333')
 
-      Text('>')
-        .fontSize(16)
-        .fontColor('#CCCCCC')
+          Text(this.getStatusText(item.status))
+            .fontSize(12)
+            .fontColor(this.getStatusColor(item.status))
+            .backgroundColor(this.getStatusBgColor(item.status))
+            .padding({ left: 8, right: 8, top: 2, bottom: 2 })
+            .borderRadius(4)
+            .margin({ top: 4 })
+        }
+        .alignItems(HorizontalAlign.End)
+      }
+      .width('100%')
     }
     .width('100%')
     .padding(16)
@@ -287,7 +282,87 @@ struct ReimburseList {
     .borderRadius(12)
     .margin({ bottom: 12 })
     .onClick(() => {
-      router.pushUrl({ url: 'pages/ReimburseDetail', params: { reimburseId: item.id } })
+      // 查看报销详情
     })
+  }
+
+  @Builder
+  BottomActions() {
+    Row() {
+      Button() {
+        Row() {
+          Image($r('app.media.ic_camera'))
+            .width(20)
+            .height(20)
+            .margin({ right: 8 })
+
+          Text('OCR识别发票')
+            .fontSize(14)
+        }
+      }
+      .width('45%')
+      .height(44)
+      .backgroundColor('#67C23A')
+      .borderRadius(22)
+      .onClick(() => {
+        // OCR扫描
+      })
+
+      Button() {
+        Row() {
+          Image($r('app.media.ic_add'))
+            .width(20)
+            .height(20)
+            .margin({ right: 8 })
+
+          Text('新建报销单')
+            .fontSize(14)
+        }
+      }
+      .width('45%')
+      .height(44)
+      .backgroundColor('#667EEA')
+      .borderRadius(22)
+      .onClick(() => {
+        router.pushUrl({ url: 'pages/reimburse/ReimburseCreate' });
+      })
+    }
+    .width('100%')
+    .padding({ left: 16, right: 16, bottom: 16 })
+    .justifyContent(FlexAlign.SpaceEvenly)
+    .backgroundColor('#FFFFFF')
+  }
+
+  getStatusText(status: string): string {
+    const map: Record<string, string> = {
+      'DRAFT': '草稿',
+      'PENDING': '待审批',
+      'APPROVED': '已通过',
+      'REJECTED': '已拒绝',
+      'PAID': '已打款'
+    };
+    return map[status] || status;
+  }
+
+  getStatusColor(status: string): string {
+    const map: Record<string, string> = {
+      'DRAFT': '#909399',
+      'PENDING': '#E6A23C',
+      'APPROVED': '#67C23A',
+      'REJECTED': '#F56C6C',
+      'PAID': '#409EFF'
+    };
+    return map[status] || '#999999';
+  }
+
+  getStatusBgColor(status: string): string {
+    const map: Record<string, string> = {
+      'DRAFT': '#F4F4F5',
+      'PENDING': '#FDF6EC',
+      'APPROVED': '#F0F9EB',
+      'REJECTED': '#FEF0F0',
+      'PAID': '#ECF5FF'
+    };
+    return map[status] || '#F5F7FA';
   }
 }

@@ -1,218 +1,329 @@
-import router from '@ohos.router'
+/**
+ * Settings Page - 设置页面
+ */
+import router from '@ohos.router';
+import { UserInfo } from '../../model/user/UserModel';
 
-class SettingsState {
-  username: string = '用户'
-  phone: string = '138****8888'
-  email: string = 'user@company.com'
-  dept: string = '技术部'
-  role: string = '普通员工'
-  notifications: boolean = true
-  darkMode: boolean = false
-  biometric: boolean = false
-}
-
-@Entry
 @Component
-struct SettingsPage {
-  @State state: SettingsState = new SettingsState()
+export struct SettingsPage {
+  @State userInfo: UserInfo | null = null;
+  @State notificationEnabled: boolean = true;
+  @State soundEnabled: boolean = true;
+  @State vibrationEnabled: boolean = true;
+  @State activeTab: string = 'profile';
 
-  aboutToAppear() {
-    this.loadUserInfo()
+  private aboutToAppear() {
+    this.loadUserInfo();
   }
 
-  async loadUserInfo(): Promise<void> {
-    const token = AppStorage.get<string>('auth_token')
-    if (token) {
-      const userName = AppStorage.get<string>('username')
-      if (userName) {
-        this.state.username = userName
-      }
-    }
-    // 模拟数据
-    this.state.username = AppStorage.get<string>('username') || '张三'
-    this.state.phone = '138****8888'
-    this.state.email = 'zhangsan@company.com'
-    this.state.dept = '技术部'
-    this.state.role = '高级工程师'
-  }
-
-  private getVersion(): string {
-    return 'V2.0.1'
+  loadUserInfo() {
+    // 模拟加载用户信息
+    this.userInfo = {
+      id: '1',
+      name: '张三',
+      phone: '13800138001',
+      email: 'zhangsan@company.com',
+      avatar: '',
+      department: '技术部',
+      position: '高级工程师'
+    };
   }
 
   build() {
     Column() {
-      // 顶部导航
-      Row() {
-        Text('设置')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#333333')
-      }
-      .width('100%')
-      .height(56)
-      .padding({ left: 16 })
-      .backgroundColor('#FFFFFF')
-      .shadow({ radius: 4, color: '#10000000', offsetX: 0, offsetY: 2 })
+      // 顶部导航栏
+      this.NavigationBar()
 
       Scroll() {
         Column() {
           // 用户信息卡片
-          Column() {
-            Row() {
-              Text('👤')
-                .fontSize(40)
-                .width(60)
-                .height(60)
-                .backgroundColor('#F0F5FF')
-                .borderRadius(30)
-                .textAlign(TextAlign.Center)
+          this.UserCard()
 
-              Column() {
-                Text(this.state.username)
-                  .fontSize(18)
-                  .fontWeight(FontWeight.Bold)
-                  .fontColor('#333333')
+          // 设置选项卡
+          this.SettingsTabs()
 
-                Text(`${this.state.dept} · ${this.state.role}`)
-                  .fontSize(13)
-                  .fontColor('#666666')
-                  .margin({ top: 4 })
-
-                Text(this.state.phone)
-                  .fontSize(12)
-                  .fontColor('#999999')
-                  .margin({ top: 2 })
-              }
-              .alignItems(HorizontalAlign.Start)
-              .margin({ left: 16 })
-              .layoutWeight(1)
-
-              Text('>')
-                .fontSize(16)
-                .fontColor('#CCCCCC')
-            }
-            .width('100%')
-            .padding(16)
+          // 设置内容
+          if (this.activeTab === 'profile') {
+            this.ProfileSettings()
+          } else if (this.activeTab === 'notification') {
+            this.NotificationSettings()
+          } else {
+            this.SystemSettings()
           }
-          .width('100%')
-          .backgroundColor('#FFFFFF')
-          .borderRadius(12)
-          .margin({ bottom: 16 })
-
-          // 消息通知
-          this.buildSettingsSection('消息通知', [
-            { icon: '🔔', title: '推送通知', subtitle: '接收系统通知和消息', type: 'switch', value: this.state.notifications, onChange: (val: boolean) => this.state.notifications = val }
-          ])
-
-          // 偏好设置
-          this.buildSettingsSection('偏好设置', [
-            { icon: '🌙', title: '深色模式', subtitle: '开启后界面将变为深色', type: 'switch', value: this.state.darkMode, onChange: (val: boolean) => this.state.darkMode = val },
-            { icon: '🔐', title: '生物识别', subtitle: '使用指纹或面容解锁', type: 'switch', value: this.state.biometric, onChange: (val: boolean) => this.state.biometric = val }
-          ])
-
-          // 通用设置
-          this.buildSettingsSection('通用设置', [
-            { icon: '🌐', title: '语言', subtitle: '简体中文', type: 'arrow' },
-            { icon: '📱', title: '清除缓存', subtitle: '当前缓存 128MB', type: 'arrow' },
-            { icon: '📴', title: '离线模式', subtitle: '下载数据供离线使用', type: 'arrow' }
-          ])
-
-          // 关于我们
-          this.buildSettingsSection('关于我们', [
-            { icon: 'ℹ️', title: '关于AI-OA', subtitle: '了解产品更多信息', type: 'arrow' },
-            { icon: '📖', title: '用户协议', subtitle: '查看软件许可协议', type: 'arrow' },
-            { icon: '🔒', title: '隐私政策', subtitle: '了解我们如何保护隐私', type: 'arrow' },
-            { icon: '⭐', title: '给我们评分', subtitle: '前往应用商店评分', type: 'arrow' }
-          ])
-
-          // 退出登录
-          Button('退出登录')
-            .fontSize(16)
-            .fontColor('#FF4D4F')
-            .backgroundColor('#FFFFFF')
-            .borderRadius(12)
-            .width('100%')
-            .height(50)
-            .borderWidth(1)
-            .borderColor('#FF4D4F')
-            .margin({ top: 16 })
-
-          // 版本信息
-          Text(`当前版本 ${this.getVersion()}`)
-            .fontSize(12)
-            .fontColor('#CCCCCC')
-            .margin({ top: 16, bottom: 32 })
         }
+        .width('100%')
         .padding(16)
       }
-      .width('100%')
       .layoutWeight(1)
-      .backgroundColor('#F5F5F5')
+      .scrollBar(BarState.Auto)
+      .edgeEffect(EdgeEffect.Spring)
+
+      // 退出登录按钮
+      this.LogoutButton()
     }
     .width('100%')
     .height('100%')
+    .backgroundColor('#F5F7FA')
   }
 
   @Builder
-  buildSettingsSection(title: string, items: { icon: string, title: string, subtitle: string, type: string, value?: boolean, onChange?: (val: boolean) => void }[]) {
-    Column() {
-      Text(title)
-        .fontSize(14)
+  NavigationBar() {
+    Row() {
+      Text('设置')
+        .fontSize(18)
         .fontWeight(FontWeight.Medium)
-        .fontColor('#666666')
-        .alignSelf(HorizontalAlign.Start)
-        .margin({ bottom: 8, left: 4 })
+        .layoutWeight(1)
+        .textAlign(TextAlign.Center)
+
+      Text('')
+        .width(24)
+    }
+    .width('100%')
+    .height(56)
+    .padding({ left: 16, right: 16 })
+    .backgroundColor('#FFFFFF')
+    .shadow({ radius: 4, color: '#08000000', offsetX: 0, offsetY: 2 })
+  }
+
+  @Builder
+  UserCard() {
+    Row() {
+      // 头像
+      Column() {
+        if (this.userInfo?.avatar) {
+          Image(this.userInfo.avatar)
+            .width(64)
+            .height(64)
+            .borderRadius(32)
+        } else {
+          Text(this.userInfo?.name?.substring(0, 1) || '?')
+            .fontSize(24)
+            .fontWeight(FontWeight.Bold)
+            .fontColor('#FFFFFF')
+            .width(64)
+            .height(64)
+            .backgroundColor('#667EEA')
+            .borderRadius(32)
+            .textAlign(TextAlign.Center)
+        }
+      }
+      .width(80)
+      .alignItems(HorizontalAlign.Center)
 
       Column() {
-        ForEach(items, (item: { icon: string, title: string, subtitle: string, type: string, value?: boolean, onChange?: (val: boolean) => void }, index: number) => {
+        Text(this.userInfo?.name || '')
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#333333')
+
+        Text(this.userInfo?.department + ' - ' + this.userInfo?.position)
+          .fontSize(12)
+          .fontColor('#999999')
+          .margin({ top: 4 })
+
+        Text(this.userInfo?.phone || '')
+          .fontSize(12)
+          .fontColor('#999999')
+          .margin({ top: 4 })
+      }
+      .layoutWeight(1)
+      .padding({ left: 16 })
+      .alignItems(HorizontalAlign.Start)
+
+      Image($r('app.media.ic_arrow_right'))
+        .width(20)
+        .height(20)
+        .opacity(0.5)
+        .onClick(() => {
+          // 编辑个人资料
+        })
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor('#FFFFFF')
+    .borderRadius(12)
+    .margin({ bottom: 16 })
+  }
+
+  @Builder
+  SettingsTabs() {
+    Row() {
+      this.TabItem('profile', '个人资料', this.activeTab === 'profile')
+      this.TabItem('notification', '通知设置', this.activeTab === 'notification')
+      this.TabItem('system', '系统', this.activeTab === 'system')
+    }
+    .width('100%')
+    .height(44)
+    .backgroundColor('#FFFFFF')
+    .borderRadius(8)
+    .margin({ bottom: 16 })
+  }
+
+  @Builder
+  TabItem(key: string, label: string, isActive: boolean) {
+    Text(label)
+      .fontSize(14)
+      .fontColor(isActive ? '#FFFFFF' : '#666666')
+      .backgroundColor(isActive ? '#667EEA' : 'transparent')
+      .borderRadius(8)
+      .padding({ left: 20, right: 20, top: 8, bottom: 8 })
+      .onClick(() => {
+        this.activeTab = key;
+      })
+  }
+
+  @Builder
+  ProfileSettings() {
+    Column() {
+      // 基本信息
+      this.SettingsSection('基本信息', [
+        { icon: 'ic_user', label: '姓名', value: this.userInfo?.name || '-', action: 'edit' },
+        { icon: 'ic_phone', label: '手机号', value: this.userInfo?.phone || '-', action: 'edit' },
+        { icon: 'ic_email', label: '邮箱', value: this.userInfo?.email || '-', action: 'edit' },
+        { icon: 'ic_department', label: '部门', value: this.userInfo?.department || '-', action: 'view' },
+        { icon: 'ic_position', label: '职位', value: this.userInfo?.position || '-', action: 'view' }
+      ])
+
+      // 安全设置
+      this.SettingsSection('安全设置', [
+        { icon: 'ic_password', label: '修改密码', value: '', action: 'navigate' },
+        { icon: 'ic_verify', label: '身份验证', value: '', action: 'navigate' },
+        { icon: 'ic_device', label: '设备管理', value: '2台设备', action: 'navigate' }
+      ])
+
+      // 隐私设置
+      this.SettingsSection('隐私设置', [
+        { icon: 'ic_visibility', label: '个人资料可见性', value: '仅同事', action: 'select' },
+        { icon: 'ic_block', label: '黑名单', value: '', action: 'navigate' }
+      ])
+    }
+    .width('100%')
+  }
+
+  @Builder
+  NotificationSettings() {
+    Column() {
+      // 消息通知
+      this.SettingsSection('消息通知', [
+        { icon: 'ic_bell', label: '接收新消息通知', value: '', action: 'switch', switchValue: this.notificationEnabled, onChange: (val: boolean) => { this.notificationEnabled = val; } },
+        { icon: 'ic_approval', label: '审批通知', value: '', action: 'switch', switchValue: true, onChange: (val: boolean) => {} },
+        { icon: 'ic_mention', label: '@提及通知', value: '', action: 'switch', switchValue: true, onChange: (val: boolean) => {} }
+      ])
+
+      // 声音与震动
+      this.SettingsSection('声音与震动', [
+        { icon: 'ic_sound', label: '消息声音', value: '', action: 'switch', switchValue: this.soundEnabled, onChange: (val: boolean) => { this.soundEnabled = val; } },
+        { icon: 'ic_vibration', label: '消息震动', value: '', action: 'switch', switchValue: this.vibrationEnabled, onChange: (val: boolean) => { this.vibrationEnabled = val; } }
+      ])
+
+      // 免打扰
+      this.SettingsSection('免打扰', [
+        { icon: 'ic_dnd', label: '定时免打扰', value: '关闭', action: 'select' },
+        { icon: 'ic_away', label: '离开时自动回复', value: '关闭', action: 'select' }
+      ])
+    }
+    .width('100%')
+  }
+
+  @Builder
+  SystemSettings() {
+    Column() {
+      // 通用设置
+      this.SettingsSection('通用', [
+        { icon: 'ic_language', label: '语言', value: '简体中文', action: 'select' },
+        { icon: 'ic_theme', label: '主题', value: '跟随系统', action: 'select' },
+        { icon: 'ic_font', label: '字体大小', value: '标准', action: 'select' }
+      ])
+
+      // 存储与数据
+      this.SettingsSection('存储与数据', [
+        { icon: 'ic_cache', label: '清除缓存', value: '126MB', action: 'action' },
+        { icon: 'ic_download', label: '下载管理', value: '', action: 'navigate' },
+        { icon: 'ic_backup', label: '数据备份', value: '', action: 'navigate' }
+      ])
+
+      // 关于
+      this.SettingsSection('关于', [
+        { icon: 'ic_info', label: '版本信息', value: 'v1.0.0', action: 'view' },
+        { icon: 'ic_update', label: '检查更新', value: '', action: 'action' },
+        { icon: 'ic_agreement', label: '用户协议', value: '', action: 'navigate' },
+        { icon: 'ic_privacy', label: '隐私政策', value: '', action: 'navigate' }
+      ])
+    }
+    .width('100%')
+  }
+
+  @Builder
+  SettingsSection(title: string, items: any[]) {
+    Column() {
+      Text(title)
+        .fontSize(12)
+        .fontColor('#999999')
+        .width('100%')
+        .padding({ left: 4, bottom: 8 })
+
+      Column() {
+        ForEach(items, (item: any, index: number) => {
           Row() {
-            Text(item.icon)
-              .fontSize(20)
-              .width(32)
+            Image($r(`app.media.${item.icon}`))
+              .width(20)
+              .height(20)
+              .margin({ right: 12 })
+              .opacity(0.6)
 
-            Column() {
-              Text(item.title)
-                .fontSize(15)
-                .fontColor('#333333')
+            Text(item.label)
+              .fontSize(14)
+              .fontColor('#333333')
+              .layoutWeight(1)
 
-              Text(item.subtitle)
+            if (item.value) {
+              Text(item.value)
                 .fontSize(12)
                 .fontColor('#999999')
-                .margin({ top: 2 })
+                .margin({ right: 8 })
             }
-            .alignItems(HorizontalAlign.Start)
-            .layoutWeight(1)
-            .margin({ left: 8 })
 
-            if (item.type === 'switch') {
-              Toggle({ type: ToggleType.Switch, isOn: item.value })
-                .selectedColor('#1890FF')
-                .onChange((isOn: boolean) => {
-                  if (item.onChange) {
-                    item.onChange(isOn)
-                  }
-                })
-            } else if (item.type === 'arrow') {
-              Text('>')
-                .fontSize(16)
-                .fontColor('#CCCCCC')
-            }
+            Image($r('app.media.ic_arrow_right'))
+              .width(16)
+              .height(16)
+              .opacity(0.5)
           }
           .width('100%')
-          .padding(12)
+          .padding({ top: 14, bottom: 14 })
+          .onClick(() => {
+            // 处理设置项点击
+          })
 
           if (index < items.length - 1) {
-            Divider().color('#F0F0F0')
+            Divider()
+              .strokeWidth(0.5)
+              .color('#F0F0F0')
           }
         })
       }
       .width('100%')
+      .padding({ left: 12, right: 12 })
       .backgroundColor('#FFFFFF')
       .borderRadius(12)
-      .padding(4)
     }
     .width('100%')
     .margin({ bottom: 16 })
+  }
+
+  @Builder
+  LogoutButton() {
+    Button('退出登录')
+      .width('90%')
+      .height(48)
+      .backgroundColor('#FFFFFF')
+      .fontColor('#F56C6C')
+      .borderRadius(24)
+      .border({ width: 1, color: '#F56C6C' })
+      .margin({ bottom: 16 })
+      .onClick(() => {
+        // 退出登录
+        router.clear();
+        // 跳转到登录页
+      })
   }
 }

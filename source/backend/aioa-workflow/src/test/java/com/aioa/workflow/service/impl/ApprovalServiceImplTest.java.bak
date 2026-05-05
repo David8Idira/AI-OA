@@ -1,0 +1,398 @@
+package com.aioa.workflow.service.impl;
+
+import com.aioa.common.exception.BusinessException;
+import com.aioa.system.entity.SysUser;
+import com.aioa.workflow.dto.ApprovalActionDTO;
+import com.aioa.workflow.dto.ApprovalQueryDTO;
+import com.aioa.workflow.dto.CreateApprovalDTO;
+import com.aioa.workflow.entity.Approval;
+import com.aioa.workflow.entity.ApprovalRecord;
+import com.aioa.workflow.enums.ApprovalActionEnum;
+import com.aioa.workflow.enums.ApprovalPriorityEnum;
+import com.aioa.workflow.enums.ApprovalStatusEnum;
+import com.aioa.workflow.mapper.ApprovalMapper;
+import com.aioa.workflow.mapper.ApprovalRecordMapper;
+import com.aioa.workflow.service.ApprovalRecordService;
+import com.aioa.workflow.vo.ApprovalVO;
+import com.aioa.workflow.vo.PageResult;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+/**
+ * ApprovalServiceImpl 单元测试
+ * 毛泽东思想指导：实事求是，测试审批服务
+ */
+@ExtendWith(MockitoExtension.class)
+@DisplayName("ApprovalServiceImplTest 单元测试")
+class ApprovalServiceImplTest {
+
+    @Mock
+    private ApprovalMapper approvalMapper;
+
+    @Mock
+    private ApprovalRecordMapper approvalRecordMapper;
+
+    @Mock
+    private ApprovalRecordService approvalRecordService;
+
+    @Mock
+    private com.aioa.system.mapper.SysUserMapper sysUserMapper;
+
+    private ApprovalServiceImpl approvalService;
+
+    @BeforeEach
+    void setUp() {
+        approvalService = new ApprovalServiceImpl(approvalRecordService);
+        ReflectionTestUtils.setField(approvalService, "baseMapper", approvalMapper);
+        ReflectionTestUtils.setField(approvalService, "sysUserMapper", sysUserMapper);
+    }
+
+    private SysUser createUser(String id, String username, String nickname, String deptId) {
+        SysUser user = new SysUser();
+        user.setId(id);
+        user.setUsername(username);
+        user.setNickname(nickname);
+        user.setDeptId(deptId);
+        user.setStatus(1);
+        return user;
+    }
+
+    private Approval createApproval(String id, String title, String type, Integer status,
+                                     String applicantId, String applicantName, 
+                                     String approverId, String approverName) {
+        Approval approval = new Approval();
+        approval.setId(id);
+        approval.setTitle(title);
+        approval.setType(type);
+        approval.setStatus(status);
+        approval.setPriority(ApprovalPriorityEnum.NORMAL.getCode());
+        approval.setApplicantId(applicantId);
+        approval.setApplicantName(applicantName);
+        approval.setApproverId(approverId);
+        approval.setApproverName(approverName);
+        approval.setCurrentStep(1);
+        approval.setTotalSteps(1);
+        approval.setCreateTime(LocalDateTime.now());
+        return approval;
+    }
+
+    @Test
+    @DisplayName("创建审批 - 申请人不存在抛出异常")
+    void createApproval_withNonExistingApplicant_shouldThrowException() {
+        // given
+        CreateApprovalDTO dto = new CreateApprovalDTO();
+        dto.setTitle("测试审批");
+        dto.setType("LEAVE");
+        dto.setContent("测试内容");
+        dto.setPriority(1);
+        dto.setApproverId("approver-001");
+
+        when(sysUserMapper.selectById("applicant-001")).thenReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> approvalService.createApproval("applicant-001", dto))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("创建审批 - 审批人不存在抛出异常")
+    void createApproval_withNonExistingApprover_shouldThrowException() {
+        // given
+        CreateApprovalDTO dto = new CreateApprovalDTO();
+        dto.setTitle("测试审批");
+        dto.setType("LEAVE");
+        dto.setContent("测试内容");
+        dto.setPriority(1);
+        dto.setApproverId("approver-001");
+
+        when(sysUserMapper.selectById("applicant-001")).thenReturn(createUser("applicant-001", "applicant", "申请人", "dept-001"));
+        when(sysUserMapper.selectById("approver-001")).thenReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> approvalService.createApproval("applicant-001", dto))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("创建审批 - 成功创建审批")
+    void createApproval_withValidData_shouldCreateApproval() {
+        // given
+        CreateApprovalDTO dto = new CreateApprovalDTO();
+        dto.setTitle("请假申请");
+        dto.setType("LEAVE");
+        dto.setContent("因病需要请假");
+        dto.setPriority(1);
+        dto.setApproverId("approver-001");
+
+        SysUser applicant = createUser("applicant-001", "applicant", "申请人", "dept-001");
+        SysUser approver = createUser("approver-001", "approver", "审批人", "dept-001");
+
+        when(sysUserMapper.selectById("applicant-001")).thenReturn(applicant);
+        when(sysUserMapper.selectById("approver-001")).thenReturn(approver);
+        when(approvalMapper.insert(any(Approval.class))).thenReturn(1);
+        when(approvalRecordService.createRecord(anyString(), anyString(), anyString(), anyInt(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ApprovalRecord());
+
+        // when
+        ApprovalVO result = approvalService.createApproval("applicant-001", dto);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getTitle()).isEqualTo("请假申请");
+        verify(approvalMapper, times(1)).insert(any(Approval.class));
+    }
+
+    @Test
+    @DisplayName("获取审批详情 - 审批不存在抛出异常")
+    void getApprovalDetail_withNonExistingApproval_shouldThrowException() {
+        // given
+        when(approvalMapper.selectById("non-existing")).thenReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> approvalService.getApprovalDetail("non-existing", "user-001"))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("获取审批详情 - 无权限抛出异常")
+    void getApprovalDetail_withoutPermission_shouldThrowException() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE", 
+                ApprovalStatusEnum.PENDING.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+
+        // when & then - user-002 is neither applicant nor approver nor CC
+        assertThatThrownBy(() -> approvalService.getApprovalDetail("approval-001", "user-002"))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("获取审批详情 - 申请人查看成功")
+    void getApprovalDetail_byApplicant_shouldSucceed() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.PENDING.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+        when(approvalRecordService.getRecordsByApprovalId("approval-001")).thenReturn(new ArrayList<>());
+
+        // when
+        ApprovalVO result = approvalService.getApprovalDetail("approval-001", "applicant-001");
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo("approval-001");
+    }
+
+    @Test
+    @DisplayName("查询审批列表 - 我的申请模式")
+    void queryApprovals_withMyApplyMode_shouldFilterByApplicant() {
+        // given
+        ApprovalQueryDTO query = new ApprovalQueryDTO();
+        query.setMode("MY_APPLY");
+        query.setPageNum(1);
+        query.setPageSize(10);
+
+        List<Approval> approvals = List.of(
+                createApproval("approval-001", "审批1", "LEAVE", ApprovalStatusEnum.PENDING.getCode(),
+                        "user-001", "用户", "approver-001", "审批人")
+        );
+
+        Page<Approval> page = new Page<>(1, 10);
+        IPage<Approval> resultPage = new Page<>(1, 10);
+        resultPage.setRecords(approals);
+        resultPage.setTotal(1);
+
+        when(approvalMapper.page(any(Page.class), any(LambdaQueryWrapper.class))).thenReturn(resultPage);
+
+        // when
+        PageResult<ApprovalVO> result = approvalService.queryApprovals("user-001", query);
+
+        // then
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    @DisplayName("执行审批操作 - 审批人不匹配抛出异常")
+    void doAction_withNonApprover_shouldThrowException() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.PENDING.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+
+        ApprovalActionDTO actionDto = new ApprovalActionDTO();
+        actionDto.setActionType(ApprovalActionEnum.APPROVE.getCode());
+        actionDto.setComment("同意");
+
+        // when & then - user-002 is not the approver
+        assertThatThrownBy(() -> approvalService.doAction("approval-001", "user-002", actionDto))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("执行审批操作 - 非待审批状态抛出异常")
+    void doAction_withNonPendingStatus_shouldThrowException() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.APPROVED.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+
+        ApprovalActionDTO actionDto = new ApprovalActionDTO();
+        actionDto.setActionType(ApprovalActionEnum.APPROVE.getCode());
+
+        // when & then
+        assertThatThrownBy(() -> approvalService.doAction("approval-001", "approver-001", actionDto))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("执行审批操作 - 同意操作成功")
+    void doAction_withApprove_shouldSucceed() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.PENDING.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+        when(sysUserMapper.selectById("approver-001")).thenReturn(createUser("approver-001", "approver", "审批人", "dept-001"));
+        when(approvalMapper.updateById(any(Approval.class))).thenReturn(1);
+        when(approvalRecordService.getRecordsByApprovalId("approval-001")).thenReturn(new ArrayList<>());
+
+        ApprovalActionDTO actionDto = new ApprovalActionDTO();
+        actionDto.setActionType(ApprovalActionEnum.APPROVE.getCode());
+        actionDto.setComment("同意");
+
+        // when
+        ApprovalVO result = approvalService.doAction("approval-001", "approver-001", actionDto);
+
+        // then
+        assertThat(result).isNotNull();
+        verify(approvalMapper, times(1)).updateById(any(Approval.class));
+    }
+
+    @Test
+    @DisplayName("执行审批操作 - 驳回操作成功")
+    void doAction_withReject_shouldSucceed() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.PENDING.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+        when(sysUserMapper.selectById("approver-001")).thenReturn(createUser("approver-001", "approver", "审批人", "dept-001"));
+        when(approvalMapper.updateById(any(Approval.class))).thenReturn(1);
+        when(approvalRecordService.getRecordsByApprovalId("approval-001")).thenReturn(new ArrayList<>());
+
+        ApprovalActionDTO actionDto = new ApprovalActionDTO();
+        actionDto.setActionType(ApprovalActionEnum.REJECT.getCode());
+        actionDto.setComment("材料不全");
+
+        // when
+        ApprovalVO result = approvalService.doAction("approval-001", "approver-001", actionDto);
+
+        // then
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    @DisplayName("撤回审批 - 非申请人抛出异常")
+    void cancelApproval_withNonApplicant_shouldThrowException() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.PENDING.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+
+        // when & then - user-002 is not the applicant
+        assertThatThrownBy(() -> approvalService.cancelApproval("approval-001", "user-002", "原因"))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("撤回审批 - 非待审批状态抛出异常")
+    void cancelApproval_withNonPendingStatus_shouldThrowException() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.APPROVED.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+
+        // when & then
+        assertThatThrownBy(() -> approvalService.cancelApproval("approval-001", "applicant-001", "原因"))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("撤回审批 - 成功撤回")
+    void cancelApproval_withValidData_shouldSucceed() {
+        // given
+        Approval approval = createApproval("approval-001", "测试审批", "LEAVE",
+                ApprovalStatusEnum.PENDING.getCode(), "applicant-001", "申请人", "approver-001", "审批人");
+        when(approvalMapper.selectById("approval-001")).thenReturn(approval);
+        when(sysUserMapper.selectById("applicant-001")).thenReturn(createUser("applicant-001", "applicant", "申请人", "dept-001"));
+        when(approvalMapper.updateById(any(Approval.class))).thenReturn(1);
+        when(approvalRecordService.createRecord(anyString(), anyString(), anyString(), anyInt(), anyString(), anyInt(), anyInt()))
+                .thenReturn(new ApprovalRecord());
+
+        // when
+        boolean result = approvalService.cancelApproval("approval-001", "applicant-001", "不需审批了");
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("获取待审批列表 - 正常场景")
+    void getPendingApprovals_shouldReturnPendingList() {
+        // given
+        Page<Approval> page = new Page<>(1, 10);
+        IPage<Approval> resultPage = new Page<>(1, 10);
+        resultPage.setRecords(new ArrayList<>());
+        resultPage.setTotal(0);
+        when(approvalMapper.page(any(Page.class), any(LambdaQueryWrapper.class))).thenReturn(resultPage);
+
+        // when
+        PageResult<ApprovalVO> result = approvalService.getPendingApprovals("approver-001", 1, 10);
+
+        // then
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    @DisplayName("统计待审批数量 - 正常场景")
+    void countPending_shouldReturnCount() {
+        // given
+        when(approvalMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(5L);
+
+        // when
+        Long result = approvalService.countPending("approver-001");
+
+        // then
+        assertThat(result).isEqualTo(5L);
+    }
+
+    @Test
+    @DisplayName("获取统计数据 - 正常场景")
+    void getStatistics_shouldReturnStats() {
+        // given
+        when(approvalMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(10L);
+
+        // when
+        Map<String, Object> result = approvalService.getStatistics("user-001");
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result).containsKey("totalMyApply");
+    }
+}

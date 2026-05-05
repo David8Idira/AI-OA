@@ -1,203 +1,387 @@
-import router from '@ohos.router'
+/**
+ * Employee List Page - 员工列表页面
+ */
+import router from '@ohos.router';
+import { EmployeeInfo, DepartmentInfo } from '../../model/hr/HrModel';
+import { hrService } from '../../service/HrService';
 
-interface Employee {
-  id: string
-  name: string
-  avatar: string
-  dept: string
-  position: string
-  phone: string
-  email: string
-  status: string
-}
-
-class EmployeeListState {
-  employees: Employee[] = []
-  loading: boolean = false
-  searchText: string = ''
-  selectedDept: string = '全部'
-}
-
-@Entry
 @Component
-struct EmployeeList {
-  @State state: EmployeeListState = new EmployeeListState()
-  private scrollController: Scroller = new Scroller()
+export struct EmployeeList {
+  @State employees: EmployeeInfo[] = [];
+  @State departments: DepartmentInfo[] = [];
+  @State loading: boolean = false;
+  @State currentPage: number = 1;
+  @State pageSize: number = 10;
+  @State total: number = 0;
 
-  private departments: string[] = ['全部', '技术部', '市场部', '财务部', '人力资源部', '行政部']
+  @State filterNo: string = '';
+  @State filterName: string = '';
+  @State filterPhone: string = '';
+  @State filterDepartment: string = '';
+  @State filterStatus: string = '';
+  @State filterEmployeeStatus: string = '';
+
+  private scroller: Scroller = new Scroller();
 
   aboutToAppear() {
-    this.loadEmployees()
+    this.loadEmployees();
+    this.loadDepartments();
   }
 
-  async loadEmployees(): Promise<void> {
-    this.state.loading = true
-    setTimeout(() => {
-      this.state.employees = [
-        { id: '1', name: '张三', avatar: '👨', dept: '技术部', position: '高级工程师', phone: '13800138001', email: 'zhangsan@company.com', status: '在职' },
-        { id: '2', name: '李四', avatar: '👩', dept: '市场部', position: '市场经理', phone: '13800138002', email: 'lisi@company.com', status: '在职' },
-        { id: '3', name: '王五', avatar: '👨', dept: '财务部', position: '财务主管', phone: '13800138003', email: 'wangwu@company.com', status: '在职' },
-        { id: '4', name: '赵六', avatar: '👩', dept: '人力资源部', position: 'HR专员', phone: '13800138004', email: 'zhaoliu@company.com', status: '在职' },
-        { id: '5', name: '钱七', avatar: '👨', dept: '技术部', position: '架构师', phone: '13800138005', email: 'qianqi@company.com', status: '在职' },
-        { id: '6', name: '孙八', avatar: '👩', dept: '行政部', position: '行政助理', phone: '13800138006', email: 'sunba@company.com', status: '在职' },
-        { id: '7', name: '周九', avatar: '👨', dept: '技术部', position: '工程师', phone: '13800138007', email: 'zhoujiu@company.com', status: '出差' },
-        { id: '8', name: '吴十', avatar: '👩', dept: '市场部', position: '市场专员', phone: '13800138008', email: 'wushi@company.com', status: '在职' }
-      ]
-      this.state.loading = false
-    }, 500)
+  loadEmployees() {
+    this.loading = true;
+    hrService.getEmployeeList({
+      pageNum: this.currentPage,
+      pageSize: this.pageSize,
+      employeeNo: this.filterNo,
+      name: this.filterName,
+      phone: this.filterPhone,
+      departmentId: this.filterDepartment,
+      employeeStatus: this.filterEmployeeStatus,
+      status: this.filterStatus
+    }).then((result) => {
+      this.employees = result.records;
+      this.total = result.total;
+    }).catch(() => {
+      // 处理错误
+    }).finally(() => {
+      this.loading = false;
+    });
   }
 
-  private getFilteredEmployees(): Employee[] {
-    return this.state.employees.filter(emp => {
-      const matchDept = this.state.selectedDept === '全部' || emp.dept === this.state.selectedDept
-      const matchSearch = emp.name.includes(this.state.searchText) || emp.dept.includes(this.state.searchText) || emp.position.includes(this.state.searchText)
-      return matchDept && matchSearch
-    })
-  }
-
-  private getStatusColor(status: string): string {
-    switch (status) {
-      case '在职': return '#52C41A'
-      case '出差': return '#FAAD14'
-      case '离职': return '#FF4D4F'
-      default: return '#999999'
-    }
+  loadDepartments() {
+    hrService.getDepartmentList().then((depts) => {
+      this.departments = depts;
+    }).catch(() => {
+      // 处理错误
+    });
   }
 
   build() {
     Column() {
-      // 顶部导航
-      Row() {
-        Text('员工列表')
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#333333')
-      }
-      .width('100%')
-      .height(56)
-      .padding({ left: 16 })
-      .backgroundColor('#FFFFFF')
-      .shadow({ radius: 4, color: '#10000000', offsetX: 0, offsetY: 2 })
+      // 顶部操作栏
+      this.TopActions()
 
-      // 搜索框
-      Row() {
-        TextInput({ placeholder: '搜索员工姓名/部门/职位' })
-          .width('100%')
-          .height(40)
-          .backgroundColor('#F5F5F5')
-          .borderRadius(20)
-          .placeholderColor('#999999')
-          .onChange((val: string) => {
-            this.state.searchText = val
-          })
-      }
-      .width('100%')
-      .padding(16)
-
-      // 部门筛选
-      Scroll() {
-        Row() {
-          ForEach(this.departments, (dept: string) => {
-            Text(dept)
-              .fontSize(13)
-              .fontColor(this.state.selectedDept === dept ? '#FFFFFF' : '#666666')
-              .backgroundColor(this.state.selectedDept === dept ? '#1890FF' : '#E6E6E6')
-              .borderRadius(16)
-              .padding({ left: 14, right: 14, top: 6, bottom: 6 })
-              .margin({ right: 8 })
-              .onClick(() => {
-                this.state.selectedDept = dept
-              })
-          })
-        }
-      }
-      .width('100%')
-      .padding({ left: 16, right: 16 })
-      .scrollable(ScrollDirection.Horizontal)
-      .scrollBar(BarState.Off)
+      // 筛选区域
+      this.FilterArea()
 
       // 员工列表
-      Scroll(this.scrollController) {
-        Column() {
-          if (this.state.loading) {
-            Row() {
-              Text('加载中...')
-                .fontSize(14)
-                .fontColor('#999999')
-            }
-            .width('100%')
-            .padding(40)
-          } else {
-            Text(`共 ${this.getFilteredEmployees().length} 名员工`)
-              .fontSize(12)
-              .fontColor('#999999')
-              .alignSelf(HorizontalAlign.Start)
-              .margin({ bottom: 12, left: 4 })
-
-            ForEach(this.getFilteredEmployees(), (emp: Employee) => {
-              this.buildEmployeeItem(emp)
-            })
-          }
-        }
-        .padding(16)
-      }
-      .width('100%')
-      .layoutWeight(1)
-      .backgroundColor('#F5F5F5')
+      this.EmployeeListContent()
     }
     .width('100%')
     .height('100%')
+    .backgroundColor('#F5F7FA')
   }
 
   @Builder
-  buildEmployeeItem(emp: Employee) {
+  TopActions() {
     Row() {
-      Text(emp.avatar)
-        .fontSize(36)
-        .width(50)
-        .height(50)
-        .backgroundColor('#F0F5FF')
-        .borderRadius(25)
-        .textAlign(TextAlign.Center)
+      Text('员工管理')
+        .fontSize(18)
+        .fontWeight(FontWeight.Bold)
+
+      Blank()
+
+      Button('新增')
+        .height(32)
+        .fontSize(14)
+        .backgroundColor('#667EEA')
+        .borderRadius(16)
+        .onClick(() => {
+          // 新增员工
+        })
+
+      Button('导出')
+        .height(32)
+        .fontSize(14)
+        .backgroundColor('#FFFFFF')
+        .fontColor('#667EEA')
+        .border({ width: 1, color: '#667EEA', radius: 16 })
+        .margin({ left: 8 })
+        .onClick(() => {
+          // 导出
+        })
+
+      Button('刷新')
+        .height(32)
+        .fontSize(14)
+        .backgroundColor('#FFFFFF')
+        .fontColor('#666666')
+        .border({ width: 1, color: '#E8E8E8', radius: 16 })
+        .onClick(() => {
+          this.loadEmployees();
+        })
+    }
+    .width('100%')
+    .height(56)
+    .padding({ left: 16, right: 16 })
+    .backgroundColor('#FFFFFF')
+  }
+
+  @Builder
+  FilterArea() {
+    Column() {
+      Row() {
+        TextInput({ placeholder: '员工编号' })
+          .width('22%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#F5F7FA')
+          .onChange((value: string) => {
+            this.filterNo = value;
+          })
+
+        TextInput({ placeholder: '员工姓名' })
+          .width('22%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#F5F7FA')
+          .margin({ left: 8 })
+          .onChange((value: string) => {
+            this.filterName = value;
+          })
+
+        TextInput({ placeholder: '手机号' })
+          .width('22%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#F5F7FA')
+          .margin({ left: 8 })
+          .onChange((value: string) => {
+            this.filterPhone = value;
+          })
+
+        Select(this.departments.map(d => d.departmentName))
+          .width('20%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#F5F7FA')
+          .margin({ left: 8 })
+          .onSelect((index: number) => {
+            this.filterDepartment = this.departments[index]?.id || '';
+          })
+      }
+      .width('100%')
+
+      Row() {
+        Select(['全部', '试用', '正式', '离职'].map(s => s))
+          .width('22%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#F5F7FA')
+          .onSelect((index: number) => {
+            this.filterEmployeeStatus = index === 0 ? '' : ['1', '2', '3'][index - 1];
+          })
+
+        Select(['全部', '启用', '禁用'].map(s => s))
+          .width('22%')
+          .height(36)
+          .borderRadius(8)
+          .backgroundColor('#F5F7FA')
+          .margin({ left: 8 })
+          .onSelect((index: number) => {
+            this.filterStatus = index === 0 ? '' : ['1', '0'][index - 1];
+          })
+
+        Blank()
+
+        Button('查询')
+          .height(36)
+          .width(80)
+          .backgroundColor('#667EEA')
+          .borderRadius(8)
+          .onClick(() => {
+            this.currentPage = 1;
+            this.loadEmployees();
+          })
+
+        Button('重置')
+          .height(36)
+          .width(80)
+          .backgroundColor('#FFFFFF')
+          .fontColor('#666666')
+          .border({ width: 1, color: '#E8E8E8', radius: 8 })
+          .margin({ left: 8 })
+          .onClick(() => {
+            this.filterNo = '';
+            this.filterName = '';
+            this.filterPhone = '';
+            this.filterDepartment = '';
+            this.filterEmployeeStatus = '';
+            this.filterStatus = '';
+            this.currentPage = 1;
+            this.loadEmployees();
+          })
+      }
+      .width('100%')
+      .margin({ top: 12 })
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor('#FFFFFF')
+    .margin({ bottom: 12 })
+  }
+
+  @Builder
+  EmployeeListContent() {
+    Column() {
+      if (this.loading) {
+        LoadingProgress()
+          .width(40)
+          .height(40)
+          .color('#667EEA')
+      } else {
+        List(this.scroller) {
+          ForEach(this.employees, (employee: EmployeeInfo) => {
+            ListItem() {
+              this.EmployeeCard(employee)
+            }
+          })
+        }
+        .width('100%')
+        .layoutWeight(1)
+        .scrollBar(BarState.Auto)
+        .edgeEffect(EdgeEffect.Spring)
+
+        this.Pagination()
+      }
+    }
+    .width('100%')
+    .layoutWeight(1)
+    .padding({ left: 16, right: 16 })
+  }
+
+  @Builder
+  EmployeeCard(employee: EmployeeInfo) {
+    Row() {
+      // 头像
+      Column() {
+        Text(employee.name?.substring(0, 1) || '?')
+          .fontSize(20)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#FFFFFF')
+          .width(48)
+          .height(48)
+          .backgroundColor('#667EEA')
+          .borderRadius(24)
+          .textAlign(TextAlign.Center)
+      }
+      .width(60)
 
       Column() {
         Row() {
-          Text(emp.name)
+          Text(employee.name || '-')
             .fontSize(16)
             .fontWeight(FontWeight.Medium)
-            .fontColor('#333333')
 
-          Text(emp.status)
-            .fontSize(11)
-            .fontColor('#FFFFFF')
-            .backgroundColor(this.getStatusColor(emp.status))
-            .borderRadius(8)
-            .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-            .margin({ left: 8 })
+          Text(employee.employeeNo || '')
+            .fontSize(12)
+            .fontColor('#999999')
+            .margin({ left: 12 })
         }
+        .width('100%')
 
-        Text(`${emp.dept} · ${emp.position}`)
-          .fontSize(12)
-          .fontColor('#666666')
-          .margin({ top: 4 })
+        Row() {
+          Text(employee.departmentName || '-')
+            .fontSize(12)
+            .fontColor('#666666')
 
-        Text(`${emp.phone} | ${emp.email}`)
-          .fontSize(11)
-          .fontColor('#999999')
-          .margin({ top: 2 })
+          Text(employee.phone || '-')
+            .fontSize(12)
+            .fontColor('#666666')
+            .margin({ left: 16 })
+        }
+        .margin({ top: 6 })
+        .width('100%')
+
+        Row() {
+          Text(this.getEmployeeStatusText(employee.employeeStatus))
+            .fontSize(12)
+            .fontColor(this.getEmployeeStatusColor(employee.employeeStatus))
+            .backgroundColor(this.getEmployeeStatusBgColor(employee.employeeStatus))
+            .padding({ left: 8, right: 8, top: 2, bottom: 2 })
+            .borderRadius(4)
+            .margin({ right: 8 })
+
+          if (employee.status === 1) {
+            Text('已启用')
+              .fontSize(12)
+              .fontColor('#67C23A')
+              .backgroundColor('#F0F9EB')
+              .padding({ left: 8, right: 8, top: 2, bottom: 2 })
+              .borderRadius(4)
+          }
+        }
+        .margin({ top: 6 })
       }
-      .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
-      .margin({ left: 12 })
+      .padding({ left: 12 })
 
-      Text('>')
-        .fontSize(16)
-        .fontColor('#CCCCCC')
+      Image($r('app.media.ic_arrow_right'))
+        .width(20)
+        .height(20)
+        .opacity(0.5)
     }
     .width('100%')
     .padding(16)
     .backgroundColor('#FFFFFF')
     .borderRadius(12)
     .margin({ bottom: 12 })
+    .onClick(() => {
+      // 查看员工详情
+    })
+  }
+
+  @Builder
+  Pagination() {
+    Row() {
+      Text(`共 ${this.total} 条`)
+        .fontSize(12)
+        .fontColor('#999999')
+        .layoutWeight(1)
+
+      Button('上一页')
+        .height(32)
+        .fontSize(12)
+        .enabled(this.currentPage > 1)
+        .onClick(() => {
+          this.currentPage--;
+          this.loadEmployees();
+        })
+
+      Text(`${this.currentPage}/${Math.ceil(this.total / this.pageSize)}`)
+        .fontSize(12)
+        .margin({ left: 12, right: 12 })
+
+      Button('下一页')
+        .height(32)
+        .fontSize(12)
+        .enabled(this.currentPage < Math.ceil(this.total / this.pageSize))
+        .onClick(() => {
+          this.currentPage++;
+          this.loadEmployees();
+        })
+    }
+    .width('100%')
+    .height(48)
+    .padding({ left: 16, right: 16 })
+    .alignItems(VerticalAlign.Center)
+    .backgroundColor('#FFFFFF')
+    .margin({ top: 12 })
+  }
+
+  getEmployeeStatusText(status: string): string {
+    const map: Record<string, string> = { '1': '试用', '2': '正式', '3': '离职' };
+    return map[status] || '未知';
+  }
+
+  getEmployeeStatusColor(status: string): string {
+    const map: Record<string, string> = { '1': '#E6A23C', '2': '#67C23A', '3': '#909399' };
+    return map[status] || '#999999';
+  }
+
+  getEmployeeStatusBgColor(status: string): string {
+    const map: Record<string, string> = { '1': '#FDF6EC', '2': '#F0F9EB', '3': '#F4F4F5' };
+    return map[status] || '#F5F7FA';
   }
 }
