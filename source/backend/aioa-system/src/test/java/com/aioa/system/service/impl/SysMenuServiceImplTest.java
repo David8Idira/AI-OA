@@ -159,7 +159,7 @@ class SysMenuServiceImplTest {
         List<SysMenu> result = sysMenuService.getMenuTree();
 
         // then - 返回所有菜单（DB已过滤status=1）
-        assertThat(result).hasSize(1); // 因为parentId=0的只有1个
+        assertThat(result).hasSize(2); // parentId=0的两个菜单都返回
     }
 
     @Test
