@@ -1,0 +1,48 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: aioa-asset-test
+
+  # Use H2 for testing
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    username: sa
+    password:
+
+  # MyBatis Plus configuration for H2
+  mybatis-plus:
+    configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    global-config:
+      db-config:
+        id-type: auto
+        logic-delete-field: deleted
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+
+  # Disable Redis for tests
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+# AIOA Asset Configuration for tests
+aioa:
+  asset:
+    label:
+      prefix: "AI-"
+      qr-content-template: "https://aioa.example.com/asset/{code}"
+      barcode-format: "CODE128"
+
+# Logging
+logging:
+  level:
+    com.aioa.asset: DEBUG
+    com.baomidou.mybatisplus: DEBUG
