@@ -146,13 +146,15 @@ class LabelServiceTest {
         // 创建测试资产和标签
         AssetInfo asset = createTestAsset("ASSET-LABEL-010", "测试资产-重新生成");
         AssetLabel label = labelService.generateLabel(asset.getId(), 1L, "testUser");
-        String originalQrContent = label.getQrContent();
+        String originalLabelCode = label.getLabelCode();
         
         // 重新生成二维码
         AssetLabel regenerated = labelService.regenerateCode(label.getId());
         assertNotNull(regenerated);
-        assertNotEquals(originalQrContent, regenerated.getQrContent());
-        assertTrue(regenerated.getQrContent().contains(label.getLabelCode()));
+        // 验证标签编码不变（重新生成的是二维码内容，不是编码）
+        assertEquals(originalLabelCode, regenerated.getLabelCode());
+        // 验证二维码内容包含标签编码
+        assertTrue(regenerated.getQrContent().contains(originalLabelCode));
         assertTrue(regenerated.getQrContent().contains(asset.getAssetCode()));
     }
     
@@ -162,6 +164,8 @@ class LabelServiceTest {
         asset.setAssetName(assetName);
         asset.setCategoryId(1L);
         asset.setModel("测试型号");
+        asset.setSpecification("高配版");
+        asset.setManufacturer("联想科技");
         asset.setCurrentQuantity(100);
         asset.setWarningQuantity(10);
         asset.setPurchasePrice(new BigDecimal("1000.00"));

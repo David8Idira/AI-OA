@@ -50,6 +50,7 @@ class AssetInfoServiceTest {
         AssetInfo lowStockAsset = new AssetInfo();
         lowStockAsset.setAssetCode("ASSET-002");
         lowStockAsset.setAssetName("打印纸");
+        lowStockAsset.setCategoryId(1L);
         lowStockAsset.setCurrentQuantity(2);
         lowStockAsset.setWarningQuantity(5);
         lowStockAsset.setAssetStatus(1);
