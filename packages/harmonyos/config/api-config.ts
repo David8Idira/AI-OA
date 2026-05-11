@@ -83,7 +83,13 @@ export const API_ENDPOINTS = {
   
   // 考勤
   CHECKIN_RECORD: '/api/checkin/record',
-  CHECKIN_SUBMIT: '/api/checkin/submit'
+  CHECKIN_SUBMIT: '/api/checkin/submit',
+
+  // AI 对话
+  AI_CHAT: '/api/v1/ai/chat',
+  AI_CHAT_HISTORY: '/api/v1/ai/chat/history',
+  AI_CHAT_SESSIONS: '/api/v1/ai/chat/sessions',
+  AI_QUOTA: '/api/v1/ai/quota'
 } as const
 
 // 导出完整配置

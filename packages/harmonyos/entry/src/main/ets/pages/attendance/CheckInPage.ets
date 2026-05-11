@@ -1,4 +1,5 @@
 import router from '@ohos.router'
+import attendanceService from '../../../../commons/src/main/ets/services/AttendanceService'
 
 // AI-OA 考勤打卡页面
 @Entry
@@ -9,13 +10,110 @@ struct CheckInPage {
   @State hasCheckedIn: boolean = false
   @State hasCheckedOut: boolean = false
   @State currentDate: string = ''
+  @State isLoading: boolean = false
+  @State errorMsg: string = ''
+  @State canCheckIn: boolean = true
+  @State canCheckOut: boolean = false
 
   aboutToAppear() {
-    // 获取当前日期
     this.currentDate = this.getCurrentDate()
-    // 模拟已有打卡记录
-    this.checkinTime = '09:00:00'
+    this.loadTodayStatus()
+  }
+
+  async loadTodayStatus() {
+    this.isLoading = true
+    this.errorMsg = ''
+    try {
+      const res = await attendanceService.getTodayStatus()
+      if (res.code === 0 || res.code === 200) {
+        const data = res.data
+        if (data.checkInRecord) {
+          this.checkinTime = this.formatTime(data.checkInRecord.checkInTime)
+          this.hasCheckedIn = true
+          this.canCheckOut = true
+        }
+        if (data.checkOutRecord) {
+          this.checkoutTime = this.formatTime(data.checkOutRecord.checkInTime)
+          this.hasCheckedOut = true
+          this.canCheckOut = false
+        }
+        this.canCheckIn = data.canCheckIn
+      } else {
+        this.errorMsg = res.message || '加载失败'
+        // 降级：使用本地时间模拟
+        this.initLocalTime()
+      }
+    } catch (e) {
+      this.errorMsg = '网络异常，使用本地打卡模式'
+      // 降级：使用本地时间
+      this.initLocalTime()
+    } finally {
+      this.isLoading = false
+    }
+  }
+
+  private initLocalTime() {
+    const now = new Date()
+    this.checkinTime = now.toLocaleTimeString('zh-CN', { hour12: false })
     this.hasCheckedIn = true
+    this.hasCheckedOut = false
+    this.canCheckIn = false
+    this.canCheckOut = true
+  }
+
+  async doCheckIn() {
+    if (this.isLoading) return
+    this.isLoading = true
+    this.errorMsg = ''
+
+    try {
+      const now = new Date()
+      const type = (!this.hasCheckedIn) ? 'check_in' : 'check_out'
+
+      const res = await attendanceService.checkIn({
+        type: type,
+        latitude: 0,  // TODO: 获取真实位置
+        longitude: 0,
+        location: '未知位置'
+      })
+
+      if (res.code === 0 || res.code === 200) {
+        const time = now.toLocaleTimeString('zh-CN', { hour12: false })
+        if (type === 'check_in') {
+          this.checkinTime = time
+          this.hasCheckedIn = true
+          this.canCheckIn = false
+          this.canCheckOut = true
+        } else {
+          this.checkoutTime = time
+          this.hasCheckedOut = true
+          this.canCheckOut = false
+        }
+      } else {
+        // API调用失败，降级到本地模式
+        this.degradeCheckIn(type, now)
+      }
+    } catch (e) {
+      // 网络异常，降级到本地模式
+      const type = (!this.hasCheckedIn) ? 'check_in' : 'check_out'
+      this.degradeCheckIn(type, new Date())
+    } finally {
+      this.isLoading = false
+    }
+  }
+
+  private degradeCheckIn(type: string, now: Date) {
+    const time = now.toLocaleTimeString('zh-CN', { hour12: false })
+    if (type === 'check_in') {
+      this.checkinTime = time
+      this.hasCheckedIn = true
+      this.canCheckIn = false
+      this.canCheckOut = true
+    } else {
+      this.checkoutTime = time
+      this.hasCheckedOut = true
+      this.canCheckOut = false
+    }
   }
 
   build() {
@@ -31,6 +129,17 @@ struct CheckInPage {
         .fontSize(16)
         .fontColor('#666666')
         .margin({ top: 8 })
+
+      // 错误提示
+      if (this.errorMsg) {
+        Text('⚠️ ' + this.errorMsg)
+          .fontSize(12)
+          .fontColor('#FA8C16')
+          .backgroundColor('#FFF7E6')
+          .padding(8)
+          .borderRadius(8)
+          .margin({ top: 8 })
+      }
 
       // 打卡卡片
       Column() {
@@ -82,15 +191,23 @@ struct CheckInPage {
         .width('100%')
 
         // 打卡按钮
-        Button(this.hasCheckedIn && !this.hasCheckedOut ? '下班打卡' : '上班打卡')
-          .width('60%')
-          .height(48)
-          .margin({ top: 30 })
-          .borderRadius(24)
-          .backgroundColor('#1890FF')
-          .onClick(() => {
-            this.doCheckIn()
-          })
+        if (this.isLoading) {
+          LoadingProgress()
+            .width(32)
+            .height(32)
+            .margin({ top: 30 })
+        } else {
+          Button(this.hasCheckedIn && !this.hasCheckedOut ? '下班打卡' : '上班打卡')
+            .width('60%')
+            .height(48)
+            .margin({ top: 30 })
+            .borderRadius(24)
+            .backgroundColor(this.canCheckIn || this.canCheckOut ? '#1890FF' : '#CCCCCC')
+            .enabled(this.canCheckIn || this.canCheckOut)
+            .onClick(() => {
+              this.doCheckIn()
+            })
+        }
       }
       .width('90%')
       .backgroundColor('#FFFFFF')
@@ -135,17 +252,9 @@ struct CheckInPage {
     .backgroundColor('#F5F5F5')
   }
 
-  private doCheckIn() {
-    const now = new Date()
-    const time = now.toLocaleTimeString('zh-CN', { hour12: false })
-    
-    if (!this.hasCheckedIn) {
-      this.checkinTime = time
-      this.hasCheckedIn = true
-    } else if (!this.hasCheckedOut) {
-      this.checkoutTime = time
-      this.hasCheckedOut = true
-    }
+  private formatTime(timestamp: number): string {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString('zh-CN', { hour12: false })
   }
 
   private getCurrentDate(): string {
