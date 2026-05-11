@@ -1,12 +1,15 @@
 // API配置
 export interface ApiConfig {
-  // 基础URL
   baseUrl: string
-  // 超时时间(ms)
   timeout: number
-  // 是否打印日志
   enableLog: boolean
 }
+
+// 后端服务地址（根据部署环境修改）
+// 开发环境: http://localhost:8080 (本机启动的后端)
+// Docker部署: http://localhost:30080 (通过nginx反向代理)
+// K8s部署: http://aioa-gateway.aioa-system.svc.cluster.local:8080
+const BACKEND_BASE_URL = 'https://dev-api.example.com'
 
 // 开发环境配置
 export const devConfig: ApiConfig = {
@@ -31,8 +34,10 @@ export const prodConfig: ApiConfig = {
 
 // 根据环境导出配置
 export function getApiConfig(): ApiConfig {
-  // 可以通过环境变量或配置动态选择
-  const env = 'dev' // 默认为开发环境
+  // TODO: 部署时根据实际环境修改
+  // dev: 开发环境 (本机Docker或本地服务)
+  // prod: 生产环境
+  const env = AppStorage.get<string>('api_env') || 'dev'
   switch (env) {
     case 'dev':
       return devConfig

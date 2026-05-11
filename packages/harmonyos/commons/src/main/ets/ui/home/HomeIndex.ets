@@ -69,19 +69,43 @@ struct HomeIndex {
   async loadDashboardData(): Promise<void> {
     this.state.loading = true
     try {
-      // 模拟数据加载
+      const apiClient = ApiClient
+      
+      // 并行获取多个接口数据
+      const [approvalRes, attendanceRes, messageRes] = await Promise.allSettled([
+        apiClient.get<{ total: number }>('/api/v1/approval/approvals', { pageSize: 1 }),
+        apiClient.get<{ checkedIn: boolean; checkInTime?: string; checkedOut: boolean; checkOutTime?: string }>('/api/v1/attendance/today'),
+        apiClient.get<{ unreadCount: number }>('/api/v1/notifications/count')
+      ])
+      
+      // 处理审批数据
+      if (approvalRes.status === 'fulfilled') {
+        this.state.pendingApprovals = approvalRes.value.data?.total || 0
+      }
+      
+      // 处理考勤数据
+      if (attendanceRes.status === 'fulfilled' && attendanceRes.value.data) {
+        this.state.attendanceStatus = {
+          checkedIn: attendanceRes.value.data.checkedIn || false,
+          checkedOut: attendanceRes.value.data.checkedOut || false,
+          checkInTime: attendanceRes.value.data.checkInTime,
+          checkOutTime: attendanceRes.value.data.checkOutTime
+        }
+      }
+      
+      // 处理消息数据
+      if (messageRes.status === 'fulfilled') {
+        this.state.unreadMessages = messageRes.value.data?.unreadCount || 0
+      }
+      
+      // 模拟任务数据（暂无对应接口）
+      this.state.todayTasks = 5
+    } catch (e) {
+      console.error('Failed to load dashboard data', e)
+      // 降级使用模拟数据
       this.state.todayTasks = 5
       this.state.pendingApprovals = 3
       this.state.unreadMessages = 12
-
-      // 模拟考勤状态
-      this.state.attendanceStatus = {
-        checkedIn: true,
-        checkedOut: false,
-        checkInTime: '09:00'
-      }
-    } catch (e) {
-      console.error('Failed to load dashboard data')
     } finally {
       this.state.loading = false
     }

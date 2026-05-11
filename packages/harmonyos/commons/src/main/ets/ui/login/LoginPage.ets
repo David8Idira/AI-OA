@@ -146,12 +146,13 @@ struct LoginPage {
         rememberMe: this.state.rememberMe
       }
 
-      const response = await ApiClient.post<LoginResponse>('/api/auth/login', params)
+      const response = await ApiClient.post<LoginResponse>('/api/v1/users/login', params)
       
       // 保存Token和用户信息
       AppStorage.setOrCreate('auth_token', response.data.token)
       AppStorage.setOrCreate('user_id', response.data.user.id)
       AppStorage.setOrCreate('username', response.data.user.name)
+      AppStorage.setOrCreate('user_info', JSON.stringify(response.data.user))
       
       // 跳转到主页
       router.replaceUrl({ url: 'pages/Main' })
