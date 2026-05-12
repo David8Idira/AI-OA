@@ -36,8 +36,10 @@ export struct AssetList {
     }).then((result) => {
       this.assets = result.records;
       this.total = result.total;
-    }).catch(() => {
-      // 处理错误
+    }).catch((err) => {
+      console.error('加载资产列表失败', err);
+      this.assets = [];
+      this.total = 0;
     }).finally(() => {
       this.loading = false;
     });

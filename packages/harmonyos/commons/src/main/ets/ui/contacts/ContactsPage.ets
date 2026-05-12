@@ -1,5 +1,7 @@
 // 通讯录页面
 import router from '@ohos.router'
+import { hrService } from '../../service/HrService'
+import { EmployeeInfo, DepartmentInfo } from '../../model/hr/HrModel'
 
 // 联系人模型
 interface Contact {
@@ -41,35 +43,29 @@ struct ContactsPage {
   // 加载数据
   async loadData(): Promise<void> {
     this.state.loading = true
-
-    // 模拟联系人数据
-    this.state.contacts = [
-      { id: '1', name: '张三', position: '产品经理', department: '产品部', phone: '138****0001' },
-      { id: '2', name: '李四', position: '高级工程师', department: '研发部', phone: '138****0002' },
-      { id: '3', name: '王五', position: 'UI设计师', department: '设计部', phone: '138****0003' },
-      { id: '4', name: '赵六', position: '测试工程师', department: '测试部', phone: '138****0004' },
-      { id: '5', name: '钱七', position: '项目经理', department: '项目部', phone: '138****0005' },
-      { id: '6', name: '孙八', position: '前端工程师', department: '研发部', phone: '138****0006' },
-      { id: '7', name: '周九', position: '后端工程师', department: '研发部', phone: '138****0007' },
-      { id: '8', name: '吴十', position: '运维工程师', department: '运维部', phone: '138****0008' }
-    ]
-
-    // 模拟部门数据
-    this.state.departments = [
-      { id: 'd1', name: '总经理办公室', memberCount: 3, avatar: '🏢' },
-      { id: 'd2', name: '产品部', memberCount: 15, avatar: '📱' },
-      { id: 'd3', name: '研发部', memberCount: 50, avatar: '💻' },
-      { id: 'd4', name: '设计部', memberCount: 12, avatar: '🎨' },
-      { id: 'd5', name: '测试部', memberCount: 18, avatar: '🧪' },
-      { id: 'd6', name: '运维部', memberCount: 8, avatar: '🔧' },
-      { id: 'd7', name: '市场部', memberCount: 20, avatar: '📢' },
-      { id: 'd8', name: '人力资源部', memberCount: 10, avatar: '👥' }
-    ]
-
-    // 模拟收藏联系人
-    this.state.starredContacts = this.state.contacts.slice(0, 3)
-
-    this.state.loading = false
+    try {
+      const res = await hrService.getEmployeeList({ pageNum: 1, pageSize: 100 });
+      const deptRes = await hrService.getDepartmentList();
+      this.state.contacts = res.records.map((emp: EmployeeInfo) => ({
+        id: emp.id,
+        name: emp.name,
+        position: emp.position,
+        department: emp.departmentName,
+        phone: emp.phone ? emp.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : ''
+      }));
+      this.state.departments = deptRes.map((d: DepartmentInfo) => ({
+        id: d.id,
+        name: d.departmentName,
+        memberCount: 0
+      }));
+      this.state.starredContacts = this.state.contacts.slice(0, 3);
+    } catch (error) {
+      // 使用空数据
+      this.state.contacts = [];
+      this.state.departments = [];
+      this.state.starredContacts = [];
+    }
+    this.state.loading = false;
   }
 
   build() {
