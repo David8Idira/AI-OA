@@ -26,8 +26,9 @@ export struct KnowledgeList {
       category: this.selectedCategory === '全部' ? '' : this.selectedCategory
     }).then((list) => {
       this.documents = list;
-    }).catch(() => {
-      // 处理错误
+    }).catch((err) => {
+      console.error('加载文档列表失败', err);
+      this.documents = [];
     }).finally(() => {
       this.loading = false;
     });
@@ -36,8 +37,9 @@ export struct KnowledgeList {
   loadStats() {
     knowledgeService.getKnowledgeStats().then((s) => {
       this.stats = s;
-    }).catch(() => {
-      // 处理错误
+    }).catch((err) => {
+      console.error('加载统计失败', err);
+      this.stats = { totalDocs: 0, totalViews: 0, totalLikes: 0, totalComments: 0 };
     });
   }
 

@@ -24,88 +24,27 @@ struct MessageList {
   async loadConversations(): Promise<void> {
     this.state.loading = true
     try {
-      const res = await IMService.getConversations()
-      if (res.data && res.data.conversations) {
-        // 转换服务层数据到页面模型
+      const res = await IMService.getConversations({ page: 1, pageSize: 50 })
+      if (res.data && res.data.conversations && res.data.conversations.length > 0) {
         this.state.conversations = res.data.conversations.map(c => ({
           id: c.id,
           name: c.name || '',
           avatar: c.avatar,
           type: c.type,
-          lastMessage: c.lastMessage,
-          lastMessageTime: c.lastMessageTime,
+          lastMessage: c.lastMessage?.content || '',
+          lastMessageTime: c.lastMessageTime || Date.now(),
           unreadCount: c.unreadCount,
-          isPinned: c.isPinned === 1 ? 1 : 0,
+          isPinned: c.isPinned ? 1 : 0,
           isMuted: c.isMuted
         }))
+      } else {
+        this.state.conversations = [];
       }
     } catch (error) {
-      // 使用模拟数据
-      this.state.conversations = this.getMockConversations()
+      console.error('加载会话列表失败', error);
+      this.state.conversations = [];
     }
-    this.state.loading = false
-  }
-
-  // 获取模拟会话数据
-  private getMockConversations(): Conversation[] {
-    const now = Date.now()
-    return [
-      {
-        id: 'conv1',
-        name: '张三',
-        avatar: '',
-        type: ConversationType.PRIVATE,
-        lastMessage: '好的，收到。我会准时参加。',
-        lastMessageTime: now - 1800000,
-        unreadCount: 2,
-        isPinned: 1,
-        isMuted: false
-      },
-      {
-        id: 'conv2',
-        name: '产品研发群',
-        avatar: '',
-        type: ConversationType.GROUP,
-        lastMessage: '【李四】：新版本已经在测试了',
-        lastMessageTime: now - 3600000,
-        unreadCount: 5,
-        isPinned: 0,
-        isMuted: false
-      },
-      {
-        id: 'conv3',
-        name: '王五',
-        avatar: '',
-        type: ConversationType.PRIVATE,
-        lastMessage: '下午三点会议室见',
-        lastMessageTime: now - 7200000,
-        unreadCount: 0,
-        isPinned: 0,
-        isMuted: true
-      },
-      {
-        id: 'conv4',
-        name: '系统通知',
-        avatar: '',
-        type: ConversationType.SYSTEM,
-        lastMessage: '您的请假申请已通过',
-        lastMessageTime: now - 86400000,
-        unreadCount: 1,
-        isPinned: 0,
-        isMuted: false
-      },
-      {
-        id: 'conv5',
-        name: '周七',
-        avatar: '',
-        type: ConversationType.PRIVATE,
-        lastMessage: '文件已发送，请查收',
-        lastMessageTime: now - 172800000,
-        unreadCount: 0,
-        isPinned: 0,
-        isMuted: false
-      }
-    ]
+    this.state.loading = false;
   }
 
   // 格式化时间
