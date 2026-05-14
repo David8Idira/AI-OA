@@ -1,0 +1,150 @@
+package com.aioa.workflow.vo;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * PageResult测试
+ */
+@DisplayName("PageResultTest 分页结果测试")
+class PageResultTest {
+
+    @Test
+    @DisplayName("默认构造")
+    void defaultConstructor() {
+        PageResult<String> result = new PageResult<>();
+        assertNotNull(result);
+    }
+
+    @Test
+    @DisplayName("完整构造-有数据")
+    void fullConstructor_withData() {
+        List<String> records = List.of("item1", "item2", "item3");
+        PageResult<String> result = new PageResult<>(10L, 1, 3, records);
+
+        assertEquals(10L, result.getTotal());
+        assertEquals(1, result.getPageNum());
+        assertEquals(3, result.getPageSize());
+        assertEquals(4, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertFalse(result.getHasPrev());
+        assertEquals(3, result.getRecords().size());
+    }
+
+    @Test
+    @DisplayName("完整构造-空数据")
+    void fullConstructor_empty() {
+        PageResult<String> result = new PageResult<>(0L, 1, 10, List.of());
+
+        assertEquals(0L, result.getTotal());
+        assertEquals(1, result.getPageNum());
+        assertEquals(10, result.getPageSize());
+        assertEquals(0, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertFalse(result.getHasPrev());
+        assertTrue(result.getRecords().isEmpty());
+    }
+
+    @Test
+    @DisplayName("静态of方法")
+    void ofMethod() {
+        List<Integer> records = List.of(1, 2, 3);
+        PageResult<Integer> result = PageResult.of(5L, 2, 3, records);
+
+        assertEquals(5L, result.getTotal());
+        assertEquals(2, result.getPageNum());
+        assertEquals(3, result.getPageSize());
+        assertEquals(2, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertTrue(result.getHasPrev());
+    }
+
+    @Test
+    @DisplayName("分页计算-第一页")
+    void pagination_firstPage() {
+        List<String> records = List.of("a", "b");
+        PageResult<String> result = new PageResult<>(100L, 1, 10, records);
+
+        assertEquals(10, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertFalse(result.getHasPrev());
+    }
+
+    @Test
+    @DisplayName("分页计算-中间页")
+    void pagination_middlePage() {
+        List<String> records = List.of("c", "d");
+        PageResult<String> result = new PageResult<>(100L, 5, 10, records);
+
+        assertEquals(10, result.getTotalPages());
+        assertTrue(result.getHasNext());
+        assertTrue(result.getHasPrev());
+    }
+
+    @Test
+    @DisplayName("分页计算-最后一页")
+    void pagination_lastPage() {
+        List<String> records = List.of("e", "f");
+        PageResult<String> result = new PageResult<>(95L, 10, 10, records);
+
+        assertEquals(10, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertTrue(result.getHasPrev());
+    }
+
+    @Test
+    @DisplayName("分页计算-单页")
+    void pagination_singlePage() {
+        List<String> records = List.of("only");
+        PageResult<String> result = new PageResult<>(1L, 1, 10, records);
+
+        assertEquals(1, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertFalse(result.getHasPrev());
+    }
+
+    @Test
+    @DisplayName("setters")
+    void setters() {
+        PageResult<Object> result = new PageResult<>();
+        result.setTotal(50L);
+        result.setPageNum(3);
+        result.setPageSize(20);
+        result.setTotalPages(3);
+        result.setHasNext(false);
+        result.setHasPrev(true);
+        result.setRecords(List.of());
+
+        assertEquals(50L, result.getTotal());
+        assertEquals(3, result.getPageNum());
+        assertEquals(20, result.getPageSize());
+        assertEquals(3, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertTrue(result.getHasPrev());
+    }
+
+    @Test
+    @DisplayName("零页大小处理")
+    void zeroPageSize() {
+        PageResult<String> result = new PageResult<>(10L, 1, 0, List.of());
+
+        assertEquals(0, result.getTotalPages());
+        assertFalse(result.getHasNext());
+        assertFalse(result.getHasPrev());
+    }
+
+    @Test
+    @DisplayName("大数据分页")
+    void largeDataPagination() {
+        List<Integer> records = List.of(1, 2, 3, 4, 5);
+        PageResult<Integer> result = new PageResult<>(1000000L, 99999, 5, records);
+
+        assertEquals(200000, result.getTotalPages());
+        assertTrue(result.getHasNext());
+        assertTrue(result.getHasPrev());
+    }
+}
